@@ -28,6 +28,11 @@
     </scm>
     <properties>
         <java.version>25</java.version>
+        <!-- Versiones corregidas; revisar estos overrides al actualizar Spring Boot. -->
+        <mongodb.version>5.11.1</mongodb.version>
+        <logback.version>1.6.3</logback.version>
+        <tomcat.version>11.0.26</tomcat.version>
+        <jackson-bom.version>3.1.7</jackson-bom.version>
     </properties>
     <dependencies>
         <dependency>
