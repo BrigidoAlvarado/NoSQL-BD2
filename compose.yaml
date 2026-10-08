@@ -1,4 +1,4 @@
-git gname: admisiones-usac
+name: admisiones-usac
 
 services:
   mongodb:
