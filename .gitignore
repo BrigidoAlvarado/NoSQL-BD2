@@ -38,3 +38,8 @@ frontend/.angular/
 frontend/dist/
 frontend/coverage/
 frontend/npm-debug.log*
+
+### Credenciales locales ###
+.env
+.env.*
+!.env.example
