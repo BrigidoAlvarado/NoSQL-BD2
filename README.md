@@ -31,7 +31,7 @@ La configuración utiliza la [imagen oficial de MongoDB](https://hub.docker.com/
 | Neo4j Browser | `http://localhost:7474` | Usuario `neo4j` y `NEO4J_PASSWORD` |
 | Neo4j Bolt | `bolt://localhost:7687` | Usuario `neo4j` y `NEO4J_PASSWORD` |
 
-Los puertos están publicados solo en `127.0.0.1`. Si alguno está ocupado, cambia el puerto correspondiente en `.env`. La configuración de Compose no transmite automáticamente sus variables al backend ejecutado fuera de Docker; las conexiones de Spring Boot se configurarán por separado.
+Los puertos están publicados solo en `127.0.0.1`. Si alguno está ocupado, cambia el puerto correspondiente en `.env`. Spring Boot importa el `.env` de la raíz al iniciarse desde `backend/` o desde la raíz; las variables del sistema pueden sobrescribir esos valores.
 
 Para consultar los registros o detener los servicios conservando los datos:
 
@@ -51,7 +51,23 @@ cd backend
 ./mvnw spring-boot:run
 ```
 
-En Windows utiliza `mvnw.cmd spring-boot:run`. Maven y las dependencias se descargan durante la primera ejecución. La API usa el puerto predeterminado `8080`. Las conexiones a MongoDB y Neo4j y los endpoints todavía requieren implementación y configuración.
+En Windows utiliza `mvnw.cmd spring-boot:run`. Maven y las dependencias se descargan durante la primera ejecución. La API usa el puerto predeterminado `8080`.
+
+Las conexiones usan `spring.mongodb` (Spring Boot 4) y `spring.neo4j`. MongoDB apunta por defecto a `admisiones_usac`, con autenticación en `admin`; Neo4j utiliza la base `neo4j`. Las credenciales se toman de `MONGODB_USERNAME`, `MONGODB_PASSWORD` y `NEO4J_PASSWORD`, sin contraseñas incluidas en el código. Los valores adicionales de `.env.example` permiten cambiar hosts, puertos y bases. MongoDB crea la base de la aplicación al insertar el primer documento.
+
+El `.env` se importa como archivo de propiedades Java: usa `CLAVE=valor` sin comillas, sin prefijo `export` y sin comentarios en la misma línea. Si una contraseña contiene barras invertidas, usa variables de entorno del proceso para evitar las reglas de escape del formato de propiedades. No cambies las credenciales locales sin actualizar también las bases de datos existentes.
+
+En IntelliJ configura el JDK 25 y establece el directorio de trabajo de la ejecución en `backend/` o en la raíz del repositorio. Ejecuta `ApiAdmisionesUsacApplication` con las bases de datos encendidas.
+
+Para comprobar las conexiones desde el backend:
+
+```bash
+curl -i http://localhost:8080/api/health
+```
+
+La ruta ejecuta `ping` en MongoDB y `RETURN 1 AS connected` en Neo4j, sin modificar datos. Devuelve HTTP 200 y `{"status":"UP","mongodb":"UP","neo4j":"UP"}` si ambas responden; si alguna falla, devuelve HTTP 503 con su estado `DOWN`. No expone contraseñas ni detalles internos de los errores. Al editar `.env`, reinicia el backend para cargar los nuevos valores.
+
+Las pruebas automatizadas usan clientes simulados para los estados de conexión y comprueban el arranque del contexto con credenciales de prueba; no requieren bases disponibles. La conexión real se comprueba con `/api/health`. Quedan pendientes el modelo de datos, ETL y endpoints de carga, consultas y búsqueda.
 
 Para compilar, ejecutar las pruebas y empaquetar el backend, usa `./mvnw verify` desde `backend/`. Si tu Java predeterminado es otra versión, configura `JAVA_HOME` para apuntar al JDK 25 antes de ejecutar Maven.
 
