@@ -115,3 +115,15 @@ cat backend/src/main/resources/db/neo4j/01_esquema.cypher | docker compose exec 
 ```
 
 Los comandos son repetibles. Para comprobar el diseño con una fila real y limpiar automáticamente los datos temporales creados, ejecuta `python3 scripts/validar_modelos_reales.py .data/pruebas_especificas_2024.csv`.
+
+## ETL de CSV
+
+El backend incluye el servicio interno `CsvImportService`, que valida y transforma CSV UTF-8 con los encabezados publicados, registra rechazos por línea, guarda evaluaciones idempotentemente en MongoDB y sincroniza el grafo en Neo4j. La API HTTP y el envío desde Angular se implementarán con la sección de carga de interfaz.
+
+Las reglas de datos y los estados de recuperación se describen en `.docs/ETL_CARGA.md`. Para ejecutar la prueba de integración contra los contenedores locales, desde `backend/`:
+
+```bash
+JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 ./mvnw -o -Detl.integration=true -Dtest=CsvImportIntegrationTest test
+```
+
+La prueba inserta una fila temporal y la borra; comprueba que una segunda carga del mismo archivo no duplica la evaluación.

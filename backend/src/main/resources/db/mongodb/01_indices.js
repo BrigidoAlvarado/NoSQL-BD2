@@ -36,6 +36,11 @@ db.getCollection('cargas').createIndex(
   { sha256Archivo: 1 },
   { name: 'archivo_unico', unique: true },
 );
+
+db.getCollection('rechazos_carga').createIndex(
+  { sha256Archivo: 1, fila: 1 },
+  { name: 'rechazo_por_archivo_fila', unique: true },
+);
 db.getCollection('cargas').createIndex(
   { estado: 1, iniciadaEn: -1 },
   { name: 'estado_reciente' },
