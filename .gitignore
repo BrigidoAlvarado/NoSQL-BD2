@@ -39,6 +39,10 @@ frontend/dist/
 frontend/coverage/
 frontend/npm-debug.log*
 
+### Herramientas Python ###
+__pycache__/
+*.pyc
+
 ### Credenciales locales ###
 .env
 .env.*

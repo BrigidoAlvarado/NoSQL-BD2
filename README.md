@@ -90,3 +90,17 @@ Abre `http://localhost:4200`. El proxy de desarrollo reenvía `/api/**` a `http:
 El panel «Estado de los servicios» comprueba la API y ambas bases al iniciar la aplicación y permite reintentar sin bloquear la navegación. El diagnóstico no carga datos ni sustituye la implementación del ETL y las consultas pendientes.
 
 Consulta las [decisiones de arquitectura](.docs/ARQUITECTURA.md) y la [evidencia y pruebas manuales de la base](.docs/VERIFICACION_BASE.md).
+
+## Revisión de los CSV
+
+La herramienta `scripts/perfilar_csv.py` permite reproducir la revisión de estructura, calidad, duplicados y cardinalidad con Python 3, sin dependencias adicionales. Es una herramienta de análisis de solo lectura; no sustituye la carga desde Angular ni el ETL de Spring Boot.
+
+Coloca los CSV del [portal oficial](https://datosabiertos.ingenieria.usac.edu.gt/en/dataset/pruebas-especificas) en `.data/`. Desde la raíz:
+
+```bash
+mkdir -p .docs
+python3 scripts/perfilar_csv.py .data/*.csv --salida .docs/PERFIL_CSV.json
+python3 -m unittest discover -s scripts -p 'test_*.py'
+```
+
+Los CSV y los informes locales permanecen excluidos de Git. Los criterios de conteo, edad y las diferencias entre archivos se documentan localmente en `.docs/DATOS_ORIGEN.md`.
