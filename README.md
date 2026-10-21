@@ -104,3 +104,14 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 Los CSV y los informes locales permanecen excluidos de Git. Los criterios de conteo, edad y las diferencias entre archivos se documentan localmente en `.docs/DATOS_ORIGEN.md`.
+
+## Esquemas de datos
+
+Los índices de MongoDB y las restricciones e índices de Neo4j están declarados en `backend/src/main/resources/db/`. Antes de la primera carga, con los contenedores activos, aplícalos desde la raíz:
+
+```bash
+docker compose exec -T mongodb sh -c 'mongosh --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin admisiones_usac' < backend/src/main/resources/db/mongodb/01_indices.js
+cat backend/src/main/resources/db/neo4j/01_esquema.cypher | docker compose exec -T neo4j sh -c 'cypher-shell --non-interactive --username neo4j --password "${NEO4J_AUTH#*/}" --database neo4j'
+```
+
+Los comandos son repetibles. Para comprobar el diseño con una fila real y limpiar automáticamente los datos temporales creados, ejecuta `python3 scripts/validar_modelos_reales.py .data/pruebas_especificas_2024.csv`.
