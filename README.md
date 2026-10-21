@@ -86,3 +86,7 @@ npm start
 ```
 
 Abre `http://localhost:4200`. El proxy de desarrollo reenvía `/api/**` a `http://localhost:8080`.
+
+El panel «Estado de los servicios» comprueba la API y ambas bases al iniciar la aplicación y permite reintentar sin bloquear la navegación. El diagnóstico no carga datos ni sustituye la implementación del ETL y las consultas pendientes.
+
+Consulta las [decisiones de arquitectura](.docs/ARQUITECTURA.md) y la [evidencia y pruebas manuales de la base](.docs/VERIFICACION_BASE.md).
