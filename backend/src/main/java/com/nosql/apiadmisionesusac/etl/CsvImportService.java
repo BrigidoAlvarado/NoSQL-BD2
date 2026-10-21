@@ -57,4 +57,8 @@ public class CsvImportService {
                     "MongoDB se completó; Neo4j debe reintentarse con el mismo archivo.");
         }
     }
+
+    public java.util.List<RejectedRow> rejectedRows(String sha256Archivo, int limit) {
+        return mongo.rejections(sha256Archivo, Math.clamp(limit, 1, 500));
+    }
 }

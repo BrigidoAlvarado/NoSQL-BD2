@@ -92,6 +92,18 @@ class EtlMongoStore {
                 .append("actualizadaEn", Date.from(Instant.now()))));
     }
 
+    List<RejectedRow> rejections(String sha256, int limit) {
+        return mongoTemplate.getCollection("rechazos_carga").find(eq("sha256Archivo", sha256))
+                .sort(new Document("fila", 1)).limit(limit).map(document -> {
+                    Document values = document.get("valores", Document.class);
+                    Map<String, String> converted = values == null ? Map.of() : values.entrySet().stream()
+                            .collect(java.util.stream.Collectors.toUnmodifiableMap(Map.Entry::getKey,
+                                    entry -> String.valueOf(entry.getValue())));
+                    return new RejectedRow(integer(document, "fila"), document.getString("codigo"),
+                            document.getString("detalle"), converted);
+                }).into(new ArrayList<>());
+    }
+
     private Document evaluationDocument(Evaluation value) {
         Document procedencia = new Document("departamento", value.departamentoInstitucionEducativa())
                 .append("municipio", value.municipioInstitucionEducativa())

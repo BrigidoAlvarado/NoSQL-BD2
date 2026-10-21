@@ -4,11 +4,14 @@ import { environment } from '../../environments/environment';
 
 export class ApiError extends Error {
   constructor(readonly response: HttpErrorResponse) {
-    super(response.status === 0
+    const backendMessage = typeof response.error === 'object' && response.error !== null
+      && typeof (response.error as { message?: unknown }).message === 'string'
+      ? (response.error as { message: string }).message : undefined;
+    super(backendMessage ?? (response.status === 0
       ? 'No se pudo conectar con el servicio. Intenta nuevamente más tarde.'
       : response.status >= 500
         ? 'El servicio no pudo completar la operación. Intenta nuevamente más tarde.'
-        : 'No se pudo completar la solicitud. Revisa los datos e intenta nuevamente.');
+        : 'No se pudo completar la solicitud. Revisa los datos e intenta nuevamente.'));
   }
 }
 

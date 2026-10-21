@@ -24,3 +24,7 @@ spring:
   data:
     neo4j:
       database: ${NEO4J_DATABASE:neo4j}
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 100MB

@@ -127,3 +127,7 @@ JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 ./mvnw -o -Detl.integration=true -D
 ```
 
 La prueba inserta una fila temporal y la borra; comprueba que una segunda carga del mismo archivo no duplica la evaluación.
+
+## Carga desde la interfaz
+
+En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». Angular los envía a `POST /api/cargas`; el backend aplica el ETL y la pantalla presenta por archivo los conteos, duración, estado y causas de las primeras 100 filas rechazadas. El máximo es 30 MB por archivo y 100 MB por solicitud. Los rechazos de una carga se pueden consultar mediante `GET /api/cargas/{sha256Archivo}/rechazos?limit=100`.

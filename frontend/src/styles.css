@@ -40,12 +40,29 @@ p { line-height: 1.7; }
 .button { display: inline-block; padding: .8rem 1.2rem; background: #245f9b; color: white; border: 0; border-radius: 7px; text-decoration: none; font-weight: 600; font-size: .85rem; cursor: pointer; }
 .button:hover { background: #194a7b; }
 .button.secondary { background: #eef3f9; color: #245f9b; }
+.button:disabled, input:disabled { cursor: not-allowed; opacity: .6; }
+.actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 1.2rem; }
 .file-label { display: block; margin: 1.5rem 0 .6rem; font-size: .9rem; font-weight: 600; }
 input[type=file] { max-width: 100%; padding: 1rem; border: 1px dashed #9cacc2; border-radius: 8px; width: 100%; }
 .file-list { list-style: none; padding: 0; }
 .file-list li { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid #e0e6ef; padding: .8rem 0; overflow-wrap: anywhere; }
 .error-message { color: #9a2929; background: #fff1f1; padding: .6rem 1rem; border-radius: 8px; }
 .info-card { margin-top: 1.5rem; }
+.processing { padding: 1rem 1.2rem; color: #245f9b; background: #eaf3fc; border-radius: 8px; }
+.results-card { margin-top: 1.5rem; }
+.upload-result { padding: 1rem 0; border-top: 1px solid #e0e6ef; }
+.upload-result:first-of-type { border-top: 0; }
+.result-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.result-heading h3 { overflow-wrap: anywhere; }
+.state { border-radius: 20px; background: #e5f4ea; color: #166534; padding: .35rem .65rem; font-size: .75rem; white-space: nowrap; }
+.error-state { background: #fff1f1; color: #9a2929; }
+.upload-metrics { display: grid; grid-template-columns: repeat(4, 1fr); margin: 1rem 0; gap: .6rem; }
+.upload-metrics div { padding: .7rem; background: #f5f8fb; border-radius: 7px; }
+.upload-metrics dt { color: #586981; font-size: .72rem; }
+.upload-metrics dd { margin: .2rem 0 0; font-weight: 700; }
+summary { cursor: pointer; color: #245f9b; font-size: .85rem; }
+.rejection-list { margin-bottom: 0; padding-left: 1.3rem; font-size: .85rem; }
+.rejection-list li { margin: .7rem 0; }
 .tags { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
 .page-footer { padding: 1rem 2.5rem; font-size: .75rem; color: #586981; margin-top: auto; }
 @media (max-width: 800px) {
