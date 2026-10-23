@@ -131,3 +131,7 @@ La prueba inserta una fila temporal y la borra; comprueba que una segunda carga 
 ## Carga desde la interfaz
 
 En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». Angular los envía a `POST /api/cargas`; el backend aplica el ETL y la pantalla presenta por archivo los conteos, duración, estado y causas de las primeras 100 filas rechazadas. El máximo es 30 MB por archivo y 100 MB por solicitud. Los rechazos de una carga se pueden consultar mediante `GET /api/cargas/{sha256Archivo}/rechazos?limit=100`.
+
+## Dashboard de estadísticas
+
+La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga. Las definiciones, denominadores y comprobaciones están en `.docs/ESTADISTICAS_BASICAS.md`.
