@@ -135,3 +135,5 @@ En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». 
 ## Dashboard de estadísticas
 
 La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga. Las definiciones, denominadores y comprobaciones están en `.docs/ESTADISTICAS_BASICAS.md`.
+
+El dashboard también presenta M03, M05–M10, M13–M14 y M16–M17, M19. La colección MongoDB `resumen_carrera` se recalcula de forma idempotente al consultar el dashboard para M06; no necesita una carga separada.

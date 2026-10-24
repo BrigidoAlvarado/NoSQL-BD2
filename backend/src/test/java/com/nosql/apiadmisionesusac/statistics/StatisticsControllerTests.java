@@ -21,7 +21,8 @@ class StatisticsControllerTests {
                 of(new DashboardResponse.RateByLabel("MATEMATICA", 4, 10, 40)),
                 of(new DashboardResponse.CountByPair("F", "PRIVADO", 3)),
                 of(new DashboardResponse.RateByLabel("PRIVADO", 4, 10, 40)),
-                of(new DashboardResponse.ResultsByYear(2022, 4, 6, 10, 40))));
+                of(new DashboardResponse.ResultsByYear(2022, 4, 6, 10, 40)),
+                of(), of(), of(), of(), of(), of(), of(), of(), of(), of(), of(), of()));
         var mvc = MockMvcBuilders.standaloneSetup(new StatisticsController(service)).build();
 
         mvc.perform(get("/api/estadisticas/dashboard"))

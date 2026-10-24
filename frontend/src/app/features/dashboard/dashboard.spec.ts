@@ -19,6 +19,9 @@ describe('Dashboard de estadísticas', () => {
       aspirantesPorSexoInstitucion: [{ primeraEtiqueta: 'F', segundaEtiqueta: 'PRIVADO', cantidad: 3 }],
       aprobacionPorInstitucion: [{ etiqueta: 'PRIVADO', aprobadas: 4, evaluaciones: 10, porcentajeAprobacion: 40 }],
       resultadosPorAnio: [{ anioIngreso: 2022, aprobadas: 4, noAprobadas: 6, evaluaciones: 10, porcentajeAprobacion: 40 }],
+      aprobadosPorCarreraAnio: [], edadPorCarrera: [], resumenCarreras: [], edadAprobadosPorCarreraInstitucion: [],
+      aprobadosPorMunicipioCarrera: [], evaluacionesPublicasPorMesMateria: [], topCarrerasJuveniles: [], aprobacionPorEdad: [],
+      oportunidadesPorMateria: [], noAprobaronPrimerIntentoPorCarrera: [], topMunicipios: [], carrerasMasDemandadasPorDepartamento: [],
     });
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('Aspirantes únicos');
