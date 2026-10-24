@@ -20,15 +20,6 @@ export const routes: Routes = [
     },
     loadComponent: () => import('./shared/pending-page').then((m) => m.PendingPage),
   },
-  {
-    path: 'grafos', title: 'Explorador de grafos | Admisiones USAC',
-    data: {
-      eyebrow: 'RELACIONES ENTRE DATOS', heading: 'Explorador de grafos',
-      description: 'Explora las relaciones entre aspirantes, carreras, materias y lugares de procedencia.',
-      message: 'La visualización y sus filtros estarán disponibles al integrar las consultas de grafos.',
-      criteria: ['Aspirantes', 'Carreras', 'Materias', 'Instituciones educativas', 'Municipios', 'Departamentos'],
-    },
-    loadComponent: () => import('./shared/pending-page').then((m) => m.PendingPage),
-  },
+  { path: 'grafos', title: 'Explorador de grafos | Admisiones USAC', loadComponent: () => import('./features/graph/graph').then((m) => m.GraphExplorer) },
   { path: '**', redirectTo: 'estadisticas' },
 ];

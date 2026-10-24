@@ -137,3 +137,7 @@ En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». 
 La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga. Las definiciones, denominadores y comprobaciones están en `.docs/ESTADISTICAS_BASICAS.md`.
 
 El dashboard también presenta M03, M05–M10, M13–M14 y M16–M17, M19. La colección MongoDB `resumen_carrera` se recalcula de forma idempotente al consultar el dashboard para M06; no necesita una carga separada.
+
+## Explorador de grafos
+
+La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. En la misma vista se ejecutan G01 a G05. Los recorridos, criterios y límites se documentan en `.docs/EXPLORADOR_GRAFOS.md`.

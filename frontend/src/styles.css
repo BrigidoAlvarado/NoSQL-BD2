@@ -82,3 +82,15 @@ th, td { padding: .65rem .45rem; border-bottom: 1px solid #e0e6ef; text-align: l
 th { color: #586981; font-size: .72rem; font-weight: 600; }
 td:last-child, th:last-child { text-align: right; }
 @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } .upload-metrics { grid-template-columns: repeat(2, 1fr); } }
+.graph-filters, .graph-card, .graph-queries { margin-top: 1.5rem; }
+.filter-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem; margin:1rem 0; }
+.filter-grid label { display:grid; gap:.4rem; font-size:.82rem; font-weight:600; }
+.filter-grid input, .filter-grid select, .query-actions select { padding:.6rem; border:1px solid #9cacc2; border-radius:6px; min-width:0; }
+.graph-filters .secondary { margin-left:.7rem; }
+.graph-canvas { min-height:420px; overflow:hidden; border:1px solid #e0e6ef; border-radius:8px; background:#f8fafc; }
+.graph-canvas svg { width:100%; height:560px; }
+.graph-edge { stroke:#aab8c9; stroke-width:1.3; opacity:.7; }
+.graph-node circle { fill:#28649e; stroke:#fff; stroke-width:2; }.graph-node text { text-anchor:middle; font-size:10px; fill:#24334b; }.graph-node:focus circle, .graph-node:hover circle { fill:#a64b30; }
+.type-Aspirante circle { fill:#266678; }.type-Evaluacion circle { fill:#7a4da0; }.type-Carrera circle { fill:#bd6a2d; }.type-Materia circle { fill:#28765a; }.type-Resultado circle { fill:#9b345d; }
+.query-actions { display:flex; gap:.7rem; align-items:center; margin:1rem 0; }.query-actions select { flex:1; }.empty-result { color:#586981; padding:1rem 0; }
+@media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}.graph-canvas{overflow:auto}.graph-canvas svg{min-width:700px}}
