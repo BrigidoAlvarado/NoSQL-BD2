@@ -12,13 +12,7 @@ export const routes: Routes = [
   },
   {
     path: 'busqueda', title: 'Búsqueda | Admisiones USAC',
-    data: {
-      eyebrow: 'CONSULTA DE INFORMACIÓN', heading: 'Búsqueda de aspirantes',
-      description: 'Encuentra evaluaciones e historial de los aspirantes de primer ingreso.',
-      message: 'La búsqueda estará disponible cuando se integre el servicio de consultas.',
-      criteria: ['Correlativo del aspirante', 'Carrera objetivo', 'Tipo de institución educativa', 'Materia', 'Municipio', 'Departamento'],
-    },
-    loadComponent: () => import('./shared/pending-page').then((m) => m.PendingPage),
+    loadComponent: () => import('./features/search/search').then((m) => m.Search),
   },
   { path: 'grafos', title: 'Explorador de grafos | Admisiones USAC', loadComponent: () => import('./features/graph/graph').then((m) => m.GraphExplorer) },
   { path: '**', redirectTo: 'estadisticas' },

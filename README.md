@@ -138,6 +138,10 @@ La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta 
 
 El dashboard también presenta M03, M05–M10, M13–M14 y M16–M17, M19. La colección MongoDB `resumen_carrera` se recalcula de forma idempotente al consultar el dashboard para M06; no necesita una carga separada.
 
+## Buscador de aspirantes
+
+La ruta **Búsqueda** consulta `GET /api/busqueda` con los criterios de correlativo anónimo, carrera, tipo de institución educativa, materia, municipio y departamento. Desde cada coincidencia se puede abrir `GET /api/busqueda/aspirantes/{correlativo}` para ver el historial de evaluaciones (M11) y toda la información disponible por evaluación (M15). Los CSV no traen el nombre de un establecimiento, por lo que “institución” representa el tipo de institución de procedencia. Las reglas, endpoints y prueba de integración se documentan en `.docs/BUSCADOR_ASPIRANTES.md`.
+
 ## Explorador de grafos
 
 La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. En la misma vista se ejecutan G01 a G05. Los recorridos, criterios y límites se documentan en `.docs/EXPLORADOR_GRAFOS.md`.

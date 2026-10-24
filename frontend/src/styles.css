@@ -94,3 +94,6 @@ td:last-child, th:last-child { text-align: right; }
 .type-Aspirante circle { fill:#266678; }.type-Evaluacion circle { fill:#7a4da0; }.type-Carrera circle { fill:#bd6a2d; }.type-Materia circle { fill:#28765a; }.type-Resultado circle { fill:#9b345d; }
 .query-actions { display:flex; gap:.7rem; align-items:center; margin:1rem 0; }.query-actions select { flex:1; }.empty-result { color:#586981; padding:1rem 0; }
 @media(max-width:800px){.filter-grid{grid-template-columns:1fr 1fr}.graph-canvas{overflow:auto}.graph-canvas svg{min-width:700px}}
+.search-form, .search-results, .applicant-detail { margin-top:1.5rem; }
+.search-controls { display:flex; align-items:end; gap:1rem; margin-top:1rem; }.search-controls label { display:grid; gap:.4rem; font-size:.82rem; font-weight:600; }.search-controls select,.search-controls input { padding:.6rem; border:1px solid #9cacc2; border-radius:6px; min-width:0; }.search-term { flex:1; }.table-scroll { overflow-x:auto; }.text-button { color:#245f9b; border:0; background:none; font-weight:600; cursor:pointer; white-space:nowrap; padding:0; }
+@media(max-width:650px){.search-controls{align-items:stretch;flex-direction:column}.search-controls .button{width:100%}}
