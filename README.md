@@ -1,13 +1,12 @@
 # Admisiones USAC
 
-Aplicación para analizar evaluaciones de aspirantes a la Facultad de Ingeniería de la USAC. Los requisitos se encuentran en [`.docs/BRIEF_PROYECTO.md`](.docs/BRIEF_PROYECTO.md).
+Aplicación para analizar evaluaciones de aspirantes a la Facultad de Ingeniería de la USAC.
 
 ## Estructura
 
 ```text
 backend/     API Spring Boot, código Java y Maven Wrapper
 frontend/    Aplicación Angular
-.docs/       Brief y enunciado del proyecto
 AGENTS.md    Indicaciones para agentes
 compose.yaml Contenedores de MongoDB y Neo4j
 .env.example Plantilla de configuración local sin credenciales reales
@@ -89,21 +88,18 @@ Abre `http://localhost:4200`. El proxy de desarrollo reenvía `/api/**` a `http:
 
 El panel «Estado de los servicios» comprueba la API y ambas bases al iniciar la aplicación y permite reintentar sin bloquear la navegación. El diagnóstico no carga datos ni sustituye la implementación del ETL y las consultas pendientes.
 
-Consulta las [decisiones de arquitectura](.docs/ARQUITECTURA.md) y la [evidencia y pruebas manuales de la base](.docs/VERIFICACION_BASE.md).
 
 ## Revisión de los CSV
 
 La herramienta `scripts/perfilar_csv.py` permite reproducir la revisión de estructura, calidad, duplicados y cardinalidad con Python 3, sin dependencias adicionales. Es una herramienta de análisis de solo lectura; no sustituye la carga desde Angular ni el ETL de Spring Boot.
 
-Coloca los CSV del [portal oficial](https://datosabiertos.ingenieria.usac.edu.gt/en/dataset/pruebas-especificas) en `.data/`. Desde la raíz:
+Coloca los CSV del [portal oficial](https://datosabiertos.ingenieria.usac.edu.gt/en/dataset/pruebas-especificas) en `.data/`. Para ejecutar las pruebas del perfilador, desde la raíz:
 
 ```bash
-mkdir -p .docs
-python3 scripts/perfilar_csv.py .data/*.csv --salida .docs/PERFIL_CSV.json
 python3 -m unittest discover -s scripts -p 'test_*.py'
 ```
 
-Los CSV y los informes locales permanecen excluidos de Git. Los criterios de conteo, edad y las diferencias entre archivos se documentan localmente en `.docs/DATOS_ORIGEN.md`.
+Los CSV y los informes generados localmente permanecen excluidos de Git.
 
 ## Esquemas de datos
 
@@ -120,7 +116,7 @@ Los comandos son repetibles. Para comprobar el diseño con una fila real y limpi
 
 El backend incluye el servicio interno `CsvImportService`, que valida y transforma CSV UTF-8 con los encabezados publicados, registra rechazos por línea, guarda evaluaciones idempotentemente en MongoDB y sincroniza el grafo en Neo4j. La API HTTP y el envío desde Angular se implementarán con la sección de carga de interfaz.
 
-Las reglas de datos y los estados de recuperación se describen en `.docs/ETL_CARGA.md`. Para ejecutar la prueba de integración contra los contenedores locales, desde `backend/`:
+Para ejecutar la prueba de integración contra los contenedores locales, desde `backend/`:
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 ./mvnw -o -Detl.integration=true -Dtest=CsvImportIntegrationTest test
@@ -134,14 +130,18 @@ En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». 
 
 ## Dashboard de estadísticas
 
-La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga. Las definiciones, denominadores y comprobaciones están en `.docs/ESTADISTICAS_BASICAS.md`.
+La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga.
 
 El dashboard también presenta M03, M05–M10, M13–M14 y M16–M17, M19. La colección MongoDB `resumen_carrera` se recalcula de forma idempotente al consultar el dashboard para M06; no necesita una carga separada.
 
 ## Buscador de aspirantes
 
-La ruta **Búsqueda** consulta `GET /api/busqueda` con los criterios de correlativo anónimo, carrera, tipo de institución educativa, materia, municipio y departamento. Desde cada coincidencia se puede abrir `GET /api/busqueda/aspirantes/{correlativo}` para ver el historial de evaluaciones (M11) y toda la información disponible por evaluación (M15). Los CSV no traen el nombre de un establecimiento, por lo que “institución” representa el tipo de institución de procedencia. Las reglas, endpoints y prueba de integración se documentan en `.docs/BUSCADOR_ASPIRANTES.md`.
+La ruta **Búsqueda** consulta `GET /api/busqueda` con los criterios de correlativo anónimo, carrera, tipo de institución educativa, materia, municipio y departamento. Desde cada coincidencia se puede abrir `GET /api/busqueda/aspirantes/{correlativo}` para ver el historial de evaluaciones (M11) y toda la información disponible por evaluación (M15). Los CSV no traen el nombre de un establecimiento, por lo que “institución” representa el tipo de institución de procedencia.
+
+## Errores y recuperación
+
+La API devuelve mensajes controlados para archivos inválidos, procesamiento, consultas y motores no disponibles; no expone contraseñas ni detalles de conexión. La interfaz muestra el mensaje sin cerrar la aplicación y mantiene disponible el reintento. MongoDB y Neo4j se diferencian en `GET /api/health` y en los errores de operación.
 
 ## Explorador de grafos
 
-La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. En la misma vista se ejecutan G01 a G05. Los recorridos, criterios y límites se documentan en `.docs/EXPLORADOR_GRAFOS.md`.
+La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. En la misma vista se ejecutan G01 a G05.
