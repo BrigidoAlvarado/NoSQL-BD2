@@ -11,6 +11,8 @@
     @if (section().id === "grafo") {
       <section class="card graph-filters">
         <h2>Filtros del grafo</h2>
+        <label>Evaluaciones de la muestra: {{ limite }}<input type="range" min="5" max="40" step="1" [value]="limite" (input)="limite = +inputValue($event)" /></label>
+        @if (optionsError()) { <p role="alert">{{ optionsError() }}</p><button (click)="loadOptions()">Reintentar opciones</button> }
         <div class="filter-grid">
           <label
             >Año de ingreso<input
@@ -20,17 +22,9 @@
               placeholder="Todos"
           /></label>
           <label
-            >Carrera<input
-              [value]="carrera"
-              (input)="carrera = inputValue($event)"
-              placeholder="Texto exacto"
-          /></label>
+            >Carrera<select [value]="carrera" (change)="carrera = inputValue($event)"><option value="">Todas</option>@for (option of options().carreras; track option) { <option [value]="option">{{ option }}</option> }</select></label>
           <label
-            >Departamento<input
-              [value]="departamento"
-              (input)="departamento = inputValue($event)"
-              placeholder="Texto exacto"
-          /></label>
+            >Departamento<select [value]="departamento" (change)="departamento = inputValue($event)"><option value="">Todos</option>@for (option of options().departamentos; track option) { <option [value]="option">{{ option }}</option> }</select></label>
           <label
             >Resultado<select [value]="resultado" (change)="resultado = inputValue($event)">
               <option value="">Todos</option>
@@ -68,7 +62,7 @@
           } @else {
             <app-graph-canvas [data]="data" />
             <p class="hint">
-              Cada punto es una entidad; las líneas son relaciones reales. Se muestran hasta 40 evaluaciones
+              Cada punto es una entidad; las líneas son relaciones reales. La cantidad de evaluaciones se controla con el deslizador
               para mantener la vista legible.
             </p>
           }

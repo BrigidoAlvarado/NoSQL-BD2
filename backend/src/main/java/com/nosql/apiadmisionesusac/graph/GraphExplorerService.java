@@ -36,6 +36,18 @@ public class GraphExplorerService {
         }
     }
 
+    public Map<String, java.util.List<String>> options() {
+        try (var session = driver.session()) {
+            return session.executeRead(tx -> {
+                var careers = tx.run("MATCH (c:Carrera) RETURN DISTINCT c.clave AS valor ORDER BY valor")
+                        .list(row -> row.get("valor").asString());
+                var departments = tx.run("MATCH (d:Departamento) RETURN DISTINCT d.clave AS valor ORDER BY valor")
+                        .list(row -> row.get("valor").asString());
+                return Map.of("carreras", careers, "departamentos", departments);
+            });
+        }
+    }
+
     public GraphQueryResponse query(String id) {
         return queries.execute(id);
     }

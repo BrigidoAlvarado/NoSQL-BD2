@@ -23,9 +23,13 @@ public class GraphExplorerController {
             @RequestParam(required = false) String carrera,
             @RequestParam(required = false) String resultado,
             @RequestParam(required = false) String departamento,
-            @RequestParam(defaultValue = "40") int limite) {
+            @RequestParam(defaultValue = "10") int limite) {
+        if (limite < 5 || limite > 40) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El límite debe estar entre 5 y 40.");
         return graphs.explore(anio, carrera, resultado, departamento, limite);
     }
+
+    @GetMapping("/opciones")
+    public java.util.Map<String, java.util.List<String>> options() { return graphs.options(); }
 
     @GetMapping("/consultas/{id}")
     public GraphQueryResponse query(@PathVariable String id) {

@@ -28,11 +28,16 @@ export class GraphExplorer {
   readonly queryStates = signal<Record<string, QueryState>>({});
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  private graphRequest = 0;
+  limite = 10;
+  readonly options = signal<{carreras: string[]; departamentos: string[]}>({carreras: [], departamentos: []});
+  readonly optionsError = signal('');
   anio = '';
   carrera = '';
   departamento = '';
   resultado = '';
   constructor() {
+    this.loadOptions();
     inject(ActivatedRoute)
       .queryParamMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
@@ -49,15 +54,17 @@ export class GraphExplorer {
       });
   }
   loadGraph(): void {
+    const request = ++this.graphRequest;
     this.loading.set(true);
     this.error.set(null);
-    let params = new HttpParams().set('limite', '40');
+    let params = new HttpParams().set('limite', String(this.limite));
     if (this.anio) params = params.set('anio', this.anio);
     if (this.carrera.trim()) params = params.set('carrera', this.carrera.trim());
     if (this.departamento.trim()) params = params.set('departamento', this.departamento.trim());
     if (this.resultado) params = params.set('resultado', this.resultado);
     this.api.get<GraphData>('grafos', params).subscribe({
       next: (data) => {
+        if (request !== this.graphRequest) return;
         if (!isGraph(data)) {
           this.error.set('El servidor devolvió un grafo inválido. Ajusta los filtros o reintenta.');
           this.loading.set(false);
@@ -67,6 +74,7 @@ export class GraphExplorer {
         this.loading.set(false);
       },
       error: (e) => {
+        if (request !== this.graphRequest) return;
         this.error.set(e instanceof ApiError ? e.message : 'No se pudo consultar Neo4j.');
         this.loading.set(false);
       },
@@ -100,6 +108,7 @@ export class GraphExplorer {
     this.queryStates.update((states) => ({ ...states, [id]: state }));
   }
   clearFilters(): void {
+    this.limite = 10;
     this.anio = '';
     this.carrera = '';
     this.departamento = '';
@@ -111,6 +120,13 @@ export class GraphExplorer {
       return displayMunicipality(String(row[column] ?? ''), row['departamento']);
     }
     return displayCareerName(String(row[column] ?? ''));
+  }
+  loadOptions(): void {
+    this.optionsError.set('');
+    this.api.get<{carreras: string[]; departamentos: string[]}>('grafos/opciones').subscribe({
+      next: options => this.options.set(options),
+      error: () => this.optionsError.set('No se pudieron cargar las opciones.'),
+    });
   }
   inputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;

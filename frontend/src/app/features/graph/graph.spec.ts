@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+vi.mock('vis-network/standalone', () => ({ Network: class { on() {} destroy() {} fit() {} selectNodes() {} focus() {} unselectAll() {} } }));
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -21,9 +23,10 @@ describe('Explorador de grafos por subsecciones', () => {
 
   it('abre solo el grafo, conserva filtros y muestra todas las consultas en su tema', async () => {
     const fixture = TestBed.createComponent(GraphExplorer);
+    TestBed.inject(HttpTestingController).expectOne('/api/grafos/opciones').flush({ carreras: [], departamentos: [] });
     const http = TestBed.inject(HttpTestingController);
     http
-      .expectOne((request) => request.url === '/api/grafos' && request.params.get('limite') === '40')
+      .expectOne((request) => request.url === '/api/grafos' && request.params.get('limite') === '10')
       .flush({ evaluacionesIncluidas: 0, nodos: [], relaciones: [] });
     await fixture.whenStable();
     expect(fixture.nativeElement.textContent).toContain('No hay nodos');
@@ -70,6 +73,7 @@ describe('Explorador de grafos por subsecciones', () => {
     const http = TestBed.inject(HttpTestingController);
     await router.navigateByUrl('/?seccion=trayectorias');
     const fixture = TestBed.createComponent(GraphExplorer);
+    TestBed.inject(HttpTestingController).expectOne('/api/grafos/opciones').flush({ carreras: [], departamentos: [] });
     http
       .expectOne('/api/grafos/consultas/G04')
       .flush({ codigo: 'NEO4J_NO_DISPONIBLE' }, { status: 503, statusText: 'Service Unavailable' });
@@ -104,6 +108,7 @@ describe('Explorador de grafos por subsecciones', () => {
     const router = TestBed.inject(Router);
     await router.navigateByUrl('/?seccion=procedencia');
     const fixture = TestBed.createComponent(GraphExplorer);
+    TestBed.inject(HttpTestingController).expectOne('/api/grafos/opciones').flush({ carreras: [], departamentos: [] });
     const pending = http.expectOne('/api/grafos/consultas/G03');
     const institution = http.expectOne('/api/grafos/consultas/G06');
     const municipality = http.expectOne('/api/grafos/consultas/G08');
@@ -144,6 +149,7 @@ describe('Explorador de grafos por subsecciones', () => {
 
   it('permite reintentar el grafo tras una caída', async () => {
     const fixture = TestBed.createComponent(GraphExplorer);
+    TestBed.inject(HttpTestingController).expectOne('/api/grafos/opciones').flush({ carreras: [], departamentos: [] });
     const http = TestBed.inject(HttpTestingController);
     http
       .expectOne((request) => request.url === '/api/grafos')
