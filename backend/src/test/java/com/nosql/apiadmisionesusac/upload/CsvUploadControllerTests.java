@@ -27,7 +27,7 @@ class CsvUploadControllerTests {
         when(importer.importFile(eq("sin-filas.csv"), any(byte[].class)))
                 .thenReturn(new ImportResult("hash-2", "SIN_FILAS_VALIDAS", 2, 0, 2, false, "Sin filas utilizables."));
         when(importer.rejectedRows("hash-2", 100)).thenReturn(List.of());
-        var mvc = MockMvcBuilders.standaloneSetup(new CsvUploadController(importer)).build();
+        var mvc = MockMvcBuilders.standaloneSetup(new CsvUploadController(new CsvUploadService(importer))).build();
 
         mvc.perform(multipart("/api/cargas")
                         .file(new MockMultipartFile("files", "evaluaciones.csv", "text/csv", "datos".getBytes()))
