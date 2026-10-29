@@ -1,0 +1,30 @@
+<section class="card">
+  <h2>Historial de cargas</h2>
+  <p>Una entrada por contenido de archivo. Los reintentos actualizan la misma carga.</p>
+  <button class="button" (click)="open('cargas')">Actualizar historial</button>
+  @if (loading()) { <p role="status">Consultando…</p> }
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+    <button (click)="load()">Reintentar</button>
+  }
+  @if (data(); as result) {
+    <p>{{ result.total }} registros · Página {{ result.page + 1 }}</p>
+    @if (path !== 'cargas') {
+      <p>Los registros válidos corresponden a MongoDB. Revisa el estado de la carga para confirmar la sincronización Neo4j. Varias filas de origen pueden corresponder a una sola evaluación.</p>
+    }
+    @for (row of result.items; track $index) {
+      <article>
+        @if (path === 'cargas') {
+          <h3>{{ row['nombreArchivo'] }}</h3>
+          <p>{{ row['estado'] }} · Válidas: {{ row['filasValidas'] }} · Rechazadas: {{ row['filasRechazadas'] }}</p>
+          <p>Duración histórica: no disponible</p>
+          <button (click)="detail(row, 'rechazos')">Ver rechazos</button>
+          <button (click)="detail(row, 'validos')">Ver evaluaciones válidas</button>
+        }
+        <details><summary>Datos del registro</summary><pre>{{ row | json }}</pre></details>
+      </article>
+    } @empty { <p>No hay registros.</p> }
+    <button [disabled]="page === 0" (click)="move(-1)">Anterior</button>
+    <button [disabled]="(page + 1) * result.size >= result.total" (click)="move(1)">Siguiente</button>
+  }
+</section>

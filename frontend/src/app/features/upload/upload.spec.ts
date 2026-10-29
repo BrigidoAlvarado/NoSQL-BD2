@@ -19,6 +19,9 @@ describe('Selección de CSV', () => {
 
   it('acepta varios CSV, rechaza archivos vacíos y otras extensiones, y limpia la selección', async () => {
     const fixture = TestBed.createComponent(Upload);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
+      .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
     Object.defineProperty(input, 'files', {
@@ -46,6 +49,9 @@ describe('Selección de CSV', () => {
 
   it('envía varios CSV y muestra el resultado y las causas de rechazo por archivo', async () => {
     const fixture = TestBed.createComponent(Upload);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
+      .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
     Object.defineProperty(input, 'files', {
@@ -73,6 +79,8 @@ describe('Selección de CSV', () => {
       ],
       mensaje: null,
     });
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
+      .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
     expect(fixture.componentInstance.results()).toHaveLength(1);
     expect(fixture.nativeElement.textContent).toContain('Completada');
@@ -81,6 +89,9 @@ describe('Selección de CSV', () => {
 
   it('muestra un fallo del motor y permite conservar la selección para reintentar', async () => {
     const fixture = TestBed.createComponent(Upload);
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
+      .flush({ items: [], total: 0, page: 0, size: 20 });
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
     Object.defineProperty(input, 'files', {
       value: [new File(['uno'], 'uno.csv')],

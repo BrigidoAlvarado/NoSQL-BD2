@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { LoadHistory } from './load-history';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { finalize } from 'rxjs';
 import { ApiError } from '../../core/api-error.interceptor';
 import { ApiService } from '../../core/api.service';
@@ -7,10 +8,12 @@ import { UploadFileResult, UploadResponse } from './upload.models';
 
 @Component({
   selector: 'app-upload',
+  imports: [LoadHistory],
   templateUrl: './upload.html',
 })
 export class Upload {
   private readonly api = inject(ApiService);
+  readonly history = viewChild(LoadHistory);
   readonly files = signal<File[]>([]);
   readonly errors = signal<string[]>([]);
   readonly results = signal<UploadFileResult[]>([]);
@@ -51,6 +54,7 @@ export class Upload {
             return;
           }
           this.results.set(response.archivos);
+          this.history()?.open('cargas');
           if (response.mensaje) this.errors.set([response.mensaje]);
         },
         error: (error: unknown) =>
