@@ -1,4 +1,4 @@
-<# : batch portion
+<# : sección de comandos por lotes
 @REM ----------------------------------------------------------------------------
 @REM Licensed to the Apache Software Foundation (ASF) under one
 @REM or more contributor license agreements.  See the NOTICE file
@@ -19,12 +19,12 @@
 @REM ----------------------------------------------------------------------------
 
 @REM ----------------------------------------------------------------------------
-@REM Apache Maven Wrapper startup batch script, version 3.3.4
+@REM Script de inicio de Apache Maven Wrapper, versión 3.3.4
 @REM
-@REM Optional ENV vars
-@REM   MVNW_REPOURL - repo url base for downloading maven distribution
-@REM   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
-@REM   MVNW_VERBOSE - true: enable verbose log; others: silence the output
+@REM Variables de entorno opcionales
+@REM   MVNW_REPOURL - URL base del repositorio para descargar la distribución de Maven
+@REM   MVNW_USERNAME/MVNW_PASSWORD - usuario y contraseña para descargar Maven
+@REM   MVNW_VERBOSE - true: registro detallado; otros: salida silenciosa
 @REM ----------------------------------------------------------------------------
 
 @IF "%__MVNW_ARG0_NAME__%"=="" (SET __MVNW_ARG0_NAME__=%~nx0)
@@ -43,14 +43,14 @@
 @IF NOT "%__MVNW_CMD__%"=="" ("%__MVNW_CMD__%" %*)
 @echo Cannot start maven from wrapper >&2 && exit /b 1
 @GOTO :EOF
-: end batch / begin powershell #>
+: fin de comandos por lotes / inicio de PowerShell #>
 
 $ErrorActionPreference = "Stop"
 if ($env:MVNW_VERBOSE -eq "true") {
   $VerbosePreference = "Continue"
 }
 
-# calculate distributionUrl, requires .mvn/wrapper/maven-wrapper.properties
+# Obtener distributionUrl desde .mvn/wrapper/maven-wrapper.properties
 $distributionUrl = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionUrl
 if (!$distributionUrl) {
   Write-Error "cannot read distributionUrl property in $scriptDir/.mvn/wrapper/maven-wrapper.properties"
@@ -70,8 +70,8 @@ switch -wildcard -casesensitive ( $($distributionUrl -replace '^.*/','') ) {
   }
 }
 
-# apply MVNW_REPOURL and calculate MAVEN_HOME
-# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+# Aplicar MVNW_REPOURL y calcular MAVEN_HOME
+# Patrón del directorio de Maven: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
 if ($env:MVNW_REPOURL) {
   $MVNW_REPO_PATTERN = if ($USE_MVND -eq $False) { "/org/apache/maven/" } else { "/maven/mvnd/" }
   $distributionUrl = "$env:MVNW_REPOURL$MVNW_REPO_PATTERN$($distributionUrl -replace "^.*$MVNW_REPO_PATTERN",'')"
@@ -109,7 +109,7 @@ if (! $distributionUrlNameMain -or ($distributionUrlName -eq $distributionUrlNam
   Write-Error "distributionUrl is not valid, must end with *-bin.zip, but found $distributionUrl"
 }
 
-# prepare tmp dir
+# Preparar el directorio temporal
 $TMP_DOWNLOAD_DIR_HOLDER = New-TemporaryFile
 $TMP_DOWNLOAD_DIR = New-Item -Itemtype Directory -Path "$TMP_DOWNLOAD_DIR_HOLDER.dir"
 $TMP_DOWNLOAD_DIR_HOLDER.Delete() | Out-Null
@@ -122,7 +122,7 @@ trap {
 
 New-Item -Itemtype Directory -Path "$MAVEN_HOME_PARENT" -Force | Out-Null
 
-# Download and Install Apache Maven
+# Descargar e instalar Apache Maven
 Write-Verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
 Write-Verbose "Downloading from: $distributionUrl"
 Write-Verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
@@ -134,7 +134,7 @@ if ($env:MVNW_USERNAME -and $env:MVNW_PASSWORD) {
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $webclient.DownloadFile($distributionUrl, "$TMP_DOWNLOAD_DIR/$distributionUrlName") | Out-Null
 
-# If specified, validate the SHA-256 sum of the Maven distribution zip file
+# Si se especifica, validar la suma SHA-256 del archivo ZIP de la distribución de Maven
 $distributionSha256Sum = (Get-Content -Raw "$scriptDir/.mvn/wrapper/maven-wrapper.properties" | ConvertFrom-StringData).distributionSha256Sum
 if ($distributionSha256Sum) {
   if ($USE_MVND) {
@@ -146,20 +146,20 @@ if ($distributionSha256Sum) {
   }
 }
 
-# unzip and move
+# Descomprimir y mover
 Expand-Archive "$TMP_DOWNLOAD_DIR/$distributionUrlName" -DestinationPath "$TMP_DOWNLOAD_DIR" | Out-Null
 
-# Find the actual extracted directory name (handles snapshots where filename != directory name)
+# Buscar el nombre real del directorio extraído (en versiones de desarrollo puede diferir del archivo)
 $actualDistributionDir = ""
 
-# First try the expected directory name (for regular distributions)
+# Probar primero el nombre de directorio esperado (distribuciones regulares)
 $expectedPath = Join-Path "$TMP_DOWNLOAD_DIR" "$distributionUrlNameMain"
 $expectedMvnPath = Join-Path "$expectedPath" "bin/$MVN_CMD"
 if ((Test-Path -Path $expectedPath -PathType Container) -and (Test-Path -Path $expectedMvnPath -PathType Leaf)) {
   $actualDistributionDir = $distributionUrlNameMain
 }
 
-# If not found, search for any directory with the Maven executable (for snapshots)
+# Si no se encuentra, buscar un directorio con el ejecutable de Maven (versiones de desarrollo)
 if (!$actualDistributionDir) {
   Get-ChildItem -Path "$TMP_DOWNLOAD_DIR" -Directory | ForEach-Object {
     $testPath = Join-Path $_.FullName "bin/$MVN_CMD"

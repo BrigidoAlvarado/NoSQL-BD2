@@ -19,20 +19,20 @@
 # ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
-# Apache Maven Wrapper startup batch script, version 3.3.4
+# Script de inicio de Apache Maven Wrapper, versión 3.3.4
 #
-# Optional ENV vars
+# Variables de entorno opcionales
 # -----------------
-#   JAVA_HOME - location of a JDK home dir, required when download maven via java source
-#   MVNW_REPOURL - repo url base for downloading maven distribution
-#   MVNW_USERNAME/MVNW_PASSWORD - user and password for downloading maven
-#   MVNW_VERBOSE - true: enable verbose log; debug: trace the mvnw script; others: silence the output
+#   JAVA_HOME - directorio del JDK, necesario para descargar Maven mediante código Java
+#   MVNW_REPOURL - URL base del repositorio para descargar la distribución de Maven
+#   MVNW_USERNAME/MVNW_PASSWORD - usuario y contraseña para descargar Maven
+#   MVNW_VERBOSE - true: registro detallado; debug: trazado del script mvnw; otros: salida silenciosa
 # ----------------------------------------------------------------------------
 
 set -euf
 [ "${MVNW_VERBOSE-}" != debug ] || set -x
 
-# OS specific support.
+# Compatibilidad específica del sistema operativo.
 native_path() { printf %s\\n "$1"; }
 case "$(uname)" in
 CYGWIN* | MINGW*)
@@ -41,12 +41,12 @@ CYGWIN* | MINGW*)
   ;;
 esac
 
-# set JAVACMD and JAVACCMD
+# Configurar JAVACMD y JAVACCMD
 set_java_home() {
-  # For Cygwin and MinGW, ensure paths are in Unix format before anything is touched
+  # En Cygwin y MinGW, convertir primero las rutas al formato Unix
   if [ -n "${JAVA_HOME-}" ]; then
     if [ -x "$JAVA_HOME/jre/sh/java" ]; then
-      # IBM's JDK on AIX uses strange locations for the executables
+      # El JDK de IBM en AIX utiliza ubicaciones particulares para los ejecutables
       JAVACMD="$JAVA_HOME/jre/sh/java"
       JAVACCMD="$JAVA_HOME/jre/sh/javac"
     else
@@ -78,7 +78,7 @@ set_java_home() {
   fi
 }
 
-# hash string like Java String::hashCode
+# Calcular el hash de una cadena como String::hashCode de Java
 hash_string() {
   str="${1:-}" h=0
   while [ -n "$str" ]; do
@@ -99,16 +99,16 @@ die() {
 
 trim() {
   # MWRAPPER-139:
-  #   Trims trailing and leading whitespace, carriage returns, tabs, and linefeeds.
-  #   Needed for removing poorly interpreted newline sequences when running in more
-  #   exotic environments such as mingw bash on Windows.
+  #   Elimina espacios, retornos de carro, tabulaciones y saltos de línea.
+  #   Evita secuencias de salto de línea mal interpretadas en entornos
+  #   particulares, como Bash de MinGW en Windows.
   printf "%s" "${1}" | tr -d '[:space:]'
 }
 
 scriptDir="$(dirname "$0")"
 scriptName="$(basename "$0")"
 
-# parse distributionUrl and optional distributionSha256Sum, requires .mvn/wrapper/maven-wrapper.properties
+# Leer distributionUrl y distributionSha256Sum opcional desde .mvn/wrapper/maven-wrapper.properties
 while IFS="=" read -r key value; do
   case "${key-}" in
   distributionUrl) distributionUrl=$(trim "${value-}") ;;
@@ -136,8 +136,8 @@ maven-mvnd-*) MVN_CMD=mvnd.sh _MVNW_REPO_PATTERN=/maven/mvnd/ ;;
 *) MVN_CMD="mvn${scriptName#mvnw}" _MVNW_REPO_PATTERN=/org/apache/maven/ ;;
 esac
 
-# apply MVNW_REPOURL and calculate MAVEN_HOME
-# maven home pattern: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
+# Aplicar MVNW_REPOURL y calcular MAVEN_HOME
+# Patrón del directorio de Maven: ~/.m2/wrapper/dists/{apache-maven-<version>,maven-mvnd-<version>-<platform>}/<hash>
 [ -z "${MVNW_REPOURL-}" ] || distributionUrl="$MVNW_REPOURL$_MVNW_REPO_PATTERN${distributionUrl#*"$_MVNW_REPO_PATTERN"}"
 distributionUrlName="${distributionUrl##*/}"
 distributionUrlNameMain="${distributionUrlName%.*}"
@@ -160,7 +160,7 @@ case "${distributionUrl-}" in
 *) die "distributionUrl is not valid, must match *-bin.zip or maven-mvnd-*.zip, but found '${distributionUrl-}'" ;;
 esac
 
-# prepare tmp dir
+# Preparar el directorio temporal
 if TMP_DOWNLOAD_DIR="$(mktemp -d)" && [ -d "$TMP_DOWNLOAD_DIR" ]; then
   clean() { rm -rf -- "$TMP_DOWNLOAD_DIR"; }
   trap clean HUP INT TERM EXIT
@@ -170,22 +170,22 @@ fi
 
 mkdir -p -- "${MAVEN_HOME%/*}"
 
-# Download and Install Apache Maven
+# Descargar e instalar Apache Maven
 verbose "Couldn't find MAVEN_HOME, downloading and installing it ..."
 verbose "Downloading from: $distributionUrl"
 verbose "Downloading to: $TMP_DOWNLOAD_DIR/$distributionUrlName"
 
-# select .zip or .tar.gz
+# Seleccionar .zip o .tar.gz
 if ! command -v unzip >/dev/null; then
   distributionUrl="${distributionUrl%.zip}.tar.gz"
   distributionUrlName="${distributionUrl##*/}"
 fi
 
-# verbose opt
+# Configurar las opciones de salida detallada
 __MVNW_QUIET_WGET=--quiet __MVNW_QUIET_CURL=--silent __MVNW_QUIET_UNZIP=-q __MVNW_QUIET_TAR=''
 [ "${MVNW_VERBOSE-}" != true ] || __MVNW_QUIET_WGET='' __MVNW_QUIET_CURL='' __MVNW_QUIET_UNZIP='' __MVNW_QUIET_TAR=v
 
-# normalize http auth
+# Normalizar la autenticación HTTP
 case "${MVNW_PASSWORD:+has-password}" in
 '') MVNW_USERNAME='' MVNW_PASSWORD='' ;;
 has-password) [ -n "${MVNW_USERNAME-}" ] || MVNW_USERNAME='' MVNW_PASSWORD='' ;;
@@ -215,14 +215,14 @@ elif set_java_home; then
 	  }
 	}
 	END
-  # For Cygwin/MinGW, switch paths to Windows format before running javac and java
+  # En Cygwin/MinGW, convertir las rutas al formato Windows antes de ejecutar javac y java
   verbose " - Compiling Downloader.java ..."
   "$(native_path "$JAVACCMD")" "$(native_path "$javaSource")" || die "Failed to compile Downloader.java"
   verbose " - Running Downloader.java ..."
   "$(native_path "$JAVACMD")" -cp "$(native_path "$TMP_DOWNLOAD_DIR")" Downloader "$distributionUrl" "$(native_path "$targetZip")"
 fi
 
-# If specified, validate the SHA-256 sum of the Maven distribution zip file
+# Si se especifica, validar la suma SHA-256 del archivo ZIP de la distribución de Maven
 if [ -n "${distributionSha256Sum-}" ]; then
   distributionSha256Result=false
   if [ "$MVN_CMD" = mvnd.sh ]; then
@@ -249,26 +249,26 @@ if [ -n "${distributionSha256Sum-}" ]; then
   fi
 fi
 
-# unzip and move
+# Descomprimir y mover
 if command -v unzip >/dev/null; then
   unzip ${__MVNW_QUIET_UNZIP:+"$__MVNW_QUIET_UNZIP"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -d "$TMP_DOWNLOAD_DIR" || die "failed to unzip"
 else
   tar xzf${__MVNW_QUIET_TAR:+"$__MVNW_QUIET_TAR"} "$TMP_DOWNLOAD_DIR/$distributionUrlName" -C "$TMP_DOWNLOAD_DIR" || die "failed to untar"
 fi
 
-# Find the actual extracted directory name (handles snapshots where filename != directory name)
+# Buscar el nombre real del directorio extraído (en versiones de desarrollo puede diferir del archivo)
 actualDistributionDir=""
 
-# First try the expected directory name (for regular distributions)
+# Probar primero el nombre de directorio esperado (distribuciones regulares)
 if [ -d "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain" ]; then
   if [ -f "$TMP_DOWNLOAD_DIR/$distributionUrlNameMain/bin/$MVN_CMD" ]; then
     actualDistributionDir="$distributionUrlNameMain"
   fi
 fi
 
-# If not found, search for any directory with the Maven executable (for snapshots)
+# Si no se encuentra, buscar un directorio con el ejecutable de Maven (versiones de desarrollo)
 if [ -z "$actualDistributionDir" ]; then
-  # enable globbing to iterate over items
+  # Habilitar la expansión de patrones para recorrer los elementos
   set +f
   for dir in "$TMP_DOWNLOAD_DIR"/*; do
     if [ -d "$dir" ]; then
