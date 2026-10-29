@@ -21,7 +21,7 @@ function isHealth(value: unknown): value is ConnectionHealth {
 @Component({
   selector: 'app-connection-status',
   template: `
-    <section class="card" aria-labelledby="connection-heading" [attr.aria-busy]="loading()">
+    <section class="card connection-panel" aria-labelledby="connection-heading" [attr.aria-busy]="loading()" [class.connection-warning]="error() || health()?.status === 'DOWN'">
       <div class="status-heading">
         <h2 id="connection-heading">Estado de los servicios</h2>
         <button class="button secondary" type="button" [disabled]="loading()" (click)="check()">
@@ -34,9 +34,9 @@ function isHealth(value: unknown): value is ConnectionHealth {
         } @else if (health(); as result) {
           <p>{{ result.status === 'UP' ? 'Servicios disponibles.' : 'Hay servicios sin conexión. Puedes volver a comprobar.' }}</p>
           <ul class="services">
-            <li>API: disponible</li>
-            <li>MongoDB: {{ result.mongodb === 'UP' ? 'disponible' : 'sin conexión' }}</li>
-            <li>Neo4j: {{ result.neo4j === 'UP' ? 'disponible' : 'sin conexión' }}</li>
+            <li><span class="service-dot" aria-hidden="true"></span>API: disponible</li>
+            <li><span class="service-dot" [class.offline]="result.mongodb === 'DOWN'" aria-hidden="true"></span>MongoDB: {{ result.mongodb === 'UP' ? 'disponible' : 'sin conexión' }}</li>
+            <li><span class="service-dot" [class.offline]="result.neo4j === 'DOWN'" aria-hidden="true"></span>Neo4j: {{ result.neo4j === 'UP' ? 'disponible' : 'sin conexión' }}</li>
           </ul>
         }
       </div>
@@ -49,6 +49,15 @@ function isHealth(value: unknown): value is ConnectionHealth {
     h2 { margin: 0; }
     .services { display: flex; gap: .7rem 1.5rem; flex-wrap: wrap; list-style: none; padding: 0; margin-bottom: 0; }
     button:disabled { opacity: .65; cursor: wait; }
+    .connection-panel { background: #fafdff; padding: 16px 22px; border-left: 3px solid #39836c; }
+    .connection-warning { border-left-color: #b45038; }
+    h2 { font-size: .83rem; }
+    p { font-size: .79rem; margin: 8px 0; color: #52657b; }
+    .services { margin: 10px 0 0; gap: 24px; font-size: .75rem; }
+    .services li { display: flex; align-items: center; gap: 7px; }
+    .service-dot { width: 7px; height: 7px; background: #28745e; border-radius: 50%; }
+    .service-dot.offline { background: #b45038; }
+    button { min-height: 36px; padding: 7px 12px; font-size: .75rem; }
   `,
 })
 export class ConnectionStatus implements OnInit {

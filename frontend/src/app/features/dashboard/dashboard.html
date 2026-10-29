@@ -1,0 +1,42 @@
+<p class="eyebrow">PANORAMA GENERAL</p>
+<h1>Estadísticas de admisión</h1>
+<p class="page-description">Elige un tema y después la consulta que deseas interpretar.</p>
+<div class="analysis-workspace"><div class="analysis-content">
+  <header class="analysis-heading"><p class="eyebrow">ESTADÍSTICAS / {{section().label}}</p><h2>{{section().label}}</h2><p>{{section().question}}</p></header>
+  @if (loading()) { <p class="processing" role="status">Consultando las estadísticas…</p> }
+  @if (error()) { <section class="card empty-state" role="alert"><h2>No se pudieron obtener las estadísticas</h2><p>{{error()}}</p><button class="button" type="button" (click)="load()" [disabled]="loading()">Reintentar</button></section> }
+  @if (!error() && data(); as dashboard) {
+    @if (dashboard.resumen.evaluaciones === 0) {
+      <section class="card empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h2>Tu análisis comienza con los datos</h2><p>Carga archivos CSV de pruebas específicas para consultar las estadísticas de admisión.</p><a class="button" routerLink="/carga">Cargar archivos CSV</a></section>
+    } @else {
+      @if (section().id === 'panorama') { <div class="metrics"><section class="card metric"><h2>Aspirantes únicos</h2><p class="metric-value">{{dashboard.resumen.aspirantesUnicos}}</p><span>Correlativos distintos</span></section><section class="card metric"><h2>Evaluaciones</h2><p class="metric-value">{{dashboard.resumen.evaluaciones}}</p><span>Registros distintos cargados</span></section><section class="card metric"><h2>Aprobación</h2><p class="metric-value">{{percent(dashboard.resumen.porcentajeAprobacion)}}</p><span>{{dashboard.resumen.aprobadas}} evaluaciones aprobadas</span></section></div> }
+      <div class="section-context"><span>Aspirantes y evaluaciones se cuentan por separado.</span><a routerLink="/busqueda">Consultar un aspirante →</a></div>
+      <section class="query-picker card" aria-labelledby="consulta-label"><div><p class="eyebrow">CONSULTA</p><h2 id="consulta-label">¿Qué quieres analizar?</h2></div><label><span class="sr-only">Selecciona una consulta de {{section().label}}</span><select [value]="selectedQuery().id" (change)="selectQuery($any($event.target).value)">@for (query of sectionQueries(); track query.id) {<option [value]="query.id">{{query.label}}</option>}</select></label></section>
+      <div class="dashboard-results">
+        <section class="card data-table-card"><h2>{{selectedQuery().title}}</h2><p class="hint">{{selectedQuery().hint}}</p>
+          @switch (selectedQuery().id) {
+            @case ('institucion') { <app-count-table [rows]="dashboard.aspirantesPorInstitucion" /> }
+            @case ('sexo-institucion') { <table><thead><tr><th>Sexo</th><th>Institución</th><th>Cantidad</th></tr></thead><tbody>@for (row of dashboard.aspirantesPorSexoInstitucion; track row.primeraEtiqueta + row.segundaEtiqueta) {<tr><td>{{row.primeraEtiqueta}}</td><td>{{row.segundaEtiqueta}}</td><td>{{row.cantidad}}</td></tr>}</tbody></table> }
+            @case ('resultados-anio') { <table><thead><tr><th>Año</th><th>Aprobadas</th><th>No aprobadas</th><th>Aprobación</th></tr></thead><tbody>@for (row of dashboard.resultadosPorAnio; track row.anioIngreso) {<tr><td>{{row.anioIngreso}}</td><td>{{row.aprobadas}}</td><td>{{row.noAprobadas}}</td><td>{{percent(row.porcentajeAprobacion)}}</td></tr>}</tbody></table> }
+            @case ('aprobadas-materia') { <app-count-table [rows]="dashboard.aprobadasPorMateria" /> }
+            @case ('porcentaje-materia') { <app-rate-table [rows]="dashboard.aprobacionPorMateria" /> }
+            @case ('porcentaje-institucion') { <app-rate-table [rows]="dashboard.aprobacionPorInstitucion" /> }
+            @case ('oportunidades') { <table><thead><tr><th>Materia</th><th>Promedio</th><th>Grupos</th></tr></thead><tbody>@for(r of dashboard.oportunidadesPorMateria;track r.materia){<tr><td>{{r.materia}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.grupos}}</td></tr>}</tbody></table> }
+            @case ('aprobados-carrera') { <table><thead><tr><th>Carrera</th><th>Año</th><th>Aspirantes</th></tr></thead><tbody>@for(r of dashboard.aprobadosPorCarreraAnio;track r.carrera+r.anioIngreso){<tr><td>{{r.carrera}}</td><td>{{r.anioIngreso}}</td><td>{{r.aspirantes}}</td></tr>}</tbody></table> }
+            @case ('resumen-carrera') { <table><thead><tr><th>Año</th><th>Carrera</th><th>Evaluaciones</th><th>Aspirantes</th><th>Aprobación</th></tr></thead><tbody>@for(r of dashboard.resumenCarreras;track r.anioIngreso+r.carrera){<tr><td>{{r.anioIngreso}}</td><td>{{r.carrera}}</td><td>{{r.evaluaciones}}</td><td>{{r.aspirantesDistintos}}</td><td>{{percent(r.porcentajeAprobacion)}}</td></tr>}</tbody></table> }
+            @case ('juveniles') { <app-count-table [rows]="dashboard.topCarrerasJuveniles" /> }
+            @case ('primer-intento') { <app-count-table [rows]="dashboard.noAprobaronPrimerIntentoPorCarrera" /> }
+            @case ('edad-carrera') { <table><thead><tr><th>Carrera</th><th>Promedio</th><th>Con edad</th><th>Sin edad</th></tr></thead><tbody>@for(r of dashboard.edadPorCarrera;track r.etiqueta){<tr><td>{{r.etiqueta}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.conDato}}</td><td>{{r.sinDato}}</td></tr>}</tbody></table> }
+            @case ('edad-aprobados') { <table><thead><tr><th>Carrera</th><th>Institución</th><th>Promedio</th><th>Sin edad</th></tr></thead><tbody>@for(r of dashboard.edadAprobadosPorCarreraInstitucion;track r.primeraEtiqueta+r.segundaEtiqueta){<tr><td>{{r.primeraEtiqueta}}</td><td>{{r.segundaEtiqueta}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.sinDato}}</td></tr>}</tbody></table> }
+            @case ('aprobacion-edad') { <table><thead><tr><th>Edad</th><th>Aprobadas</th><th>Evaluaciones</th><th>Aprobación</th></tr></thead><tbody>@for(r of dashboard.aprobacionPorEdad;track r.edad){<tr><td>{{r.edad}}</td><td>{{r.aprobadas}}</td><td>{{r.evaluaciones}}</td><td>{{percent(r.porcentajeAprobacion)}}</td></tr>}</tbody></table> }
+            @case ('municipio-carrera') { <app-triple-table [rows]="dashboard.aprobadosPorMunicipioCarrera" /> }
+            @case ('publicas-mes') { <app-pair-table [rows]="dashboard.evaluacionesPublicasPorMesMateria" firstLabel="Mes de asignación" secondLabel="Materia" /> }
+            @case ('municipios') { <app-pair-table [rows]="dashboard.topMunicipios" firstLabel="Departamento" secondLabel="Municipio" /> }
+            @case ('demanda-departamento') { <app-pair-table [rows]="dashboard.carrerasMasDemandadasPorDepartamento" firstLabel="Departamento" secondLabel="Carrera" /> }
+          }
+        </section>
+        <section class="card visualization-card"><h2>Lectura visual</h2><p class="hint">{{selectedQuery().chart === 'donut' ? 'Distribución proporcional de la consulta.' : 'Comparación de los valores principales de la consulta.'}}</p><app-metric-chart [rows]="chartRows(dashboard)" [kind]="selectedQuery().chart" [title]="selectedQuery().title" /></section>
+      </div>
+    }
+  }
+</div></div>

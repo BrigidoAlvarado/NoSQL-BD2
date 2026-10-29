@@ -1,5 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DASHBOARD_SECTIONS } from './dashboard.sections';
 import { ApiError } from '../../core/api-error.interceptor';
 import { ApiService } from '../../core/api.service';
 
@@ -24,64 +26,99 @@ interface CountByTriple { primeraEtiqueta: string; segundaEtiqueta: string; terc
 interface AgeRate { edad: number; aprobadas: number; evaluaciones: number; porcentajeAprobacion: number; }
 interface AverageOpportunities { materia: string; promedio: number; grupos: number; }
 interface CareerSummary { anioIngreso: number; carrera: string; evaluaciones: number; aspirantesDistintos: number; aprobadas: number; noAprobadas: number; porcentajeAprobacion: number; sinEdad: number; }
+interface ChartDatum { label: string; value: number; }
+type ChartKind = 'bar' | 'donut';
+interface DashboardQuery {
+  id: string; label: string; title: string; hint: string; chart: ChartKind;
+  chartData: (data: DashboardData) => ChartDatum[];
+}
 
-@Component({ standalone: true, selector: 'app-count-table', inputs: ['rows'], template: `<table><thead><tr><th>Categoría</th><th>Cantidad</th></tr></thead><tbody>@for (row of rows; track row.etiqueta) {<tr><td>{{ row.etiqueta }}</td><td>{{ row.cantidad }}</td></tr>}</tbody></table>` })
-export class CountTable { rows: CountByLabel[] = []; }
+const queries = (section: string): readonly DashboardQuery[] => QUERY_CATALOG[section] ?? QUERY_CATALOG['panorama'];
+const count = (rows: CountByLabel[]) => rows.map(row => ({ label: row.etiqueta, value: row.cantidad }));
+const rate = (rows: RateByLabel[]) => rows.map(row => ({ label: row.etiqueta, value: row.porcentajeAprobacion }));
+const pair = (rows: CountByPair[]) => rows.map(row => ({ label: `${row.primeraEtiqueta} · ${row.segundaEtiqueta}`, value: row.cantidad }));
 
-@Component({ standalone: true, selector: 'app-rate-table', inputs: ['rows'], template: `<table><thead><tr><th>Categoría</th><th>Aprobadas</th><th>Evaluaciones</th><th>Aprobación</th></tr></thead><tbody>@for (row of rows; track row.etiqueta) {<tr><td>{{ row.etiqueta }}</td><td>{{ row.aprobadas }}</td><td>{{ row.evaluaciones }}</td><td>{{ row.porcentajeAprobacion.toFixed(2) }} %</td></tr>}</tbody></table>` })
+const QUERY_CATALOG: Record<string, readonly DashboardQuery[]> = {
+  panorama: [
+    { id: 'institucion', label: 'Por tipo de institución', title: 'Aspirantes por tipo de institución', hint: 'M01 · correlativos distintos por tipo.', chart: 'donut', chartData: d => count(d.aspirantesPorInstitucion) },
+    { id: 'sexo-institucion', label: 'Por sexo e institución', title: 'Aspirantes por sexo e institución', hint: 'M12 · correlativos distintos dentro de cada combinación.', chart: 'bar', chartData: d => pair(d.aspirantesPorSexoInstitucion) },
+    { id: 'resultados-anio', label: 'Resultados por año', title: 'Resultados por año de ingreso', hint: 'M20 · distribución de evaluaciones por cohorte.', chart: 'donut', chartData: d => [{ label: 'Aprobadas', value: d.resultadosPorAnio.reduce((sum, row) => sum + row.aprobadas, 0) }, { label: 'No aprobadas', value: d.resultadosPorAnio.reduce((sum, row) => sum + row.noAprobadas, 0) }] },
+  ],
+  aprobacion: [
+    { id: 'aprobadas-materia', label: 'Aprobadas por materia', title: 'Evaluaciones aprobadas por materia', hint: 'M02 · evaluaciones, no aspirantes.', chart: 'bar', chartData: d => count(d.aprobadasPorMateria) },
+    { id: 'porcentaje-materia', label: 'Porcentaje por materia', title: 'Porcentaje de aprobación por materia', hint: 'M04 · aprobadas entre evaluaciones de la materia.', chart: 'bar', chartData: d => rate(d.aprobacionPorMateria) },
+    { id: 'porcentaje-institucion', label: 'Por institución', title: 'Aprobación por tipo de institución', hint: 'M18 · porcentaje de evaluaciones aprobadas.', chart: 'bar', chartData: d => rate(d.aprobacionPorInstitucion) },
+    { id: 'oportunidades', label: 'Oportunidades por materia', title: 'Oportunidades usadas por materia', hint: 'M14 · oportunidades distintas por aspirante, cohorte y materia.', chart: 'bar', chartData: d => d.oportunidadesPorMateria.map(row => ({ label: row.materia, value: row.promedio })) },
+  ],
+  carreras: [
+    { id: 'aprobados-carrera', label: 'Aprobados por carrera y año', title: 'Aspirantes aprobados por carrera y año', hint: 'M03 · correlativos con alguna aprobación.', chart: 'bar', chartData: d => d.aprobadosPorCarreraAnio.map(row => ({ label: `${row.carrera} · ${row.anioIngreso}`, value: row.aspirantes })) },
+    { id: 'resumen-carrera', label: 'Resumen por carrera', title: 'Resumen por carrera', hint: 'M06 · colección materializada resumen_carrera.', chart: 'bar', chartData: d => d.resumenCarreras.map(row => ({ label: `${row.carrera} · ${row.anioIngreso}`, value: row.aspirantesDistintos })) },
+    { id: 'juveniles', label: 'Top carreras 16–18', title: 'Top carreras de aspirantes de 16 a 18', hint: 'M10 · top 5, excluye carrera desconocida.', chart: 'bar', chartData: d => count(d.topCarrerasJuveniles) },
+    { id: 'primer-intento', label: 'Primer intento no aprobado', title: 'No aprobaron primer intento', hint: 'M16 · oportunidad 1 por carrera.', chart: 'bar', chartData: d => count(d.noAprobaronPrimerIntentoPorCarrera) },
+  ],
+  perfil: [
+    { id: 'edad-carrera', label: 'Edad por carrera', title: 'Edad promedio por carrera', hint: 'M05 · una edad por aspirante y carrera.', chart: 'bar', chartData: d => d.edadPorCarrera.map(row => ({ label: row.etiqueta, value: row.promedio })) },
+    { id: 'edad-aprobados', label: 'Edad de aprobados', title: 'Edad de aprobados por carrera e institución', hint: 'M07 · promedio sin ponderar intentos.', chart: 'bar', chartData: d => d.edadAprobadosPorCarreraInstitucion.map(row => ({ label: `${row.primeraEtiqueta} · ${row.segundaEtiqueta}`, value: row.promedio })) },
+    { id: 'aprobacion-edad', label: 'Aprobación por edad', title: 'Aprobación por edad', hint: 'M13 · solo edades válidas.', chart: 'bar', chartData: d => d.aprobacionPorEdad.map(row => ({ label: `${row.edad} años`, value: row.porcentajeAprobacion })) },
+  ],
+  procedencia: [
+    { id: 'municipio-carrera', label: 'Aprobados por municipio', title: 'Aprobados por municipio y carrera', hint: 'M08 · municipio conserva su departamento.', chart: 'bar', chartData: d => d.aprobadosPorMunicipioCarrera.map(row => ({ label: `${row.segundaEtiqueta} · ${row.terceraEtiqueta}`, value: row.cantidad })) },
+    { id: 'publicas-mes', label: 'Públicas por mes y materia', title: 'Evaluaciones públicas por mes y materia', hint: 'M09 · fecha de asignación.', chart: 'bar', chartData: d => pair(d.evaluacionesPublicasPorMesMateria) },
+    { id: 'municipios', label: 'Top municipios', title: 'Top municipios de procedencia', hint: 'M17 · top 5, conserva departamento.', chart: 'bar', chartData: d => pair(d.topMunicipios) },
+    { id: 'demanda-departamento', label: 'Demanda por departamento', title: 'Carreras más demandadas por departamento', hint: 'M19 · incluye empates.', chart: 'bar', chartData: d => pair(d.carrerasMasDemandadasPorDepartamento) },
+  ],
+};
+
+@Component({ standalone: true, selector: 'app-metric-chart', inputs: ['rows', 'kind', 'title'], template: `
+  @if (!rows.length) { <p class="empty-result">No hay datos para graficar.</p> } @else {
+    <figure class="metric-chart" [class.donut-chart]="kind === 'donut'" [attr.aria-label]="title">
+      @if (kind === 'donut') { <div class="donut" [style.background]="donutBackground()"><span>{{format(total())}}</span><small>registros</small></div> }
+      <figcaption><span class="chart-caption">{{ kind === 'donut' ? 'Distribución del total' : 'Comparación de valores' }}</span>
+        <ul class="chart-legend">@for (row of visibleRows(); track row.label; let index = $index) {<li><span [style.background]="color(index)"></span><span [title]="row.label">{{row.label}}</span><strong>{{format(row.value)}}</strong></li>}</ul>
+      </figcaption>
+      @if (kind === 'bar') { <div class="chart-bars">@for (row of visibleRows(); track row.label; let index = $index) {<div><span [title]="row.label">{{row.label}}</span><span class="chart-bar-track"><span [style.width.%]="width(row.value)" [style.background]="color(index)"></span></span><strong>{{format(row.value)}}</strong></div>}</div> }
+    </figure>
+  }` })
+export class MetricChart {
+  rows: ChartDatum[] = []; kind: ChartKind = 'bar'; title = '';
+  readonly palette = ['#2d72b7', '#28745e', '#a7642d', '#7652a2', '#ad4662', '#3c8095', '#7a6c37', '#4c6381'];
+  visibleRows(): ChartDatum[] { return this.rows.slice(0, 8); }
+  total(): number { return this.visibleRows().reduce((sum, row) => sum + row.value, 0); }
+  width(value: number): number { const max = Math.max(0, ...this.visibleRows().map(row => row.value)); return max ? value / max * 100 : 0; }
+  color(index: number): string { return this.palette[index % this.palette.length]; }
+  format(value: number): string { return Number.isInteger(value) ? String(value) : value.toFixed(2); }
+  donutBackground(): string { const rows = this.visibleRows(); const total = this.total(); if (!total) return '#e7edf4'; let current = 0; return `conic-gradient(${rows.map((row, index) => { const start = current; current += row.value / total * 100; return `${this.color(index)} ${start}% ${current}%`; }).join(', ')})`; }
+}
+
+@Component({ standalone: true, selector: 'app-count-table', inputs: ['rows'], template: `@if (!rows.length) {<p class="empty-result">No hay datos para esta consulta.</p>} @else {<table><thead><tr><th>Categoría</th><th>Cantidad</th></tr></thead><tbody>@for (row of rows; track row.etiqueta) {<tr><td><span>{{ row.etiqueta }}</span><span class="comparison-track" aria-hidden="true"><span [style.width.%]="width(row.cantidad)"></span></span></td><td class="numeric">{{ row.cantidad }}</td></tr>}</tbody></table>}` })
+export class CountTable {
+  rows: CountByLabel[] = [];
+  width(value: number): number { const max = Math.max(0, ...this.rows.map(row => row.cantidad)); return max > 0 ? value / max * 100 : 0; }
+}
+
+@Component({ standalone: true, selector: 'app-rate-table', inputs: ['rows'], template: `@if (!rows.length) {<p class="empty-result">No hay datos para esta consulta.</p>} @else {<table><thead><tr><th>Categoría</th><th>Aprobadas</th><th>Evaluaciones</th><th>Aprobación</th></tr></thead><tbody>@for (row of rows; track row.etiqueta) {<tr><td>{{ row.etiqueta }}</td><td>{{ row.aprobadas }}</td><td>{{ row.evaluaciones }}</td><td class="numeric">{{ row.porcentajeAprobacion.toFixed(2) }} %<progress class="approval-progress" [value]="row.porcentajeAprobacion" max="100" [attr.aria-label]="'Aprobación de ' + row.etiqueta"></progress></td></tr>}</tbody></table>}` })
 export class RateTable { rows: RateByLabel[] = []; }
 
-@Component({ standalone: true, selector: 'app-pair-table', inputs: ['rows'], template: `<table><thead><tr><th>Grupo 1</th><th>Grupo 2</th><th>Cantidad</th></tr></thead><tbody>@for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta) {<tr><td>{{r.primeraEtiqueta}}</td><td>{{r.segundaEtiqueta}}</td><td>{{r.cantidad}}</td></tr>}</tbody></table>` })
-export class PairTable { rows: CountByPair[] = []; }
+@Component({ standalone: true, selector: 'app-pair-table', inputs: ['rows', 'firstLabel', 'secondLabel'], template: `@if (!rows.length) {<p class="empty-result">No hay datos para esta consulta.</p>} @else {<table><thead><tr><th>{{firstLabel}}</th><th>{{secondLabel}}</th><th>Cantidad</th></tr></thead><tbody>@for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta) {<tr><td>{{r.primeraEtiqueta}}</td><td>{{r.segundaEtiqueta}}</td><td>{{r.cantidad}}</td></tr>}</tbody></table>}` })
+export class PairTable { rows: CountByPair[] = []; firstLabel = 'Departamento'; secondLabel = 'Municipio'; }
 @Component({ standalone: true, selector: 'app-triple-table', inputs: ['rows'], template: `<table><thead><tr><th>Departamento</th><th>Municipio</th><th>Carrera</th><th>Aspirantes</th></tr></thead><tbody>@for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta + r.terceraEtiqueta) {<tr><td>{{r.primeraEtiqueta}}</td><td>{{r.segundaEtiqueta}}</td><td>{{r.terceraEtiqueta}}</td><td>{{r.cantidad}}</td></tr>}</tbody></table>` })
 export class TripleTable { rows: CountByTriple[] = []; }
 
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, CountTable, RateTable, PairTable, TripleTable],
-  template: `
-    <p class="eyebrow">PANORAMA GENERAL</p>
-    <h1>Estadísticas de admisión</h1>
-    <p class="page-description">Indicadores calculados sobre las evaluaciones cargadas en MongoDB.</p>
-    @if (loading()) { <p class="processing" role="status">Consultando las estadísticas…</p> }
-    @if (error()) { <section class="card empty-state"><h2>No se pudieron obtener las estadísticas</h2><p>{{ error() }}</p><button class="button" type="button" (click)="load()">Reintentar</button></section> }
-    @if (data(); as dashboard) {
-      @if (dashboard.resumen.evaluaciones === 0) {
-        <section class="card empty-state"><span class="empty-symbol" aria-hidden="true">↗</span><h2>Tu análisis comienza con los datos</h2>
-          <p>Carga archivos CSV de pruebas específicas para consultar las estadísticas de admisión.</p><a class="button" routerLink="/carga">Cargar archivos CSV</a></section>
-      } @else {
-        <div class="metrics">
-          <section class="card metric"><h2>Aspirantes únicos</h2><p class="metric-value">{{ dashboard.resumen.aspirantesUnicos }}</p><span>Correlativos distintos</span></section>
-          <section class="card metric"><h2>Evaluaciones</h2><p class="metric-value">{{ dashboard.resumen.evaluaciones }}</p><span>Registros distintos cargados</span></section>
-          <section class="card metric"><h2>Aprobación</h2><p class="metric-value">{{ percent(dashboard.resumen.porcentajeAprobacion) }}</p><span>{{ dashboard.resumen.aprobadas }} evaluaciones aprobadas</span></section>
-        </div>
-        <div class="dashboard-grid">
-          <section class="card"><h2>Aspirantes por tipo de institución</h2><p class="hint">M01 · correlativos distintos por tipo.</p><app-count-table [rows]="dashboard.aspirantesPorInstitucion" /></section>
-          <section class="card"><h2>Evaluaciones aprobadas por materia</h2><p class="hint">M02 · evaluaciones, no aspirantes.</p><app-count-table [rows]="dashboard.aprobadasPorMateria" /></section>
-          <section class="card"><h2>Porcentaje de aprobación por materia</h2><p class="hint">M04 · aprobadas entre evaluaciones de la materia.</p><app-rate-table [rows]="dashboard.aprobacionPorMateria" /></section>
-          <section class="card"><h2>Aspirantes por sexo e institución</h2><p class="hint">M12 · correlativos distintos dentro de cada combinación.</p><table><thead><tr><th>Sexo</th><th>Institución</th><th>Cantidad</th></tr></thead><tbody>@for (row of dashboard.aspirantesPorSexoInstitucion; track row.primeraEtiqueta + row.segundaEtiqueta) {<tr><td>{{ row.primeraEtiqueta }}</td><td>{{ row.segundaEtiqueta }}</td><td>{{ row.cantidad }}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Aprobación por tipo de institución</h2><p class="hint">M18 · porcentaje de evaluaciones aprobadas.</p><app-rate-table [rows]="dashboard.aprobacionPorInstitucion" /></section>
-          <section class="card"><h2>Resultados por año de ingreso</h2><p class="hint">M20 · distribución de evaluaciones por cohorte.</p><table><thead><tr><th>Año</th><th>Aprobadas</th><th>No aprobadas</th><th>Aprobación</th></tr></thead><tbody>@for (row of dashboard.resultadosPorAnio; track row.anioIngreso) {<tr><td>{{ row.anioIngreso }}</td><td>{{ row.aprobadas }}</td><td>{{ row.noAprobadas }}</td><td>{{ percent(row.porcentajeAprobacion) }}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Aspirantes aprobados por carrera y año</h2><p class="hint">M03 · correlativos con alguna aprobación.</p><table><thead><tr><th>Carrera</th><th>Año</th><th>Aspirantes</th></tr></thead><tbody>@for(r of dashboard.aprobadosPorCarreraAnio;track r.carrera+r.anioIngreso){<tr><td>{{r.carrera}}</td><td>{{r.anioIngreso}}</td><td>{{r.aspirantes}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Edad promedio por carrera</h2><p class="hint">M05 · una edad por aspirante y carrera.</p><table><thead><tr><th>Carrera</th><th>Promedio</th><th>Con edad</th><th>Sin edad</th></tr></thead><tbody>@for(r of dashboard.edadPorCarrera;track r.etiqueta){<tr><td>{{r.etiqueta}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.conDato}}</td><td>{{r.sinDato}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Resumen por carrera</h2><p class="hint">M06 · colección materializada resumen_carrera.</p><table><thead><tr><th>Año</th><th>Carrera</th><th>Evaluaciones</th><th>Aspirantes</th><th>Aprobación</th></tr></thead><tbody>@for(r of dashboard.resumenCarreras;track r.anioIngreso+r.carrera){<tr><td>{{r.anioIngreso}}</td><td>{{r.carrera}}</td><td>{{r.evaluaciones}}</td><td>{{r.aspirantesDistintos}}</td><td>{{percent(r.porcentajeAprobacion)}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Edad de aprobados por carrera e institución</h2><p class="hint">M07 · promedio sin ponderar intentos.</p><table><thead><tr><th>Carrera</th><th>Institución</th><th>Promedio</th><th>Sin edad</th></tr></thead><tbody>@for(r of dashboard.edadAprobadosPorCarreraInstitucion;track r.primeraEtiqueta+r.segundaEtiqueta){<tr><td>{{r.primeraEtiqueta}}</td><td>{{r.segundaEtiqueta}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.sinDato}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Aprobados por municipio y carrera</h2><p class="hint">M08 · municipio conserva su departamento.</p><app-triple-table [rows]="dashboard.aprobadosPorMunicipioCarrera" /></section>
-          <section class="card"><h2>Evaluaciones públicas por mes y materia</h2><p class="hint">M09 · fecha de asignación.</p><app-pair-table [rows]="dashboard.evaluacionesPublicasPorMesMateria" /></section>
-          <section class="card"><h2>Top carreras de aspirantes de 16 a 18</h2><p class="hint">M10 · top 5, excluye carrera desconocida.</p><app-count-table [rows]="dashboard.topCarrerasJuveniles" /></section>
-          <section class="card"><h2>Aprobación por edad</h2><p class="hint">M13 · solo edades válidas.</p><table><thead><tr><th>Edad</th><th>Aprobadas</th><th>Evaluaciones</th><th>Aprobación</th></tr></thead><tbody>@for(r of dashboard.aprobacionPorEdad;track r.edad){<tr><td>{{r.edad}}</td><td>{{r.aprobadas}}</td><td>{{r.evaluaciones}}</td><td>{{percent(r.porcentajeAprobacion)}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>Oportunidades usadas por materia</h2><p class="hint">M14 · oportunidades distintas por aspirante, cohorte y materia.</p><table><thead><tr><th>Materia</th><th>Promedio</th><th>Grupos</th></tr></thead><tbody>@for(r of dashboard.oportunidadesPorMateria;track r.materia){<tr><td>{{r.materia}}</td><td>{{r.promedio.toFixed(2)}}</td><td>{{r.grupos}}</td></tr>}</tbody></table></section>
-          <section class="card"><h2>No aprobaron primer intento</h2><p class="hint">M16 · oportunidad 1 por carrera.</p><app-count-table [rows]="dashboard.noAprobaronPrimerIntentoPorCarrera" /></section>
-          <section class="card"><h2>Top municipios de procedencia</h2><p class="hint">M17 · top 5, conserva departamento.</p><app-pair-table [rows]="dashboard.topMunicipios" /></section>
-          <section class="card"><h2>Carreras más demandadas por departamento</h2><p class="hint">M19 · incluye empates.</p><app-pair-table [rows]="dashboard.carrerasMasDemandadasPorDepartamento" /></section>
-        </div>
-      }
-    }
-  `,
+  imports: [RouterLink, CountTable, RateTable, PairTable, TripleTable, MetricChart],
+  templateUrl: './dashboard.html',
 })
 export class Dashboard {
   private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly params = toSignal(this.route.queryParamMap);
+  readonly sections = DASHBOARD_SECTIONS;
+  readonly section = computed(() => this.sections.find(section => section.id === this.params()?.get('seccion')) ?? this.sections[0]);
+  readonly sectionQueries = computed(() => queries(this.section().id));
+  readonly selectedQuery = computed(() => this.sectionQueries().find(query => query.id === this.params()?.get('consulta')) ?? this.sectionQueries()[0]);
   readonly data = signal<DashboardData | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -90,10 +127,22 @@ export class Dashboard {
   load(): void {
     this.loading.set(true); this.error.set(null);
     this.api.get<DashboardData>('estadisticas/dashboard').subscribe({
-      next: (data) => { this.data.set(data); this.loading.set(false); },
+      next: (data) => {
+        if (!isDashboard(data)) { this.error.set('El servidor devolvió estadísticas incompletas. Puedes reintentar la consulta.'); this.loading.set(false); return; }
+        this.data.set(data); this.loading.set(false);
+      },
       error: (error: unknown) => { this.error.set(error instanceof ApiError ? error.message : 'No se pudieron cargar los datos.'); this.loading.set(false); },
     });
   }
   percent(value: number): string { return `${value.toFixed(2)} %`; }
+  selectQuery(queryId: string): void { this.router.navigate([], { relativeTo: this.route, queryParams: { consulta: queryId }, queryParamsHandling: 'merge' }); }
+  chartRows(data: DashboardData): ChartDatum[] { return this.selectedQuery().chartData(data); }
+}
+
+function isDashboard(value: unknown): value is DashboardData {
+  if (typeof value !== 'object' || value === null) return false;
+  const data = value as Record<string, unknown>;
+  const arrays = ['aspirantesPorInstitucion', 'aprobadasPorMateria', 'aprobacionPorMateria', 'aspirantesPorSexoInstitucion', 'aprobacionPorInstitucion', 'resultadosPorAnio', 'aprobadosPorCarreraAnio', 'edadPorCarrera', 'resumenCarreras', 'edadAprobadosPorCarreraInstitucion', 'aprobadosPorMunicipioCarrera', 'evaluacionesPublicasPorMesMateria', 'topCarrerasJuveniles', 'aprobacionPorEdad', 'oportunidadesPorMateria', 'noAprobaronPrimerIntentoPorCarrera', 'topMunicipios', 'carrerasMasDemandadasPorDepartamento'];
+  return typeof data['resumen'] === 'object' && data['resumen'] !== null && arrays.every(key => Array.isArray(data[key]));
 }
 

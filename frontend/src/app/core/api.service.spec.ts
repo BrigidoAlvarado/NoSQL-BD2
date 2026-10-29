@@ -25,4 +25,13 @@ describe('Acceso a la API', () => {
     expect(error?.message).toContain('No se pudo conectar');
     expect(error?.response.status).toBe(0);
   });
+
+  it('muestra el mensaje controlado cuando MongoDB no está disponible', () => {
+    let error: ApiError | undefined;
+    TestBed.inject(ApiService).get('estadisticas/dashboard').subscribe({ error: (value: ApiError) => error = value });
+    TestBed.inject(HttpTestingController).expectOne('/api/estadisticas/dashboard').flush(
+      { codigo: 'MONGODB_NO_DISPONIBLE', mensaje: 'detalle que debe normalizarse' }, { status: 503, statusText: 'Service Unavailable' });
+    expect(error?.message).toContain('MongoDB no está disponible');
+    expect(error?.response.status).toBe(503);
+  });
 });

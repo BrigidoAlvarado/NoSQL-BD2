@@ -1,11 +1,12 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ApiService } from '../../core/api.service';
+import { apiErrorInterceptor } from '../../core/api-error.interceptor';
 import { Upload } from './upload';
 
 describe('Selección de CSV', () => {
-  beforeEach(() => TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), ApiService] }));
+  beforeEach(() => TestBed.configureTestingModule({ providers: [provideHttpClient(withInterceptors([apiErrorInterceptor])), provideHttpClientTesting(), ApiService] }));
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
   it('acepta varios CSV, rechaza archivos vacíos y otras extensiones, y limpia la selección', async () => {
@@ -47,5 +48,16 @@ describe('Selección de CSV', () => {
     expect(fixture.componentInstance.results()).toHaveLength(1);
     expect(fixture.nativeElement.textContent).toContain('Completada');
     expect(fixture.nativeElement.textContent).toContain('FECHA_INVALIDA');
+  });
+
+  it('muestra un fallo del motor y permite conservar la selección para reintentar', async () => {
+    const fixture = TestBed.createComponent(Upload); const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    Object.defineProperty(input, 'files', { value: [new File(['uno'], 'uno.csv')] }); input.dispatchEvent(new Event('change'));
+    fixture.componentInstance.upload();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas').flush({ codigo: 'MONGODB_NO_DISPONIBLE', mensaje: 'MongoDB no está disponible.' }, { status: 503, statusText: 'Service Unavailable' });
+    await fixture.whenStable(); fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('MongoDB no está disponible');
+    expect(fixture.componentInstance.files()).toHaveLength(1);
+    expect(fixture.nativeElement.querySelector('.button')?.disabled).toBe(false);
   });
 });

@@ -7,15 +7,33 @@
     </a>
     <p class="sidebar-label">ANÁLISIS DE ADMISIONES</p>
     <nav aria-label="Navegación principal">
-      <a routerLink="/estadisticas" routerLinkActive="active" ariaCurrentWhenActive="page">Estadísticas</a>
-      <a routerLink="/carga" routerLinkActive="active" ariaCurrentWhenActive="page">Carga de datos</a>
-      <a routerLink="/busqueda" routerLinkActive="active" ariaCurrentWhenActive="page">Búsqueda</a>
-      <a routerLink="/grafos" routerLinkActive="active" ariaCurrentWhenActive="page">Explorador de grafos</a>
+      <div class="nav-group">
+        <a routerLink="/estadisticas" routerLinkActive="active"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M9 15V9m5 6V5m5 10v-4"/></svg>Estadísticas</a>
+        @if (area() === 'estadisticas') {
+          <ul class="nav-subsections" aria-label="Subsecciones de estadísticas">
+            @for (section of dashboardSections; track section.id) {
+              <li><a routerLink="/estadisticas" [queryParams]="{seccion: section.id}" [class.selected]="activeSection() === section.id" [attr.aria-current]="activeSection() === section.id ? 'page' : null" [title]="section.description">{{section.label}}</a></li>
+            }
+          </ul>
+        }
+      </div>
+      <a routerLink="/carga" routerLinkActive="active" ariaCurrentWhenActive="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></svg>Carga de datos</a>
+      <a routerLink="/busqueda" routerLinkActive="active" ariaCurrentWhenActive="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>Búsqueda</a>
+      <div class="nav-group">
+        <a routerLink="/grafos" routerLinkActive="active"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="7" r="3"/><circle cx="12" cy="18" r="3"/><path d="m9 6 6 1M7 9l4 6m6-5-4 5"/></svg>Explorador de grafos</a>
+        @if (area() === 'grafos') {
+          <ul class="nav-subsections" aria-label="Subsecciones de grafos">
+            @for (section of graphSections; track section.id) {
+              <li><a routerLink="/grafos" [queryParams]="{seccion: section.id}" [class.selected]="activeSection() === section.id" [attr.aria-current]="activeSection() === section.id ? 'page' : null" [title]="section.description">{{section.label}}</a></li>
+            }
+          </ul>
+        }
+      </div>
     </nav>
     <div class="sidebar-footer">Facultad de Ingeniería<br><span>Universidad de San Carlos de Guatemala</span></div>
   </aside>
   <div class="workspace">
-    <header class="topbar"><span>Pruebas específicas · Primer ingreso</span><span class="badge">Versión inicial</span></header>
+    <header class="topbar"><span><strong>Panel de admisiones</strong><span class="topbar-divider" aria-hidden="true">/</span>Pruebas específicas · Primer ingreso</span><a class="topbar-action" routerLink="/carga">Cargar archivos CSV <span aria-hidden="true">↗</span></a></header>
     <main id="contenido" tabindex="-1"><app-connection-status /><router-outlet /></main>
     <footer class="page-footer">Proyecto de Bases de Datos 2 · Análisis de evaluaciones</footer>
   </div>

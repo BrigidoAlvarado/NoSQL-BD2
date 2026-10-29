@@ -19,11 +19,12 @@ interface UploadResponse { archivos: UploadFileResult[]; mensaje: string | null;
     <p class="page-description">Carga uno o varios CSV para validarlos y sincronizarlos con MongoDB y Neo4j.</p>
     <section class="card">
       <h2>Selecciona tus archivos</h2>
-      <p>Selecciona archivos con extensión .csv y contenido no vacío.</p>
+      <p>Selecciona uno o varios archivos para comenzar. Al finalizar, podrás revisar el resultado y las causas de rechazo de cada archivo.</p>
+      <ol class="upload-steps" aria-label="Pasos de la carga"><li><span>1</span>Seleccionar CSV</li><li><span>2</span>Validar y procesar</li><li><span>3</span>Revisar resultados</li></ol>
       <label class="file-label" for="csv-files">Archivos CSV</label>
       <input id="csv-files" type="file" accept=".csv,text/csv" multiple aria-describedby="upload-help"
         [disabled]="loading()" (change)="selectFiles($event)">
-      <p id="upload-help" class="hint">Los archivos se envían al backend, que aplica las validaciones y registra el resultado por archivo.</p>
+      <p id="upload-help" class="hint">Formato .csv · Hasta 30 MB por archivo y 100 MB en total. Seleccionar archivos todavía no inicia la carga.</p>
       @if (errors().length) {
         <div class="error-message" role="alert"><ul>
           @for (error of errors(); track $index) { <li>{{ error }}</li> }
@@ -93,7 +94,10 @@ export class Upload {
     this.loading.set(true);
     this.errors.set([]);
     this.api.post<UploadResponse>('cargas', data).pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: (response) => { this.results.set(response.archivos); if (response.mensaje) this.errors.set([response.mensaje]); },
+      next: (response) => {
+        if (!response || !Array.isArray(response.archivos)) { this.errors.set(['El servidor devolvió un resultado de carga inválido. Puedes corregir la selección y reintentar.']); return; }
+        this.results.set(response.archivos); if (response.mensaje) this.errors.set([response.mensaje]);
+      },
       error: (error: unknown) => this.errors.set([error instanceof ApiError ? error.message : 'No se pudo enviar la carga.']),
     });
   }
@@ -105,10 +109,10 @@ export class Upload {
 
   sizeLabel(bytes: number): string { return bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`; }
   durationLabel(milliseconds: number): string { return milliseconds < 1000 ? `${milliseconds} ms` : `${(milliseconds / 1000).toFixed(1)} s`; }
-  isError(state: string): boolean { return ['RECHAZADA', 'FALLO_MONGO', 'PENDIENTE_NEO4J', 'ARCHIVO_VACIO', 'ARCHIVO_INVALIDO', 'ERROR_ARCHIVO'].includes(state); }
+  isError(state: string): boolean { return ['RECHAZADA', 'SIN_FILAS_VALIDAS', 'FALLO_MONGO', 'PENDIENTE_NEO4J', 'ARCHIVO_VACIO', 'ARCHIVO_INVALIDO', 'ARCHIVO_ILEGIBLE'].includes(state); }
 
   stateLabel(state: string): string {
-    const labels: Record<string, string> = { COMPLETA: 'Completada', YA_COMPLETA: 'Ya procesada', RECHAZADA: 'Rechazada', SIN_FILAS_VALIDAS: 'Sin filas válidas', FALLO_MONGO: 'Falló MongoDB', PENDIENTE_NEO4J: 'Pendiente Neo4j', ARCHIVO_VACIO: 'Archivo vacío', ARCHIVO_INVALIDO: 'Archivo inválido', ERROR_ARCHIVO: 'Error de lectura' };
+    const labels: Record<string, string> = { COMPLETA: 'Completada', YA_COMPLETA: 'Ya procesada', RECHAZADA: 'Rechazada', SIN_FILAS_VALIDAS: 'Sin filas válidas', FALLO_MONGO: 'Falló MongoDB', PENDIENTE_NEO4J: 'Pendiente Neo4j', ARCHIVO_VACIO: 'Archivo vacío', ARCHIVO_INVALIDO: 'Archivo inválido', ARCHIVO_ILEGIBLE: 'Error de lectura' };
     return labels[state] ?? state;
   }
 }
