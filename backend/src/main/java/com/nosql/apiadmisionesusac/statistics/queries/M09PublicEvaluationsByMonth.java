@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/** M09: Evaluaciones pipelineúblicas por mes de asignación y materia. */
+/** M09: Evaluaciones públicas por mes de asignación y materia. */
 public final class M09PublicEvaluationsByMonth {
     private M09PublicEvaluationsByMonth() {}
 
