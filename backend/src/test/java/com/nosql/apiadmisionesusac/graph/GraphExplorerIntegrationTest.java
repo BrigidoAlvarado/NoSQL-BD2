@@ -14,12 +14,12 @@ class GraphExplorerIntegrationTest {
     @Autowired private GraphExplorerService graphs;
 
     @Test
-    void exploraUnSubgrafoYEjecutaLasCincoConsultas() {
+    void exploraUnSubgrafoYEjecutaLasDiezConsultas() {
         GraphResponse graph = graphs.explore(null, null, null, null, 10);
         assertTrue(graph.evaluacionesIncluidas() > 0);
         assertFalse(graph.nodos().isEmpty());
         assertFalse(graph.relaciones().isEmpty());
-        for (String id : new String[] {"G01", "G02", "G03", "G04", "G05"}) {
+        for (String id : new String[] {"G01", "G02", "G03", "G04", "G05", "G06", "G07", "G08", "G09", "G10"}) {
             assertFalse(graphs.query(id).columnas().isEmpty());
         }
     }
