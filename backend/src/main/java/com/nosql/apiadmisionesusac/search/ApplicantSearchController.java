@@ -11,14 +11,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicantSearchController {
     private final ApplicantSearchService search;
 
-    public ApplicantSearchController(ApplicantSearchService search) { this.search = search; }
+    public ApplicantSearchController(ApplicantSearchService search) {
+        this.search = search;
+    }
 
     @GetMapping
-    public SearchResponse search(@RequestParam String criterio, @RequestParam String termino,
-                                 @RequestParam(required = false) Integer limite) {
+    public SearchResponse search(
+            @RequestParam String criterio,
+            @RequestParam String termino,
+            @RequestParam(required = false) Integer limite) {
         return search.search(criterio, termino, limite);
     }
 
     @GetMapping("/aspirantes/{aspiranteId}")
-    public ApplicantDetail applicant(@PathVariable String aspiranteId) { return search.applicant(aspiranteId); }
+    public ApplicantDetail applicant(@PathVariable String aspiranteId) {
+        return search.applicant(aspiranteId);
+    }
 }
