@@ -1,12 +1,7 @@
+import { HistoryPage } from './upload.models';
+import { isHistoryPage } from './history.validation';
 import { Component, inject, signal } from '@angular/core';
 import { ApiService } from '../../core/api.service';
-
-interface HistoryPage {
-  items: Record<string, unknown>[];
-  total: number;
-  page: number;
-  size: number;
-}
 
 /** Navega la trazabilidad guardada; una carga corresponde a un contenido distinto. */
 @Component({
@@ -53,9 +48,14 @@ export class LoadHistory {
     this.loading.set(true);
     this.error.set('');
     this.data.set(null);
-    this.api.get<HistoryPage>(`${this.path}?page=${this.page}`).subscribe({
+    this.api.get<unknown>(`${this.path}?page=${this.page}`).subscribe({
       next: data => {
         if (request !== this.request) return;
+        if (!isHistoryPage(data, this.path)) {
+          this.error.set('El servidor devolvió un historial inválido. Reintenta.');
+          this.loading.set(false);
+          return;
+        }
         this.data.set(data);
         this.loading.set(false);
       },

@@ -15,9 +15,9 @@ public class AdditionalStatisticsController {
     private final MongoTemplate mongo;
     public AdditionalStatisticsController(MongoTemplate mongo) { this.mongo = mongo; }
     @GetMapping("/{id}")
-    public List<Document> query(@PathVariable String id) {
+    public List<Object> query(@PathVariable String id) {
         var collection = mongo.getCollection("evaluaciones");
-        return switch (id) {
+        List<Document> rows = switch (id) {
             case "M21" -> M21AdditionalAnalysis.execute(collection);
             case "M22" -> M22AdditionalAnalysis.execute(collection);
             case "M23" -> M23AdditionalAnalysis.execute(collection);
@@ -25,5 +25,6 @@ public class AdditionalStatisticsController {
             case "M25" -> M25AdditionalAnalysis.execute(collection);
             default -> throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Consulta no disponible.");
         };
+        return rows.stream().map(row -> AdditionalStatisticsResponse.from(id, row)).toList();
     }
 }

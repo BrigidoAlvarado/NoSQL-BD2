@@ -1,6 +1,6 @@
 package com.nosql.apiadmisionesusac.upload;
 
-import java.util.List;
+import com.nosql.apiadmisionesusac.upload.dto.LoadHistoryResponse;
 import org.bson.Document;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,13 +15,13 @@ public class LoadHistoryController {
     }
 
     @GetMapping
-    public LoadHistoryService.Page loads(@RequestParam(defaultValue = "0") int page) {
-        return history.loads(page);
+    public LoadHistoryResponse.Page loads(@RequestParam(defaultValue = "0") int page) {
+        return LoadHistoryResponse.from(history.loads(page), "cargas");
     }
 
     @GetMapping("/{hash}/detalle/{kind}")
-    public LoadHistoryService.Page details(@PathVariable String hash,
+    public LoadHistoryResponse.Page details(@PathVariable String hash,
             @PathVariable String kind, @RequestParam(defaultValue = "0") int page) {
-        return history.details(hash, kind, page);
+        return LoadHistoryResponse.from(history.details(hash, kind, page), kind);
     }
 }

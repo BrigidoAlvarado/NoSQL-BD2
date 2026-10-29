@@ -51,6 +51,37 @@ class AdditionalAnalysisIntegrationTest {
         }
     }
 
+    @Test
+    void separaCohortesYMateriasYNoDuplicaRecuperaciones() {
+        var mongo = new MongoTemplate(client, "prueba_adicional_" + UUID.randomUUID().toString().replace("-", ""));
+        try {
+            var collection = mongo.getCollection("evaluaciones");
+            collection.insertMany(List.of(
+                    evaluation("A", "MATEMATICA", 1, "APROBADO", 0),
+                    evaluation("A", "MATEMATICA", 2, "NO APROBADO", 0),
+                    evaluation("A", "MATEMATICA", 3, "APROBADO", 0),
+                    evaluation("A", "MATEMATICA", 4, "APROBADO", 0),
+                    evaluation("B", "MATEMATICA", 1, "NO APROBADO", 0),
+                    evaluation("B", "MATEMATICA", 2, "APROBADO", 0).append("anioIngreso", 2025),
+                    evaluation("B", "FISICA", 2, "APROBADO", 0),
+                    evaluation("C", "MATEMATICA", 1, "APROBADO", 0),
+                    evaluation("C", "MATEMATICA", 2, "NO APROBADO", 0)));
+            var recovery = M22AdditionalAnalysis.execute(collection).getFirst();
+            assertEquals(3, ((Number) recovery.get("conFallo")).intValue());
+            assertEquals(1, ((Number) recovery.get("recuperados")).intValue());
+            assertEquals(100.0 / 3, ((Number) recovery.get("porcentaje")).doubleValue(), 0.00001);
+            var intervals = M24AdditionalAnalysis.execute(collection);
+            assertEquals(2, intervals.size());
+            assertTrue(intervals.stream().allMatch(row -> row.get("promedioDias") == null));
+            assertTrue(intervals.stream().allMatch(row -> ((Number) row.get("incluidos")).intValue() == 0));
+            var subjects = M23AdditionalAnalysis.execute(collection);
+            assertEquals(3, subjects.size());
+            assertTrue(M21AdditionalAnalysis.execute(mongo.getCollection("vacia")).isEmpty());
+        } finally {
+            mongo.getDb().drop();
+        }
+    }
+
     private void verifyHistory(MongoTemplate mongo) {
         String hash = "a".repeat(64);
         var rejected = mongo.getCollection("rechazos_carga");

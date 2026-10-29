@@ -16,10 +16,10 @@ describe('Historial persistente', () => {
     const row = { sha256Archivo: 'a'.repeat(64), nombreArchivo: 'datos.csv' };
     fixture.componentInstance.detail(row, 'rechazos');
     http.expectOne(`/api/cargas/${row.sha256Archivo}/detalle/rechazos?page=0`)
-      .flush({ items: [{ fila: 1, valores: {} }], total: 121, page: 0, size: 20 });
+      .flush({ items: [{ fila: 1, codigo: 'ERROR', detalle: 'Dato inválido', valores: {} }], total: 121, page: 0, size: 20 });
     fixture.componentInstance.move(1);
     http.expectOne(`/api/cargas/${row.sha256Archivo}/detalle/rechazos?page=1`)
-      .flush({ items: [{ fila: 21, valores: {} }], total: 121, page: 1, size: 20 });
+      .flush({ items: [{ fila: 21, codigo: 'ERROR', detalle: 'Dato inválido', valores: {} }], total: 121, page: 1, size: 20 });
     fixture.detectChanges();
     expect(fixture.componentInstance.selected()).toEqual(row);
     expect(fixture.nativeElement.textContent).toContain('Valores no disponibles');

@@ -1,3 +1,5 @@
+import { AnalysisRow } from '../additional.models';
+import { isAdditionalRows } from '../additional.validation';
 import { Component, inject, signal } from '@angular/core';
 import { ApiService } from '../../../core/api.service';
 import { MetricChart } from './metric-chart';
@@ -15,7 +17,7 @@ import { MetricChart } from './metric-chart';
       @if (loading()) { <p role="status">Consultando…</p> }
       @if (error()) { <p role="alert">{{ error() }}</p><button (click)="load()">Reintentar</button> }
       <div style="overflow-x:auto"><table><thead><tr>
-        @for (column of columns(); track column) { <th>{{ column }}</th> }
+        @for (column of columns(); track column) { <th>{{ columnLabel(column) }}</th> }
       </tr></thead><tbody>
         @for (row of rows(); track $index) { <tr>@for (column of columns(); track column) { <td>{{ display(row[column]) }}</td> }</tr> }
       </tbody></table></div>
@@ -29,7 +31,7 @@ export class AdditionalAnalysis {
   private readonly api = inject(ApiService);
   private request = 0;
   id = 'M21';
-  readonly rows = signal<Record<string, unknown>[]>([]);
+  readonly rows = signal<AnalysisRow[]>([]);
   readonly error = signal('');
   readonly loading = signal(false);
   readonly options = [
@@ -49,6 +51,18 @@ export class AdditionalAnalysis {
   constructor() { this.load(); }
   title(): string { return this.options.find(option => option[0] === this.id)![1]; }
   select(id: string): void { this.id = id; this.load(); }
+  columnLabel(column: string): string {
+    const labels: Record<string, string> = {
+      _id: 'Grupo', total: 'Evaluaciones', aprobadas: 'Aprobadas', noAprobadas: 'No aprobadas',
+      porcentaje: 'Porcentaje (%)', conFallo: 'Aspirantes con fallo', recuperados: 'Aspirantes recuperados',
+      aspirantes: 'Aspirantes', totalCohorte: 'Aspirantes de la cohorte', incluidos: 'Incluidos', excluidos: 'Excluidos',
+      promedioDias: 'Promedio (días)', minimoDias: 'Mínimo (días)', maximoDias: 'Máximo (días)',
+      sinEdad: 'Sin edad', carreraDesconocida: 'Carrera desconocida', procedenciaDesconocida: 'Procedencia desconocida',
+      porcentajeSinEdad: 'Sin edad (%)', porcentajeCarreraDesconocida: 'Carrera desconocida (%)',
+      porcentajeProcedenciaDesconocida: 'Procedencia desconocida (%)',
+    };
+    return labels[column] ?? column;
+  }
   columns(): string[] { return Object.keys(this.rows()[0] ?? {}); }
   display(value: unknown): string {
     if (value === null || value === undefined) return 'Sin datos';
@@ -60,14 +74,16 @@ export class AdditionalAnalysis {
       const label = this.display(row['_id']);
       const fields = this.id === 'M25' ? ['porcentajeSinEdad', 'porcentajeCarreraDesconocida', 'porcentajeProcedenciaDesconocida']
         : [this.id === 'M24' ? 'promedioDias' : 'porcentaje'];
-      return fields.filter(field => typeof row[field] === 'number').map(field => ({ label: `${label} · ${field}`, value: row[field] as number }));
+      return fields.filter(field => typeof row[field] === 'number').map(field => ({ label: `${label} · ${this.columnLabel(field)}`, value: row[field] as number }));
     });
   }
   load(): void {
     const request = ++this.request;
     this.loading.set(true); this.rows.set([]); this.error.set('');
-    this.api.get<Record<string, unknown>[]>(`estadisticas/adicionales/${this.id}`).subscribe({
-      next: rows => { if (request === this.request) { this.rows.set(rows); this.loading.set(false); } },
+    this.api.get<unknown>(`estadisticas/adicionales/${this.id}`).subscribe({
+      next: rows => { if (request === this.request) { if (isAdditionalRows(rows, this.id)) this.rows.set(rows);
+        else this.error.set('El servidor devolvió resultados inválidos. Reintenta.');
+        this.loading.set(false); } },
       error: () => { if (request === this.request) { this.error.set('No se pudo ejecutar la consulta.'); this.loading.set(false); } },
     });
   }

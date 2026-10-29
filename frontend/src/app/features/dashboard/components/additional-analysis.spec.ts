@@ -12,8 +12,14 @@ describe('Consultas adicionales M21–M25', () => {
     http.expectOne('/api/estadisticas/adicionales/M21').flush([]);
     for (const [id] of fixture.componentInstance.options) {
       fixture.componentInstance.select(id);
-      const row = id === 'M25' ? { _id: { anio: 2024 }, porcentajeSinEdad: 100, porcentajeCarreraDesconocida: 100, porcentajeProcedenciaDesconocida: 100 }
-        : { _id: { anio: 2024 }, porcentaje: 50, promedioDias: 10 };
+      const fixtures: Record<string, unknown> = {
+        M21: { _id: { anio: 2024, materia: 'MATEMATICA', oportunidad: 1 }, total: 2, aprobadas: 1, noAprobadas: 1, porcentaje: 50 },
+        M22: { _id: { anio: 2024, materia: 'MATEMATICA' }, conFallo: 2, recuperados: 1, porcentaje: 50 },
+        M23: { _id: { anio: 2024, materias: 2 }, aspirantes: 1, totalCohorte: 2, porcentaje: 50 },
+        M24: { _id: { anio: 2024 }, incluidos: 1, excluidos: 1, promedioDias: 10, minimoDias: 10, maximoDias: 10 },
+        M25: { _id: { anio: 2024 }, total: 1, sinEdad: 1, carreraDesconocida: 1, procedenciaDesconocida: 1, porcentajeSinEdad: 100, porcentajeCarreraDesconocida: 100, porcentajeProcedenciaDesconocida: 100 },
+      };
+      const row = fixtures[id];
       http.expectOne(`/api/estadisticas/adicionales/${id}`).flush([row]);
       fixture.detectChanges();
       expect(fixture.nativeElement.querySelector('h2').textContent).toContain(id);
