@@ -6,22 +6,35 @@ import { apiErrorInterceptor } from '../../core/api-error.interceptor';
 import { Upload } from './upload';
 
 describe('Selección de CSV', () => {
-  beforeEach(() => TestBed.configureTestingModule({ providers: [provideHttpClient(withInterceptors([apiErrorInterceptor])), provideHttpClientTesting(), ApiService] }));
+  beforeEach(() =>
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([apiErrorInterceptor])),
+        provideHttpClientTesting(),
+        ApiService,
+      ],
+    }),
+  );
   afterEach(() => TestBed.inject(HttpTestingController).verify());
 
   it('acepta varios CSV, rechaza archivos vacíos y otras extensiones, y limpia la selección', async () => {
     const fixture = TestBed.createComponent(Upload);
     await fixture.whenStable();
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: [
-      new File(['materia\nMATEMATICA'], 'evaluaciones.csv'),
-      new File(['materia\nFISICA'], 'otro.CSV'),
-      new File([], 'vacio.csv'),
-      new File(['texto'], 'notas.txt'),
-    ] });
+    Object.defineProperty(input, 'files', {
+      value: [
+        new File(['materia\nMATEMATICA'], 'evaluaciones.csv'),
+        new File(['materia\nFISICA'], 'otro.CSV'),
+        new File([], 'vacio.csv'),
+        new File(['texto'], 'notas.txt'),
+      ],
+    });
     input.dispatchEvent(new Event('change'));
     await fixture.whenStable();
-    expect(fixture.componentInstance.files().map((file) => file.name)).toEqual(['evaluaciones.csv', 'otro.CSV']);
+    expect(fixture.componentInstance.files().map((file) => file.name)).toEqual([
+      'evaluaciones.csv',
+      'otro.CSV',
+    ]);
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('vacio.csv');
     expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain('notas.txt');
     (fixture.nativeElement.querySelector('.button.secondary') as HTMLButtonElement).click();
@@ -35,15 +48,31 @@ describe('Selección de CSV', () => {
     const fixture = TestBed.createComponent(Upload);
     await fixture.whenStable();
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: [new File(['uno'], 'uno.csv'), new File(['dos'], 'dos.csv')] });
+    Object.defineProperty(input, 'files', {
+      value: [new File(['uno'], 'uno.csv'), new File(['dos'], 'dos.csv')],
+    });
     input.dispatchEvent(new Event('change'));
     fixture.componentInstance.upload();
     const request = TestBed.inject(HttpTestingController).expectOne('/api/cargas');
     expect(request.request.method).toBe('POST');
     expect((request.request.body as FormData).getAll('files')).toHaveLength(2);
-    request.flush({ archivos: [{ nombreArchivo: 'uno.csv', sha256Archivo: 'abc', estado: 'COMPLETA', registrosLeidos: 4,
-      registrosProcesados: 3, registrosRechazados: 1, duracionMilisegundos: 250, reutilizada: false, detalle: 'Carga sincronizada.',
-      rechazos: [{ line: 3, code: 'FECHA_INVALIDA', detail: 'fecha inválida' }] }], mensaje: null });
+    request.flush({
+      archivos: [
+        {
+          nombreArchivo: 'uno.csv',
+          sha256Archivo: 'abc',
+          estado: 'COMPLETA',
+          registrosLeidos: 4,
+          registrosProcesados: 3,
+          registrosRechazados: 1,
+          duracionMilisegundos: 250,
+          reutilizada: false,
+          detalle: 'Carga sincronizada.',
+          rechazos: [{ line: 3, code: 'FECHA_INVALIDA', detail: 'fecha inválida' }],
+        },
+      ],
+      mensaje: null,
+    });
     await fixture.whenStable();
     expect(fixture.componentInstance.results()).toHaveLength(1);
     expect(fixture.nativeElement.textContent).toContain('Completada');
@@ -51,11 +80,22 @@ describe('Selección de CSV', () => {
   });
 
   it('muestra un fallo del motor y permite conservar la selección para reintentar', async () => {
-    const fixture = TestBed.createComponent(Upload); const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    Object.defineProperty(input, 'files', { value: [new File(['uno'], 'uno.csv')] }); input.dispatchEvent(new Event('change'));
+    const fixture = TestBed.createComponent(Upload);
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    Object.defineProperty(input, 'files', {
+      value: [new File(['uno'], 'uno.csv')],
+    });
+    input.dispatchEvent(new Event('change'));
     fixture.componentInstance.upload();
-    TestBed.inject(HttpTestingController).expectOne('/api/cargas').flush({ codigo: 'MONGODB_NO_DISPONIBLE', mensaje: 'MongoDB no está disponible.' }, { status: 503, statusText: 'Service Unavailable' });
-    await fixture.whenStable(); fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas').flush(
+      {
+        codigo: 'MONGODB_NO_DISPONIBLE',
+        mensaje: 'MongoDB no está disponible.',
+      },
+      { status: 503, statusText: 'Service Unavailable' },
+    );
+    await fixture.whenStable();
+    fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('MongoDB no está disponible');
     expect(fixture.componentInstance.files()).toHaveLength(1);
     expect(fixture.nativeElement.querySelector('.button')?.disabled).toBe(false);

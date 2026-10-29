@@ -1,0 +1,22 @@
+@switch (queryId) {
+  @case ("municipio-carrera") {
+    <app-triple-table [rows]="dashboard.aprobadosPorMunicipioCarrera" />
+  }
+  @case ("publicas-mes") {
+    <app-pair-table
+      [rows]="dashboard.evaluacionesPublicasPorMesMateria"
+      firstLabel="Mes de asignación"
+      secondLabel="Materia"
+    />
+  }
+  @case ("municipios") {
+    <app-pair-table [rows]="dashboard.topMunicipios" firstLabel="Departamento" secondLabel="Municipio" />
+  }
+  @case ("demanda-departamento") {
+    <app-pair-table
+      [rows]="dashboard.carrerasMasDemandadasPorDepartamento"
+      firstLabel="Departamento"
+      secondLabel="Carrera"
+    />
+  }
+}

@@ -1,0 +1,50 @@
+@switch (queryId) {
+  @case ("institucion") {
+    <app-count-table [rows]="dashboard.aspirantesPorInstitucion" />
+  }
+  @case ("sexo-institucion") {
+    <table>
+      <thead>
+        <tr>
+          <th>Sexo</th>
+          <th>Institución</th>
+          <th>Cantidad</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          row of dashboard.aspirantesPorSexoInstitucion;
+          track row.primeraEtiqueta + row.segundaEtiqueta
+        ) {
+          <tr>
+            <td>{{ row.primeraEtiqueta }}</td>
+            <td>{{ row.segundaEtiqueta }}</td>
+            <td>{{ row.cantidad }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  @case ("resultados-anio") {
+    <table>
+      <thead>
+        <tr>
+          <th>Año</th>
+          <th>Aprobadas</th>
+          <th>No aprobadas</th>
+          <th>Aprobación</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of dashboard.resultadosPorAnio; track row.anioIngreso) {
+          <tr>
+            <td>{{ row.anioIngreso }}</td>
+            <td>{{ row.aprobadas }}</td>
+            <td>{{ row.noAprobadas }}</td>
+            <td>{{ percent(row.porcentajeAprobacion) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}

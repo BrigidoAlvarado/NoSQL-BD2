@@ -1,0 +1,25 @@
+@if (!rows.length) {
+  <p class="empty-result">No hay datos para esta consulta.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Categoría</th>
+        <th>Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; track row.etiqueta) {
+        <tr>
+          <td>
+            <span>{{ row.etiqueta }}</span>
+            <span class="comparison-track" aria-hidden="true">
+              <span [style.width.%]="width(row.cantidad)"> </span>
+            </span>
+          </td>
+          <td class="numeric">{{ row.cantidad }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

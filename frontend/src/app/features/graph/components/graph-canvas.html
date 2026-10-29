@@ -1,0 +1,30 @@
+<ul class="graph-legend" aria-label="Tipos de nodos">
+  @for (type of nodeTypes; track type.label) {
+    <li><span [style.background]="type.color" aria-hidden="true"></span>{{ type.label }}</li>
+  }
+</ul>
+<div class="graph-canvas" role="img" aria-label="Grafo de relaciones de evaluaciones">
+  <svg viewBox="0 0 900 560" preserveAspectRatio="xMidYMid meet">
+    @for (edge of data().relaciones; track edge.origen + edge.destino + edge.tipo) {
+      <line
+        class="graph-edge"
+        [attr.x1]="point(edge.origen).x"
+        [attr.y1]="point(edge.origen).y"
+        [attr.x2]="point(edge.destino).x"
+        [attr.y2]="point(edge.destino).y"
+      />
+    }
+    @for (node of data().nodos; track node.id) {
+      <g
+        class="graph-node"
+        [class]="'graph-node type-' + node.etiqueta"
+        [attr.transform]="'translate(' + point(node.id).x + ',' + point(node.id).y + ')'"
+        tabindex="0"
+      >
+        <title>{{ node.etiqueta }}: {{ node.titulo }}</title>
+        <circle r="13" />
+        <text y="29">{{ short(node.titulo) }}</text>
+      </g>
+    }
+  </svg>
+</div>

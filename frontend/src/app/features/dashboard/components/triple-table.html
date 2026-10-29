@@ -1,0 +1,20 @@
+<table>
+  <thead>
+    <tr>
+      <th>Departamento</th>
+      <th>Municipio</th>
+      <th>Carrera</th>
+      <th>Aspirantes</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta + r.terceraEtiqueta) {
+      <tr>
+        <td>{{ r.primeraEtiqueta }}</td>
+        <td>{{ r.segundaEtiqueta }}</td>
+        <td>{{ r.terceraEtiqueta }}</td>
+        <td>{{ r.cantidad }}</td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -1,0 +1,54 @@
+<section class="card applicant-detail">
+  <div class="result-heading">
+    <div>
+      <h2>Historial del aspirante</h2>
+      <p class="hint">Correlativo: {{ detail.aspiranteId }}</p>
+    </div>
+    <span class="tag">{{ detail.evaluacionesAprobadas }} aprobadas de {{ detail.totalEvaluaciones }}</span>
+  </div>
+  <p class="hint">
+    Cada fila es una evaluación distinta; una persona puede tener varias materias, oportunidades y años de
+    ingreso.
+  </p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Sexo</th>
+          <th>Año nac.</th>
+          <th>Edad</th>
+          <th>Materia</th>
+          <th>Intento</th>
+          <th>Año ingreso</th>
+          <th>Resultado</th>
+          <th>Carrera</th>
+          <th>Tipo institución</th>
+          <th>Municipio</th>
+          <th>Departamento</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          row of detail.evaluaciones;
+          track row.fechaAsignacion + row.materia + row.oportunidad + row.anioIngreso
+        ) {
+          <tr>
+            <td>{{ row.fechaAsignacion }}</td>
+            <td>{{ row.sexo }}</td>
+            <td>{{ display(row.anioNacimiento) }}</td>
+            <td>{{ display(row.edadIngreso) }}</td>
+            <td>{{ row.materia }}</td>
+            <td>{{ row.oportunidad }}</td>
+            <td>{{ row.anioIngreso }}</td>
+            <td>{{ row.aprobacion }}</td>
+            <td>{{ row.carreraObjetivo }}</td>
+            <td>{{ row.tipoInstitucion }}</td>
+            <td>{{ row.municipio }}</td>
+            <td>{{ row.departamento }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

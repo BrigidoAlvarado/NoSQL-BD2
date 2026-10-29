@@ -1,0 +1,22 @@
+@if (!rows.length) {
+  <p class="empty-result">No hay datos para esta consulta.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>{{ firstLabel }}</th>
+        <th>{{ secondLabel }}</th>
+        <th>Cantidad</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta) {
+        <tr>
+          <td>{{ r.primeraEtiqueta }}</td>
+          <td>{{ r.segundaEtiqueta }}</td>
+          <td>{{ r.cantidad }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

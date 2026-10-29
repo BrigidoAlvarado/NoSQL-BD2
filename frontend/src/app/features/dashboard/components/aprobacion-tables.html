@@ -1,0 +1,31 @@
+@switch (queryId) {
+  @case ("aprobadas-materia") {
+    <app-count-table [rows]="dashboard.aprobadasPorMateria" />
+  }
+  @case ("porcentaje-materia") {
+    <app-rate-table [rows]="dashboard.aprobacionPorMateria" />
+  }
+  @case ("porcentaje-institucion") {
+    <app-rate-table [rows]="dashboard.aprobacionPorInstitucion" />
+  }
+  @case ("oportunidades") {
+    <table>
+      <thead>
+        <tr>
+          <th>Materia</th>
+          <th>Promedio</th>
+          <th>Grupos</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of dashboard.oportunidadesPorMateria; track r.materia) {
+          <tr>
+            <td>{{ r.materia }}</td>
+            <td>{{ r.promedio.toFixed(2) }}</td>
+            <td>{{ r.grupos }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}

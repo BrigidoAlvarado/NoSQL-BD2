@@ -1,8 +1,8 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, timeout } from 'rxjs';
-import { ApiError } from './api-error.interceptor';
-import { ApiService } from './api.service';
+import { ApiError } from '../core/api-error.interceptor';
+import { ApiService } from '../core/api.service';
 
 interface ConnectionHealth {
   status: 'UP' | 'DOWN';

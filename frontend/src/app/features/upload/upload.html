@@ -1,0 +1,115 @@
+<p class="eyebrow">IMPORTACIÓN DE INFORMACIÓN</p>
+<h1>Carga de datos</h1>
+<p class="page-description">Carga uno o varios CSV para validarlos y sincronizarlos con MongoDB y Neo4j.</p>
+<section class="card">
+  <h2>Selecciona tus archivos</h2>
+  <p>
+    Selecciona uno o varios archivos para comenzar. Al finalizar, podrás revisar el resultado y las causas de
+    rechazo de cada archivo.
+  </p>
+  <ol class="upload-steps" aria-label="Pasos de la carga">
+    <li><span>1</span>Seleccionar CSV</li>
+    <li><span>2</span>Validar y procesar</li>
+    <li><span>3</span>Revisar resultados</li>
+  </ol>
+  <label class="file-label" for="csv-files">Archivos CSV</label>
+  <input
+    id="csv-files"
+    type="file"
+    accept=".csv,text/csv"
+    multiple
+    aria-describedby="upload-help"
+    [disabled]="loading()"
+    (change)="selectFiles($event)"
+  />
+  <p id="upload-help" class="hint">
+    Formato .csv · Hasta 30 MB por archivo y 100 MB en total. Seleccionar archivos todavía no inicia la carga.
+  </p>
+  @if (errors().length) {
+    <div class="error-message" role="alert">
+      <ul>
+        @for (error of errors(); track $index) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
+  @if (files().length) {
+    <div aria-live="polite">
+      <h3>Archivos seleccionados: {{ files().length }}</h3>
+      <ul class="file-list">
+        @for (file of files(); track file.name) {
+          <li>
+            <span>{{ file.name }}</span
+            ><span>{{ sizeLabel(file.size) }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+    <div class="actions">
+      <button class="button" type="button" [disabled]="loading()" (click)="upload()">
+        {{ loading() ? "Procesando…" : "Cargar y procesar" }}
+      </button>
+      <button class="button secondary" type="button" [disabled]="loading()" (click)="clearFiles()">
+        Limpiar selección
+      </button>
+    </div>
+  }
+</section>
+@if (loading()) {
+  <p class="processing" role="status">
+    El backend está validando y sincronizando los archivos. Esto puede tardar unos minutos.
+  </p>
+}
+@if (results().length) {
+  <section class="card results-card" aria-live="polite">
+    <h2>Resultado de la carga</h2>
+    @for (result of results(); track result.nombreArchivo) {
+      <article class="upload-result">
+        <div class="result-heading">
+          <h3>{{ result.nombreArchivo }}</h3>
+          <span class="state" [class.error-state]="isError(result.estado)">{{
+            stateLabel(result.estado)
+          }}</span>
+        </div>
+        <dl class="upload-metrics">
+          <div>
+            <dt>Leídos</dt>
+            <dd>{{ result.registrosLeidos }}</dd>
+          </div>
+          <div>
+            <dt>Procesados</dt>
+            <dd>{{ result.registrosProcesados }}</dd>
+          </div>
+          <div>
+            <dt>Rechazados</dt>
+            <dd>{{ result.registrosRechazados }}</dd>
+          </div>
+          <div>
+            <dt>Duración</dt>
+            <dd>{{ durationLabel(result.duracionMilisegundos) }}</dd>
+          </div>
+        </dl>
+        <p class="hint">
+          {{ result.detalle }}
+          @if (result.reutilizada) {
+            Este archivo ya estaba sincronizado.
+          }
+        </p>
+        @if (result.rechazos.length) {
+          <details>
+            <summary>Ver rechazos y causas ({{ result.rechazos.length }})</summary>
+            <ul class="rejection-list">
+              @for (rejection of result.rechazos; track rejection.line + rejection.code) {
+                <li>
+                  <strong>Línea {{ rejection.line }} · {{ rejection.code }}</strong
+                  ><br />{{ rejection.detail }}
+                </li>
+              }
+            </ul>
+          </details>
+        }
+      </article>
+    }
+  </section>
+}

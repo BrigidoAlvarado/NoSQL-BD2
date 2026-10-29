@@ -1,7 +1,7 @@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { apiErrorInterceptor } from './api-error.interceptor';
+import { apiErrorInterceptor } from '../core/api-error.interceptor';
 import { ConnectionStatus } from './connection-status';
 
 describe('Estado de los servicios', () => {

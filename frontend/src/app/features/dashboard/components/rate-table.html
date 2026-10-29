@@ -1,0 +1,31 @@
+@if (!rows.length) {
+  <p class="empty-result">No hay datos para esta consulta.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>Categoría</th>
+        <th>Aprobadas</th>
+        <th>Evaluaciones</th>
+        <th>Aprobación</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; track row.etiqueta) {
+        <tr>
+          <td>{{ row.etiqueta }}</td>
+          <td>{{ row.aprobadas }}</td>
+          <td>{{ row.evaluaciones }}</td>
+          <td class="numeric">
+            {{ row.porcentajeAprobacion.toFixed(2) }} %<progress
+              class="approval-progress"
+              [value]="row.porcentajeAprobacion"
+              max="100"
+              [attr.aria-label]="'Aprobación de ' + row.etiqueta"
+            ></progress>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

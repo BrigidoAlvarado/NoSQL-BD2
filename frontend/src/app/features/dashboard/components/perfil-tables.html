@@ -1,0 +1,71 @@
+@switch (queryId) {
+  @case ("edad-carrera") {
+    <table>
+      <thead>
+        <tr>
+          <th>Carrera</th>
+          <th>Promedio</th>
+          <th>Con edad</th>
+          <th>Sin edad</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of dashboard.edadPorCarrera; track r.etiqueta) {
+          <tr>
+            <td>{{ r.etiqueta }}</td>
+            <td>{{ r.promedio.toFixed(2) }}</td>
+            <td>{{ r.conDato }}</td>
+            <td>{{ r.sinDato }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  @case ("edad-aprobados") {
+    <table>
+      <thead>
+        <tr>
+          <th>Carrera</th>
+          <th>Institución</th>
+          <th>Promedio</th>
+          <th>Sin edad</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (
+          r of dashboard.edadAprobadosPorCarreraInstitucion;
+          track r.primeraEtiqueta + r.segundaEtiqueta
+        ) {
+          <tr>
+            <td>{{ r.primeraEtiqueta }}</td>
+            <td>{{ r.segundaEtiqueta }}</td>
+            <td>{{ r.promedio.toFixed(2) }}</td>
+            <td>{{ r.sinDato }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+  @case ("aprobacion-edad") {
+    <table>
+      <thead>
+        <tr>
+          <th>Edad</th>
+          <th>Aprobadas</th>
+          <th>Evaluaciones</th>
+          <th>Aprobación</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of dashboard.aprobacionPorEdad; track r.edad) {
+          <tr>
+            <td>{{ r.edad }}</td>
+            <td>{{ r.aprobadas }}</td>
+            <td>{{ r.evaluaciones }}</td>
+            <td>{{ percent(r.porcentajeAprobacion) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}

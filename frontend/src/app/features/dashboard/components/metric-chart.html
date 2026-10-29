@@ -1,0 +1,39 @@
+@if (!rows.length) {
+  <p class="empty-result">No hay datos para graficar.</p>
+} @else {
+  <figure class="metric-chart" [class.donut-chart]="kind === 'donut'" [attr.aria-label]="title">
+    @if (kind === "donut") {
+      <div class="donut" [style.background]="donutBackground()">
+        <span>{{ format(total()) }}</span>
+        <small>registros</small>
+      </div>
+    }
+    <figcaption>
+      <span class="chart-caption">{{
+        kind === "donut" ? "Distribución del total" : "Comparación de valores"
+      }}</span>
+      <ul class="chart-legend">
+        @for (row of visibleRows(); track row.label; let index = $index) {
+          <li>
+            <span [style.background]="color(index)"> </span>
+            <span [title]="row.label">{{ row.label }}</span>
+            <strong>{{ format(row.value) }}</strong>
+          </li>
+        }
+      </ul>
+    </figcaption>
+    @if (kind === "bar") {
+      <div class="chart-bars">
+        @for (row of visibleRows(); track row.label; let index = $index) {
+          <div>
+            <span [title]="row.label">{{ row.label }}</span>
+            <span class="chart-bar-track">
+              <span [style.width.%]="width(row.value)" [style.background]="color(index)"> </span>
+            </span>
+            <strong>{{ format(row.value) }}</strong>
+          </div>
+        }
+      </div>
+    }
+  </figure>
+}
