@@ -31,4 +31,5 @@ export const DASHBOARD_SECTIONS: readonly AnalysisSection[] = [
     description: 'Ubicación e instituciones',
     question: '¿De dónde provienen los aspirantes y qué muestran sus instituciones educativas?',
   },
+  { id: 'adicionales', label: 'Análisis adicionales', description: 'M21–M25', question: '¿Qué muestran las oportunidades, trayectorias y calidad de datos?' },
 ];

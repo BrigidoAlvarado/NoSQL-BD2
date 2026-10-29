@@ -1,3 +1,4 @@
+import { AdditionalAnalysis } from './components/additional-analysis';
 import { PanoramaTables } from './components/panorama-tables';
 import { ApprovalTables } from './components/aprobacion-tables';
 import { CareerTables } from './components/carreras-tables';
@@ -18,6 +19,7 @@ import { MetricChart } from './components/metric-chart';
   selector: 'app-dashboard',
   imports: [
     RouterLink,
+    AdditionalAnalysis,
     MetricChart,
     PanoramaTables,
     ApprovalTables,

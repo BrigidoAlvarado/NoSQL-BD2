@@ -28,7 +28,7 @@ describe('Menú principal con subsecciones', () => {
     const root = fixture.nativeElement as HTMLElement;
     const current = () => root.querySelector('nav[aria-label="Navegación principal"] [aria-current="page"]') as HTMLAnchorElement;
     expect(root.querySelectorAll('aside')).toHaveLength(1);
-    expect(root.querySelectorAll('.nav-subsections a')).toHaveLength(5);
+    expect(root.querySelectorAll('.nav-subsections a')).toHaveLength(6);
     expect(current().textContent).toBe('Carreras');
     expect(current().getAttribute('href')).toBe('/estadisticas?seccion=carreras');
     expect(root.querySelector('main nav')).toBeNull();
