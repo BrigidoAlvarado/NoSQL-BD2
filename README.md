@@ -2,6 +2,8 @@
 
 Aplicación para analizar evaluaciones de aspirantes a la Facultad de Ingeniería de la USAC.
 
+Documentación de entrega: [manual técnico](docs/MANUAL_TECNICO.md), [manual de usuario](docs/MANUAL_USUARIO.md), [consultas](docs/CONSULTAS.md), [análisis y conclusiones](docs/ANALISIS_Y_CONCLUSIONES.md) y [verificación](docs/VERIFICACION_ENTREGA.md).
+
 ## Estructura
 
 ```text
@@ -66,7 +68,7 @@ curl -i http://localhost:8080/api/health
 
 La ruta ejecuta `ping` en MongoDB y `RETURN 1 AS connected` en Neo4j, sin modificar datos. Devuelve HTTP 200 y `{"status":"UP","mongodb":"UP","neo4j":"UP"}` si ambas responden; si alguna falla, devuelve HTTP 503 con su estado `DOWN`. No expone contraseñas ni detalles internos de los errores. Al editar `.env`, reinicia el backend para cargar los nuevos valores.
 
-Las pruebas automatizadas usan clientes simulados para los estados de conexión y comprueban el arranque del contexto con credenciales de prueba; no requieren bases disponibles. La conexión real se comprueba con `/api/health`. Quedan pendientes el modelo de datos, ETL y endpoints de carga, consultas y búsqueda.
+Las pruebas automatizadas usan clientes simulados para los estados de conexión y comprueban el arranque del contexto con credenciales de prueba; no requieren bases disponibles. La conexión real se comprueba con `/api/health`. El ETL, la carga, las estadísticas, la búsqueda y los grafos están implementados.
 
 Para compilar, ejecutar las pruebas y empaquetar el backend, usa `./mvnw verify` desde `backend/`. Si tu Java predeterminado es otra versión, configura `JAVA_HOME` para apuntar al JDK 25 antes de ejecutar Maven.
 
@@ -86,7 +88,7 @@ npm start
 
 Abre `http://localhost:4200`. El proxy de desarrollo reenvía `/api/**` a `http://localhost:8080`.
 
-El panel «Estado de los servicios» comprueba la API y ambas bases al iniciar la aplicación y permite reintentar sin bloquear la navegación. El diagnóstico no carga datos ni sustituye la implementación del ETL y las consultas pendientes.
+El panel «Estado de los servicios» comprueba la API y ambas bases al iniciar la aplicación y permite reintentar sin bloquear la navegación. El diagnóstico comprueba conectividad; las pantallas funcionales permiten cargar y consultar los datos.
 
 
 ## Revisión de los CSV
@@ -114,7 +116,7 @@ Los comandos son repetibles. Para comprobar el diseño con una fila real y limpi
 
 ## ETL de CSV
 
-El backend incluye el servicio interno `CsvImportService`, que valida y transforma CSV UTF-8 con los encabezados publicados, registra rechazos por línea, guarda evaluaciones idempotentemente en MongoDB y sincroniza el grafo en Neo4j. La API HTTP y el envío desde Angular se implementarán con la sección de carga de interfaz.
+El backend incluye el servicio interno `CsvImportService`, que valida y transforma CSV UTF-8 con los encabezados publicados, registra rechazos por línea, guarda evaluaciones idempotentemente en MongoDB y sincroniza el grafo en Neo4j. La API HTTP y Angular ejecutan este flujo desde Carga de datos.
 
 Para ejecutar la prueba de integración contra los contenedores locales, desde `backend/`:
 
@@ -144,4 +146,4 @@ La API devuelve mensajes controlados para archivos inválidos, procesamiento, co
 
 ## Explorador de grafos
 
-La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. En la misma vista se ejecutan G01 a G05.
+La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. Las subsecciones permiten ejecutar G01 a G10.

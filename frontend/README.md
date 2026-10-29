@@ -1,6 +1,6 @@
 # Frontend de Admisiones USAC
 
-Implementación inicial basada en [el brief del proyecto](../.docs/BRIEF_PROYECTO.md).
+Aplicación Angular de estadísticas, carga CSV, búsqueda y exploración de grafos. Manuales en [docs](../docs/MANUAL_USUARIO.md).
 
 ## Ejecutar
 
@@ -30,8 +30,8 @@ La compilación de producción genera `dist/admisiones-usac/browser/`.
 ## Estructura y decisiones de diseño
 
 - Angular con componentes standalone, detección de cambios sin Zone.js, TypeScript estricto y rutas cargadas bajo demanda.
-- `src/app/features/`: estadísticas y selección de CSV.
-- `src/app/shared/`: vista inicial de búsqueda y grafos.
+- `src/app/features/`: estadísticas, carga CSV, búsqueda y grafos.
+- `src/app/shared/`: tipos y componentes compartidos.
 - `src/app/core/`: cliente HTTP e interceptor con mensajes de error en español. Los consumidores deben mostrar `ApiError.message`; `ApiError.response` conserva los detalles HTTP.
 - `src/environments/`: URL base de la API por entorno. No almacenes credenciales aquí: el código del frontend es público.
 - Interfaz adaptable a escritorio y móvil, navegación con teclado y estados vacíos explícitos.
@@ -39,14 +39,14 @@ La compilación de producción genera `dist/admisiones-usac/browser/`.
 
 ## Integración con el backend
 
-El cliente HTTP usa `/api`. Durante `npm start`, `proxy.conf.json` redirige `/api/**` a `http://localhost:8080`, sin eliminar el prefijo. El backend implementa `GET /api/health`; el panel «Estado de los servicios» lo consulta al iniciar la aplicación y permite reintentar. Muestra los estados independientes de MongoDB y Neo4j incluso con HTTP 503 y mensajes claros ante errores de red o respuestas inválidas. La espera del cliente está limitada a 45 segundos. Las pantallas funcionales todavía no consultan evaluaciones ni simulan resultados.
+El cliente HTTP usa `/api`. Durante `npm start`, `proxy.conf.json` redirige `/api/**` a `http://localhost:8080`, sin eliminar el prefijo. El backend implementa `GET /api/health`; el panel «Estado de los servicios» lo consulta al iniciar la aplicación y permite reintentar. Muestra los estados independientes de MongoDB y Neo4j incluso con HTTP 503 y mensajes claros ante errores de red o respuestas inválidas. La espera del cliente está limitada a 45 segundos. Las pantallas consultan los endpoints funcionales de la API.
 
 En producción, el proxy de Angular no se utiliza. Configura el servidor web para reenviar `/api/**` al backend y servir `index.html` para las rutas del frontend. Si despliegas la API en otro origen, actualiza `environment.ts` y configura CORS en el backend.
 
-La selección CSV verifica únicamente extensión y tamaño no vacío. Acepta varios archivos y permite limpiar la selección. La validación de estructura y registros corresponde al ETL del backend; seleccionar un archivo no lo envía ni lo almacena.
+La selección CSV verifica únicamente extensión y tamaño no vacío. Acepta varios archivos y permite limpiar la selección. La validación de estructura y registros corresponde al ETL del backend; el botón Cargar y procesar envía los archivos.
 
-## Alcance pendiente
+## Funcionalidad disponible
 
-Esta base todavía requiere implementar la carga y sus resúmenes, las 20 consultas MongoDB y sus visualizaciones, la búsqueda y el explorador de grafos con filtros y al menos cinco consultas Cypher. El frontend accederá a estos servicios exclusivamente mediante la API.
+Incluye carga y resúmenes, veinte consultas MongoDB (dos en búsqueda), buscador y explorador filtrable con diez consultas Cypher. Todo acceso a datos pasa por la API.
 
-La [arquitectura](../.docs/ARQUITECTURA.md) documenta la elección de Chart.js y Cytoscape.js para las próximas visualizaciones. Aún no están instaladas. Las [verificaciones de la base](../.docs/VERIFICACION_BASE.md) incluyen evidencia y un recorrido manual.
+La implementación utiliza gráficas CSS y un grafo SVG nativo, sin bibliotecas externas. Consulta el [manual técnico](../docs/MANUAL_TECNICO.md).
