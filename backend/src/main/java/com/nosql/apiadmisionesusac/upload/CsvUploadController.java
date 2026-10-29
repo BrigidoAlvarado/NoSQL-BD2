@@ -5,6 +5,7 @@ import com.nosql.apiadmisionesusac.etl.ImportResult;
 import com.nosql.apiadmisionesusac.etl.RejectedRow;
 import java.time.Duration;
 import java.time.Instant;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -54,14 +55,18 @@ public class CsvUploadController {
             return FileUploadResponse.error(name, "ARCHIVO_INVALIDO", "El archivo debe tener extensión .csv.");
         }
         Instant started = Instant.now();
+        final byte[] contents;
         try {
-            ImportResult result = importer.importFile(name, file.getBytes());
-            return FileUploadResponse.from(name, result, Duration.between(started, Instant.now()).toMillis(),
-                    importer.rejectedRows(result.sha256Archivo(), 100));
-        } catch (Exception exception) {
-            return FileUploadResponse.error(name, "ERROR_ARCHIVO", "No fue posible leer el archivo recibido.",
+            contents = file.getBytes();
+        } catch (IOException exception) {
+            return FileUploadResponse.error(name, "ARCHIVO_ILEGIBLE", "No fue posible leer el archivo recibido.",
                     Duration.between(started, Instant.now()).toMillis());
         }
+        try {
+            ImportResult result = importer.importFile(name, contents);
+            return FileUploadResponse.from(name, result, Duration.between(started, Instant.now()).toMillis(),
+                    importer.rejectedRows(result.sha256Archivo(), 100));
+        } catch (RuntimeException exception) { throw exception; }
     }
 
     private String safeName(MultipartFile file) {
