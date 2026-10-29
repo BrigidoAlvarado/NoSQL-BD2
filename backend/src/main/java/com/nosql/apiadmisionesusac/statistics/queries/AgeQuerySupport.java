@@ -39,8 +39,9 @@ final class AgeQuerySupport {
     }
 
     static DashboardResponse.AverageByLabel averageLabel(Document document) {
+        Document group = document.get("_id", Document.class);
         return new DashboardResponse.AverageByLabel(
-                label(document.get("_id")),
+                label(group.get("carrera")),
                 decimal(document.get("promedio")),
                 number(document.get("conDato")),
                 number(document.get("sinDato")));

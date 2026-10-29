@@ -67,6 +67,7 @@ class IndividualQueriesIntegrationTest {
                         .orElseThrow();
         assertEquals(33.33, subject.porcentajeAprobacion(), 0.001);
         var age = M05AgeByCareer.execute(evaluations).getFirst();
+        assertEquals("A", age.etiqueta());
         assertEquals(19, age.promedio());
         assertEquals(2, age.conDato());
         assertEquals(18, M07ApprovedAgeByInstitution.execute(evaluations).getFirst().promedio());
