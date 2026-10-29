@@ -1,3 +1,4 @@
+import { displayMunicipality } from '../../shared/municipality-name.pipe';
 import { GraphCanvas } from './components/graph-canvas';
 import { displayCareerName } from '../../shared/career-name.pipe';
 import { QUERY_TITLES, columnLabel } from './graph.presentation';
@@ -106,6 +107,9 @@ export class GraphExplorer {
     this.loadGraph();
   }
   value(row: Record<string, unknown>, column: string): string {
+    if (column === 'municipio' && typeof row['departamento'] === 'string') {
+      return displayMunicipality(String(row[column] ?? ''), row['departamento']);
+    }
     return displayCareerName(String(row[column] ?? ''));
   }
   inputValue(event: Event): string {

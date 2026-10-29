@@ -61,14 +61,14 @@
             ><span class="sr-only">Selecciona una consulta de {{ section().label }}</span
             ><select [value]="selectedQuery().id" (change)="selectQuery($any($event.target).value)">
               @for (query of sectionQueries(); track query.id) {
-                <option [value]="query.id">{{ query.label }}</option>
+                <option [value]="query.id">{{ query.mongoId }} · {{ query.label }}</option>
               }
             </select></label
           >
         </section>
         <div class="dashboard-results">
           <section class="card data-table-card">
-            <h2>{{ selectedQuery().title }}</h2>
+            <h2>{{ selectedQuery().mongoId }} · {{ selectedQuery().title }}</h2>
             <p class="hint">{{ selectedQuery().hint }}</p>
             @switch (section().id) {
               @case ("panorama") {
@@ -89,7 +89,7 @@
             }
           </section>
           <section class="card visualization-card">
-            <h2>Lectura visual</h2>
+            <h2>{{ selectedQuery().mongoId }} · Lectura visual</h2>
             <p class="hint">
               {{
                 selectedQuery().chart === "donut"

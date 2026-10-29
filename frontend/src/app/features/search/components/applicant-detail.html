@@ -44,7 +44,7 @@
             <td>{{ row.aprobacion }}</td>
             <td>{{ row.carreraObjetivo | careerName }}</td>
             <td>{{ row.tipoInstitucion }}</td>
-            <td>{{ row.municipio }}</td>
+            <td>{{ row.municipio | municipalityName:row.departamento }}</td>
             <td>{{ row.departamento }}</td>
           </tr>
         }

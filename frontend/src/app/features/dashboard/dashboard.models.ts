@@ -97,6 +97,7 @@ export interface ChartDatum {
 }
 export type ChartKind = 'bar' | 'donut';
 export interface DashboardQuery {
+  mongoId: string;
   id: string;
   label: string;
   title: string;

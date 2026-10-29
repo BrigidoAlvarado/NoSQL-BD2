@@ -1,9 +1,10 @@
+import { MunicipalityNamePipe } from '../../../shared/municipality-name.pipe';
 import { CareerNamePipe } from '../../../shared/career-name.pipe';
 import { Component } from '@angular/core';
 import { CountByPair } from '../dashboard.models';
 
 @Component({
-  imports: [CareerNamePipe],
+  imports: [CareerNamePipe, MunicipalityNamePipe],
   standalone: true,
   selector: 'app-pair-table',
   inputs: ['rows', 'firstLabel', 'secondLabel'],

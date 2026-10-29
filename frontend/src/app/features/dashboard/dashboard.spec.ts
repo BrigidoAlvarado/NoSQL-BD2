@@ -89,8 +89,8 @@ describe('Dashboard de estadísticas', () => {
         await fixture.whenStable();
         expect(fixture.nativeElement.querySelectorAll('.data-table-card')).toHaveLength(1);
         expect(fixture.nativeElement.querySelectorAll('app-metric-chart')).toHaveLength(1);
-        expect(fixture.nativeElement.querySelector('.data-table-card h2').textContent).toBe(query.title);
-        ids.push(query.hint.match(/M\d\d/)![0]);
+        expect(fixture.nativeElement.querySelector('.data-table-card h2').textContent).toBe(`${query.mongoId} · ${query.title}`);
+        ids.push(query.mongoId);
       }
     }
     expect(ids).toHaveLength(18);
