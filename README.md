@@ -2,8 +2,6 @@
 
 Aplicación para analizar evaluaciones de aspirantes a la Facultad de Ingeniería de la USAC.
 
-Documentación de entrega: [manual técnico](.docs/MANUAL_TECNICO.md), [manual de usuario](.docs/MANUAL_USUARIO.md), [consultas](.docs/CONSULTAS.md), [análisis y conclusiones](.docs/ANALISIS_Y_CONCLUSIONES.md) y [verificación](.docs/VERIFICACION_ENTREGA.md).
-
 ## Estructura
 
 ```text
