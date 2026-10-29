@@ -12,7 +12,7 @@
       @for (row of rows; track row.etiqueta) {
         <tr>
           <td>
-            <span>{{ row.etiqueta }}</span>
+            <span>{{ row.etiqueta | careerName }}</span>
             <span class="comparison-track" aria-hidden="true">
               <span [style.width.%]="width(row.cantidad)"> </span>
             </span>

@@ -16,7 +16,7 @@
         @for (row of visibleRows(); track row.label; let index = $index) {
           <li>
             <span [style.background]="color(index)"> </span>
-            <span [title]="row.label">{{ row.label }}</span>
+            <span [title]="row.label | careerName">{{ row.label | careerName }}</span>
             <strong>{{ format(row.value) }}</strong>
           </li>
         }
@@ -26,7 +26,7 @@
       <div class="chart-bars">
         @for (row of visibleRows(); track row.label; let index = $index) {
           <div>
-            <span [title]="row.label">{{ row.label }}</span>
+            <span [title]="row.label | careerName">{{ row.label | careerName }}</span>
             <span class="chart-bar-track">
               <span [style.width.%]="width(row.value)" [style.background]="color(index)"> </span>
             </span>

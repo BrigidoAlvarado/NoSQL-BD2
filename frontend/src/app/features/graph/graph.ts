@@ -1,4 +1,5 @@
 import { GraphCanvas } from './components/graph-canvas';
+import { displayCareerName } from '../../shared/career-name.pipe';
 import { QUERY_TITLES, columnLabel } from './graph.presentation';
 import { isGraph, isQuery } from './graph.validation';
 import { HttpParams } from '@angular/common/http';
@@ -105,7 +106,7 @@ export class GraphExplorer {
     this.loadGraph();
   }
   value(row: Record<string, unknown>, column: string): string {
-    return String(row[column] ?? '');
+    return displayCareerName(String(row[column] ?? ''));
   }
   inputValue(event: Event): string {
     return (event.target as HTMLInputElement).value;

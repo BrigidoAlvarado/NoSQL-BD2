@@ -1,7 +1,9 @@
+import { CareerNamePipe } from '../../../shared/career-name.pipe';
 import { Component } from '@angular/core';
 import { CountByLabel } from '../dashboard.models';
 
 @Component({
+  imports: [CareerNamePipe],
   standalone: true,
   selector: 'app-count-table',
   inputs: ['rows'],

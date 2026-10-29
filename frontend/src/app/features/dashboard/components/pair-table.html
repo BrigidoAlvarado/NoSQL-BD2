@@ -13,7 +13,7 @@
       @for (r of rows; track r.primeraEtiqueta + r.segundaEtiqueta) {
         <tr>
           <td>{{ r.primeraEtiqueta }}</td>
-          <td>{{ r.segundaEtiqueta }}</td>
+          <td>{{ r.segundaEtiqueta | careerName }}</td>
           <td>{{ r.cantidad }}</td>
         </tr>
       }

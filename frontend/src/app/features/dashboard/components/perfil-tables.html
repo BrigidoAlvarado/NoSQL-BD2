@@ -12,7 +12,7 @@
       <tbody>
         @for (r of dashboard.edadPorCarrera; track r.etiqueta) {
           <tr>
-            <td>{{ r.etiqueta }}</td>
+            <td>{{ r.etiqueta | careerName }}</td>
             <td>{{ r.promedio.toFixed(2) }}</td>
             <td>{{ r.conDato }}</td>
             <td>{{ r.sinDato }}</td>
@@ -37,7 +37,7 @@
           track r.primeraEtiqueta + r.segundaEtiqueta
         ) {
           <tr>
-            <td>{{ r.primeraEtiqueta }}</td>
+            <td>{{ r.primeraEtiqueta | careerName }}</td>
             <td>{{ r.segundaEtiqueta }}</td>
             <td>{{ r.promedio.toFixed(2) }}</td>
             <td>{{ r.sinDato }}</td>

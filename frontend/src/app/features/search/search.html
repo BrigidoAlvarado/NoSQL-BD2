@@ -94,7 +94,7 @@
                 <td>{{ row.materia }}</td>
                 <td>{{ row.oportunidad }}</td>
                 <td>{{ row.aprobacion }}</td>
-                <td>{{ row.carreraObjetivo }}</td>
+                <td>{{ row.carreraObjetivo | careerName }}</td>
                 <td>
                   <button class="text-button" type="button" (click)="loadApplicant(row.aspiranteId)">
                     Ver historial

@@ -1,7 +1,9 @@
+import { CareerNamePipe } from '../../../shared/career-name.pipe';
 import { Component, computed, input } from '@angular/core';
 import { GraphData } from '../graph.models';
 
 @Component({
+  imports: [CareerNamePipe],
   selector: 'app-graph-canvas',
   templateUrl: './graph-canvas.html',
 })

@@ -11,7 +11,7 @@
       <tbody>
         @for (r of dashboard.aprobadosPorCarreraAnio; track r.carrera + r.anioIngreso) {
           <tr>
-            <td>{{ r.carrera }}</td>
+            <td>{{ r.carrera | careerName }}</td>
             <td>{{ r.anioIngreso }}</td>
             <td>{{ r.aspirantes }}</td>
           </tr>
@@ -34,7 +34,7 @@
         @for (r of dashboard.resumenCarreras; track r.anioIngreso + r.carrera) {
           <tr>
             <td>{{ r.anioIngreso }}</td>
-            <td>{{ r.carrera }}</td>
+            <td>{{ r.carrera | careerName }}</td>
             <td>{{ r.evaluaciones }}</td>
             <td>{{ r.aspirantesDistintos }}</td>
             <td>{{ percent(r.porcentajeAprobacion) }}</td>

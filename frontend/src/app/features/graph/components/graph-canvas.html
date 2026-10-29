@@ -21,9 +21,9 @@
         [attr.transform]="'translate(' + point(node.id).x + ',' + point(node.id).y + ')'"
         tabindex="0"
       >
-        <title>{{ node.etiqueta }}: {{ node.titulo }}</title>
+        <title>{{ node.etiqueta }}: {{ node.titulo | careerName }}</title>
         <circle r="13" />
-        <text y="29">{{ short(node.titulo) }}</text>
+        <text y="29">{{ short((node.titulo | careerName)) }}</text>
       </g>
     }
   </svg>

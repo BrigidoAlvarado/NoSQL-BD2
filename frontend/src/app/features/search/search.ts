@@ -1,3 +1,4 @@
+import { CareerNamePipe } from '../../shared/career-name.pipe';
 import { ApplicantDetailView } from './components/applicant-detail';
 import { HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
@@ -8,7 +9,7 @@ import { SearchData, ApplicantDetail } from './search.models';
 
 @Component({
   selector: 'app-search',
-  imports: [ApplicantDetailView],
+  imports: [CareerNamePipe, ApplicantDetailView],
   templateUrl: './search.html',
 })
 export class Search {

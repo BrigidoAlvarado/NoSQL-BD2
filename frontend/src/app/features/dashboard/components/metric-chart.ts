@@ -1,7 +1,9 @@
+import { CareerNamePipe } from '../../../shared/career-name.pipe';
 import { Component } from '@angular/core';
 import { ChartDatum, ChartKind } from '../dashboard.models';
 
 @Component({
+  imports: [CareerNamePipe],
   standalone: true,
   selector: 'app-metric-chart',
   inputs: ['rows', 'kind', 'title'],
