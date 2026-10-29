@@ -29,6 +29,7 @@ export class GraphExplorer {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   private graphRequest = 0;
+  readonly requestedLimit = signal(10);
   limite = 10;
   readonly options = signal<{carreras: string[]; departamentos: string[]}>({carreras: [], departamentos: []});
   readonly optionsError = signal('');
@@ -55,6 +56,7 @@ export class GraphExplorer {
   }
   loadGraph(): void {
     const request = ++this.graphRequest;
+    this.requestedLimit.set(this.limite);
     this.loading.set(true);
     this.error.set(null);
     let params = new HttpParams().set('limite', String(this.limite));
@@ -120,6 +122,11 @@ export class GraphExplorer {
       return displayMunicipality(String(row[column] ?? ''), row['departamento']);
     }
     return displayCareerName(String(row[column] ?? ''));
+  }
+  careerLabel(value: string): string {
+    const label = displayCareerName(value);
+    const same = this.options().carreras.filter(option => displayCareerName(option) === label);
+    return same.length > 1 ? `${label} (variante ${same.indexOf(value) + 1})` : label;
   }
   loadOptions(): void {
     this.optionsError.set('');

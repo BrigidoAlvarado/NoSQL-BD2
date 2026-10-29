@@ -22,7 +22,7 @@
               placeholder="Todos"
           /></label>
           <label
-            >Carrera<select [value]="carrera" (change)="carrera = inputValue($event)"><option value="">Todas</option>@for (option of options().carreras; track option) { <option [value]="option">{{ option }}</option> }</select></label>
+            >Carrera<select [value]="carrera" (change)="carrera = inputValue($event)"><option value="">Todas</option>@for (option of options().carreras; track option) { <option [value]="option">{{ careerLabel(option) }}</option> }</select></label>
           <label
             >Departamento<select [value]="departamento" (change)="departamento = inputValue($event)"><option value="">Todos</option>@for (option of options().departamentos; track option) { <option [value]="option">{{ option }}</option> }</select></label>
           <label
@@ -53,6 +53,7 @@
         <section class="card graph-card">
           <div class="result-heading">
             <h2>Grafo de evaluaciones</h2>
+            @if (data.evaluacionesIncluidas < requestedLimit()) { <p>Los filtros encontraron {{ data.evaluacionesIncluidas }} de las {{ requestedLimit() }} evaluaciones solicitadas.</p> }
             <span class="tag"
               >{{ data.evaluacionesIncluidas }} evaluaciones · {{ data.nodos.length }} nodos</span
             >
