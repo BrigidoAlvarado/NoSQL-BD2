@@ -1,17 +1,24 @@
 <fieldset><legend>Tipos de entidades visibles</legend>
-      @for (type of types(); track type) { <label><input type="checkbox" [checked]="!hiddenTypes().includes(type)" (change)="toggle(type)" />{{ type }}</label> }
+      @for (type of types(); track type) {
+        <label>
+          <input type="checkbox" [checked]="!hiddenTypes().includes(type)" (change)="toggle(type)" />
+          <span class="type-color" [style.backgroundColor]="nodeType(type).color" aria-hidden="true"></span>
+          {{ nodeType(type).label }}
+        </label>
+      }
     </fieldset>
     <p>{{ visibleCount() }} de {{ data().nodos.length }} nodos visibles</p>
-    <p>Carreras: naranja · Aspirantes: azul · Evaluaciones: violeta · Ubicación: verde</p>
+    <p class="hint">Cada tipo tiene el color indicado en su filtro. Al desmarcarlo se ocultan sus nodos y las relaciones conectadas a ellos.</p>
+    @if (selected()) { <p class="hint">Los nodos grises están fuera de la selección y sus vecinos directos.</p> }
     <button class="button secondary" (click)="network?.fit()">Ajustar vista</button>
     <button class="button secondary" (click)="clear()">Quitar selección</button>
     <div #canvas class="graph-canvas"  aria-label="Grafo interactivo de la muestra"></div>
     <label>Seleccionar entidad <select [value]="selected()?.id ?? ''" (change)="select($any($event.target).value)">
       <option value="">Sin selección</option>
-      @for (node of data().nodos; track node.id) { <option [value]="node.id">{{ node.etiqueta }} · {{ node.titulo }}</option> }
+      @for (node of data().nodos; track node.id) { <option [value]="node.id">{{ nodeType(node.etiqueta).label }} · {{ node.titulo }}</option> }
     </select></label>
     @if (selected(); as node) {
-      <aside><h3>{{ node.etiqueta }} · {{ node.titulo }}</h3><p>{{ node.id }}</p>
+      <aside><h3>{{ nodeType(node.etiqueta).label }} · {{ node.titulo }}</h3><p>{{ node.id }}</p>
         <dl>@for (entry of properties(node); track entry[0]) { <dt>{{ entry[0] }}</dt><dd>{{ entry[1] }}</dd> }</dl>
       </aside>
     }

@@ -2,6 +2,7 @@ import { Component, ElementRef, effect, input, viewChild, OnDestroy, signal, unt
 import { DataSet, Network } from 'vis-network/standalone';
 import { GraphData, GraphNode } from '../graph.models';
 import { displayCareerName } from '../../../shared/career-name.pipe';
+import { graphNodeType } from '../graph-node-types';
 
 /** Dibuja la muestra y permite navegar y seleccionar sus relaciones. */
 @Component({
@@ -13,6 +14,7 @@ export class GraphCanvas implements OnDestroy {
   readonly data = input.required<GraphData>();
   readonly canvas = viewChild<ElementRef<HTMLDivElement>>('canvas');
   readonly selected = signal<GraphNode | null>(null);
+  readonly nodeType = graphNodeType;
   network?: Network;
   private nodes = new DataSet<any>();
   private edges = new DataSet<any>();
@@ -24,7 +26,6 @@ export class GraphCanvas implements OnDestroy {
     this.clear();
   }
   visibleCount(): number { return this.data().nodos.filter(node => !this.hiddenTypes().includes(node.etiqueta)).length; }
-  private readonly colors: Record<string, string> = { Carrera: '#bd6a2d', Aspirante: '#266678', Evaluacion: '#7a4da0' };
   constructor() {
     effect(() => {
       const container = this.canvas()?.nativeElement;
@@ -66,8 +67,9 @@ export class GraphCanvas implements OnDestroy {
     this.nodes.update(this.data().nodos.map(node => {
       const active = !selected || neighbors.has(node.id);
       const show = this.zoom > 1.5 || neighbors.has(node.id) || ['Carrera', 'Municipio', 'Departamento'].includes(node.etiqueta);
+      const color = active ? graphNodeType(node.etiqueta).color : '#dddddd';
       return { id: node.id, hidden: hidden.has(node.id), label: show ? displayCareerName(node.titulo) : ' ',
-        color: active ? this.colors[node.etiqueta] ?? '#28765a' : '#dddddd',
+        color: { background: color, border: color, highlight: { background: color, border: '#172b45' }, hover: { background: color, border: '#172b45' } },
         font: { color: active ? '#222222' : '#999999' }, borderWidth: node.id === selected ? 4 : 1 };
     }));
     this.edges.update(this.data().relaciones.map((edge, id) => ({ id, hidden: hidden.has(edge.origen) || hidden.has(edge.destino),

@@ -1,5 +1,6 @@
 fieldset { display: flex; flex-wrap: wrap; gap: .8rem; border: 1px solid #ccd5df; border-radius: 8px; padding: 1rem; }
 fieldset label { display: flex; align-items: center; gap: .3rem; }
+.type-color { display: inline-block; width: .85rem; height: .85rem; border-radius: 50%; border: 1px solid #ffffff; flex-shrink: 0; }
 .graph-canvas { height: 560px; width: 100%; border: 1px solid #ccd5df; border-radius: 8px; }
 button { margin: .3rem .5rem .8rem 0; }
 select { max-width: 100%; padding: .6rem; }
