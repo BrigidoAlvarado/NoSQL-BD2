@@ -1,6 +1,6 @@
 # Frontend de Admisiones USAC
 
-Aplicación Angular de estadísticas, carga CSV, búsqueda y exploración de grafos. Manuales en [docs](../docs/MANUAL_USUARIO.md).
+Aplicación Angular de estadísticas, carga CSV, búsqueda y exploración de grafos. Manuales en [docs](../.docs/MANUAL_USUARIO.md).
 
 ## Ejecutar
 
@@ -49,4 +49,4 @@ La selección CSV verifica únicamente extensión y tamaño no vacío. Acepta va
 
 Incluye carga y resúmenes, veinte consultas MongoDB (dos en búsqueda), buscador y explorador filtrable con diez consultas Cypher. Todo acceso a datos pasa por la API.
 
-La implementación utiliza gráficas CSS y un grafo SVG nativo, sin bibliotecas externas. Consulta el [manual técnico](../docs/MANUAL_TECNICO.md).
+La implementación utiliza gráficas CSS y un grafo SVG nativo, sin bibliotecas externas. Consulta el [manual técnico](../.docs/MANUAL_TECNICO.md).
