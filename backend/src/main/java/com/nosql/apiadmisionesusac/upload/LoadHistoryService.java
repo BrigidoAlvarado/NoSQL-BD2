@@ -23,9 +23,20 @@ public class LoadHistoryService {
     public Page loads(int page) {
         validate(page);
         var collection = mongo.getCollection("cargas");
-        var items = collection.find().projection(new Document("_id", 0).append("detalleError", 0))
+        var items = collection.find().projection(new Document("_id", 0))
                 .sort(new Document("iniciadaEn", -1).append("sha256Archivo", 1))
                 .skip(page * SIZE).limit(SIZE).into(new ArrayList<>());
+        for (var item : items) {
+            Object detail = item.remove("detalleError");
+            String state = item.getString("estado");
+            if ("RECHAZADA".equals(state) || "SIN_FILAS_VALIDAS".equals(state)) {
+                item.put("mensaje", detail);
+            } else if ("PENDIENTE_NEO4J".equals(state)) {
+                item.put("mensaje", "Sincronización Neo4j pendiente. Reintenta la carga.");
+            } else if ("FALLO_MONGO".equals(state)) {
+                item.put("mensaje", "No se pudo completar la escritura en MongoDB. Reintenta la carga.");
+            }
+        }
         return new Page(items, collection.countDocuments(), page, SIZE);
     }
 

@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { JsonPipe } from '@angular/common';
 import { ApiService } from '../../core/api.service';
 
 interface HistoryPage {
@@ -12,7 +11,7 @@ interface HistoryPage {
 /** Navega la trazabilidad guardada; una carga corresponde a un contenido distinto. */
 @Component({
   selector: 'app-load-history',
-  imports: [JsonPipe],
+  styles: [`.table-scroll { overflow-x: auto; } td { vertical-align: top; } dd { margin: 0 0 .5rem; }`],
   templateUrl: './load-history.html',
 })
 export class LoadHistory {
@@ -21,21 +20,33 @@ export class LoadHistory {
   readonly data = signal<HistoryPage | null>(null);
   readonly error = signal('');
   readonly loading = signal(false);
+  readonly selected = signal<Record<string, unknown> | null>(null);
   path = 'cargas';
   page = 0;
   constructor() { this.load(); }
 
   open(path: string): void {
+    if (path === 'cargas') this.selected.set(null);
     this.path = path;
     this.page = 0;
     this.load();
   }
   detail(row: Record<string, unknown>, kind: string): void {
+    this.selected.set(row);
     this.open(`cargas/${row['sha256Archivo']}/detalle/${kind}`);
   }
   move(delta: number): void {
     this.page += delta;
     this.load();
+  }
+  text(value: unknown): string {
+    return value === null || value === undefined ? 'Sin registro' : String(value);
+  }
+  entries(value: unknown): [string, unknown][] {
+    return value && typeof value === 'object' ? Object.entries(value) : [];
+  }
+  sources(row: Record<string, unknown>): Record<string, unknown>[] {
+    return Array.isArray(row['fuentes']) ? row['fuentes'] : [];
   }
   load(): void {
     const request = ++this.request;

@@ -2,28 +2,67 @@
   <h2>Historial de cargas</h2>
   <p>Una entrada por contenido de archivo. Los reintentos actualizan la misma carga.</p>
   <button class="button" (click)="open('cargas')">Actualizar historial</button>
+  @if (selected(); as load) {
+    <h3>{{ load['nombreArchivo'] }}</h3>
+    <p>Estado: {{ load['estado'] }} · Contenido: {{ load['sha256Archivo'] }}</p>
+    @if (load['estado'] === 'PENDIENTE_NEO4J') {
+      <p>Los datos están en MongoDB; la sincronización con Neo4j sigue pendiente.</p>
+    }
+  }
   @if (loading()) { <p role="status">Consultando…</p> }
   @if (error()) {
     <p role="alert">{{ error() }}</p>
     <button (click)="load()">Reintentar</button>
   }
   @if (data(); as result) {
-    <p>{{ result.total }} registros · Página {{ result.page + 1 }}</p>
-    @if (path !== 'cargas') {
-      <p>Los registros válidos corresponden a MongoDB. Revisa el estado de la carga para confirmar la sincronización Neo4j. Varias filas de origen pueden corresponder a una sola evaluación.</p>
+    <p>{{ result.total }} registros · Página {{ result.page + 1 }} · {{ result.items.length }} visibles</p>
+    @if (path === 'cargas') {
+      <div class="table-scroll"><table>
+        <thead><tr><th>Archivo / contenido</th><th>Inicio / actualización</th><th>Estado</th><th>Leídas</th><th>Válidas</th><th>Rechazadas</th><th>Detalle</th></tr></thead>
+        <tbody>
+          @for (row of result.items; track row['sha256Archivo']) {
+            <tr>
+              <td>{{ row['nombreArchivo'] }}<details><summary>Identificador del contenido</summary>{{ row['sha256Archivo'] }}</details></td>
+              <td>{{ text(row['iniciadaEn']) }}<br>{{ text(row['actualizadaEn']) }}</td>
+              <td>{{ row['estado'] }}<p>{{ row['mensaje'] }}</p></td>
+              <td>{{ text(row['filasLeidas']) }}</td><td>{{ text(row['filasValidas']) }}</td><td>{{ text(row['filasRechazadas']) }}</td>
+              <td><button (click)="detail(row, 'rechazos')">Rechazos</button><button (click)="detail(row, 'validos')">Válidos</button></td>
+            </tr>
+          }
+        </tbody>
+      </table></div>
+      <p>Duración histórica: no disponible para estas cargas.</p>
+    } @else if (path.endsWith('/rechazos')) {
+      <table>
+        <thead><tr><th>Línea</th><th>Código</th><th>Causa</th><th>Valores originales</th></tr></thead>
+        <tbody>
+          @for (row of result.items; track $index) {
+            <tr><td>{{ row['fila'] }}</td><td>{{ row['codigo'] }}</td><td>{{ row['detalle'] }}</td>
+              <td><dl>@for (entry of entries(row['valores']); track entry[0]) {
+                <dt>{{ entry[0] }}</dt><dd>{{ text(entry[1]) }}</dd>
+              } @empty { <span>Valores no disponibles</span> }</dl></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p>Evaluaciones guardadas en MongoDB. Varias filas válidas de origen pueden corresponder a una sola evaluación distinta.</p>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Fuentes del archivo</th><th>Aspirante</th><th>Asignación</th><th>Materia / oportunidad</th><th>Año / resultado</th><th>Carrera</th><th>Nacimiento / edad</th><th>Procedencia</th></tr></thead>
+        <tbody>
+          @for (row of result.items; track $index) {
+            <tr>
+              <td>@for (source of sources(row); track $index) { <p>{{ source['nombreArchivo'] }} · Línea {{ source['fila'] }}</p> }</td>
+              <td>{{ row['aspiranteId'] }}</td><td>{{ text(row['fechaAsignacion']) }}</td>
+              <td>{{ row['materia'] }} · {{ row['oportunidad'] }}</td><td>{{ row['anioIngreso'] }} · {{ row['aprobacion'] }}</td>
+              <td>{{ row['carreraObjetivo'] }}</td><td>{{ text(row['anioNacimiento']) }} / {{ text(row['edadIngreso']) }}</td>
+              <td><dl>@for (entry of entries(row['procedencia']); track entry[0]) { <dt>{{ entry[0] }}</dt><dd>{{ text(entry[1]) }}</dd> }</dl></td>
+            </tr>
+          }
+        </tbody>
+      </table></div>
     }
-    @for (row of result.items; track $index) {
-      <article>
-        @if (path === 'cargas') {
-          <h3>{{ row['nombreArchivo'] }}</h3>
-          <p>{{ row['estado'] }} · Válidas: {{ row['filasValidas'] }} · Rechazadas: {{ row['filasRechazadas'] }}</p>
-          <p>Duración histórica: no disponible</p>
-          <button (click)="detail(row, 'rechazos')">Ver rechazos</button>
-          <button (click)="detail(row, 'validos')">Ver evaluaciones válidas</button>
-        }
-        <details><summary>Datos del registro</summary><pre>{{ row | json }}</pre></details>
-      </article>
-    } @empty { <p>No hay registros.</p> }
+    @if (!result.items.length) { <p>No hay registros.</p> }
     <button [disabled]="page === 0" (click)="move(-1)">Anterior</button>
     <button [disabled]="(page + 1) * result.size >= result.total" (click)="move(1)">Siguiente</button>
   }
