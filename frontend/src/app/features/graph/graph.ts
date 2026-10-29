@@ -6,7 +6,7 @@ import { isGraph, isQuery } from './graph.validation';
 import { HttpParams } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GRAPH_SECTIONS } from './graph.sections';
 import { ApiError } from '../../core/api-error.interceptor';
 import { ApiService } from '../../core/api.service';
@@ -20,6 +20,9 @@ import { GraphData, QueryData, QueryState } from './graph.models';
 })
 export class GraphExplorer {
   private readonly api = inject(ApiService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  readonly selectedQuery = signal<string | null>(null);
   readonly graph = signal<GraphData | null>(null);
   readonly sections = GRAPH_SECTIONS;
   readonly queryTitles = QUERY_TITLES;
@@ -39,20 +42,29 @@ export class GraphExplorer {
   resultado = '';
   constructor() {
     this.loadOptions();
-    inject(ActivatedRoute)
+    this.route
       .queryParamMap.pipe(takeUntilDestroyed())
       .subscribe((params) => {
         const section =
           this.sections.find((section) => section.id === params.get('seccion')) ?? this.sections[0];
         this.section.set(section);
+        const requested = params.get('consulta');
+        const selected = requested && section.queries.includes(requested) ? requested : section.queries[0] ?? null;
+        this.selectedQuery.set(selected);
         if (section.id === 'grafo') {
           if (!this.graph() && !this.loading() && !this.error()) this.loadGraph();
         } else {
-          section.queries.forEach((id) => {
-            if (!this.queryStates()[id]) this.loadQuery(id);
-          });
+          if (selected && !this.queryStates()[selected]) this.loadQuery(selected);
         }
       });
+  }
+  selectQuery(id: string): void {
+    if (!this.section().queries.includes(id)) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { consulta: id },
+      queryParamsHandling: 'merge',
+    });
   }
   loadGraph(): void {
     const request = ++this.graphRequest;

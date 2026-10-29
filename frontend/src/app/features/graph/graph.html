@@ -74,12 +74,20 @@
         Cada análisis consulta las relaciones almacenadas en Neo4j. Usa «Actualizar» para volver a obtener los
         datos.
       </p>
+      <section class="query-picker card">
+        <label for="graph-query">Selecciona una consulta de {{ section().label }}</label>
+        <select id="graph-query" [value]="selectedQuery()" (change)="selectQuery(inputValue($event))">
+          @for (id of section().queries; track id) {
+            <option [value]="id" [selected]="id === selectedQuery()">{{ id }} · {{ queryTitles[id] }}</option>
+          }
+        </select>
+      </section>
       <div class="query-sections">
-        @for (id of section().queries; track id) {
+        @if (selectedQuery(); as id) {
           @if (queryStates()[id]; as state) {
             <section class="card graph-query-result" [attr.aria-busy]="state.loading">
               <div class="result-heading">
-                <h3>{{ queryTitles[id] }}</h3>
+                <h3>{{ id }} · {{ queryTitles[id] }}</h3>
                 <button
                   class="button secondary"
                   type="button"
