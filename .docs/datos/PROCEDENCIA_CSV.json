@@ -1,0 +1,20 @@
+[
+  {
+    "archivo": "pruebas_especificas_2015.csv",
+    "url": "https://datosabiertos.ingenieria.usac.edu.gt/dataset/2d46fd8f-899a-4cd8-89e5-c02b7fa8d997/resource/54951042-7944-4da3-916d-c3701e339235/download/pruebas_especificas_2015.csv",
+    "sha256_local": "b35a6e65432dc910e1e5712285959603d27fec939944d2b2939f54166821e671",
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "archivo": "pruebas_especificas_2022.csv",
+    "url": "https://datosabiertos.ingenieria.usac.edu.gt/dataset/2d46fd8f-899a-4cd8-89e5-c02b7fa8d997/resource/5a49c61b-63c5-409c-a9a4-07f11c07aed6/download/pruebas_especificas_2022.csv",
+    "sha256_local": "49b111c3733bbc00b0d86a99ea4ffd44e20d72260d4dbba48114c3085bef379f",
+    "error": "HTTP Error 500: Internal Server Error"
+  },
+  {
+    "archivo": "pruebas_especificas_2024.csv",
+    "url": "https://datosabiertos.ingenieria.usac.edu.gt/dataset/2d46fd8f-899a-4cd8-89e5-c02b7fa8d997/resource/ffdd17d9-fb86-4ebe-8bc9-88143c79128a/download/pruebas_especificas_2024.csv",
+    "sha256_local": "c33873a374b7c28cc479359bb6f58199a6419fdddf636fc160ff216af9335dad",
+    "error": "HTTP Error 500: Internal Server Error"
+  }
+]
