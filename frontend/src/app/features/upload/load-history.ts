@@ -6,7 +6,7 @@ import { ApiService } from '../../core/api.service';
 /** Navega la trazabilidad guardada; una carga corresponde a un contenido distinto. */
 @Component({
   selector: 'app-load-history',
-  styles: [`.table-scroll { overflow-x: auto; } td { vertical-align: top; } dd { margin: 0 0 .5rem; }`],
+  styleUrl: './load-history.css',
   templateUrl: './load-history.html',
 })
 export class LoadHistory {

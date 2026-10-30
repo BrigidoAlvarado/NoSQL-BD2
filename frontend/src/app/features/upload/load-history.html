@@ -63,7 +63,9 @@
       </table></div>
     }
     @if (!result.items.length) { <p>No hay registros.</p> }
-    <button [disabled]="page === 0" (click)="move(-1)">Anterior</button>
-    <button [disabled]="(page + 1) * result.size >= result.total" (click)="move(1)">Siguiente</button>
+    <div class="history-pagination" role="group" aria-label="Paginación del historial">
+      <button class="button secondary" type="button" [disabled]="page === 0" (click)="move(-1)">Anterior</button>
+      <button class="button secondary" type="button" [disabled]="(page + 1) * result.size >= result.total" (click)="move(1)">Siguiente</button>
+    </div>
   }
 </section>

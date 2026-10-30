@@ -1,0 +1,12 @@
+.table-scroll { overflow-x: auto; }
+td { vertical-align: top; }
+dd { margin: 0 0 .5rem; }
+.history-pagination { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.history-pagination button { font-size: .9rem; font-weight: 600; }
+.history-pagination button:disabled {
+  opacity: 1;
+  color: #526276;
+  background: #edf1f5;
+  border-color: #c4cdd9;
+  box-shadow: none;
+}
