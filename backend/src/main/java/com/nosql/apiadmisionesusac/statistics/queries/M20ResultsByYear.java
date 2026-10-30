@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/** M20: Evaluaciones y aprobación por cohorte. */
+/** M20: Cantidades y porcentajes de ambos resultados sobre las evaluaciones de cada cohorte. */
 public final class M20ResultsByYear {
     private M20ResultsByYear() {}
 
@@ -41,7 +41,8 @@ public final class M20ResultsByYear {
                             approved,
                             total - approved,
                             total,
-                            percentage(approved, total)));
+                            percentage(approved, total),
+                            percentage(total - approved, total)));
         }
         rows.sort(Comparator.comparing(DashboardResponse.ResultsByYear::anioIngreso));
         return rows;

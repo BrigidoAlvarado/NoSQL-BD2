@@ -160,6 +160,8 @@ curl 'http://localhost:8080/api/estadisticas/adicionales/M21?anio=2024&materia=M
 
 Las tablas y gráficas usan la misma respuesta filtrada. Las gráficas muestran hasta ocho grupos; las tablas conservan todos los resultados recibidos. Si no hay datos cargados, la pantalla ofrece acceso a Carga de datos.
 
+M16 aplica los filtros antes de contar aspirantes distintos por carrera con resultado `NO APROBADO` en la oportunidad 1. M20 presenta por año las cantidades y los dos porcentajes: `porcentajeAprobacion` y `porcentajeNoAprobacion`. Ambos usan como denominador el total de evaluaciones de ese año dentro del subconjunto filtrado y se redondean a dos decimales.
+
 La colección auxiliar `resumen_carrera` se recalcula al consultar el dashboard sin filtros. M06 con filtros devuelve el resumen del subconjunto sin sobrescribir la colección general.
 
 ## Buscador de aspirantes

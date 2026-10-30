@@ -50,6 +50,7 @@ describe('Dashboard de estadísticas', () => {
           noAprobadas: 6,
           evaluaciones: 10,
           porcentajeAprobacion: 40,
+          porcentajeNoAprobacion: 60,
         },
       ],
       aprobadosPorCarreraAnio: [],
@@ -103,6 +104,13 @@ describe('Dashboard de estadísticas', () => {
         expect(fixture.nativeElement.querySelectorAll('.data-table-card')).toHaveLength(1);
         expect(fixture.nativeElement.querySelectorAll('app-metric-chart')).toHaveLength(1);
         expect(fixture.nativeElement.querySelector('.data-table-card h2').textContent).toBe(`${query.mongoId} · ${query.title}`);
+        if (query.mongoId === 'M20') {
+          const cells = Array.from(fixture.nativeElement.querySelectorAll('.data-table-card tbody td'))
+            .map(cell => (cell as HTMLElement).textContent?.trim());
+          expect(cells).toEqual(['2022', '4', '6', '40.00 %', '60.00 %']);
+          expect(fixture.nativeElement.querySelector('.data-table-card thead').textContent)
+            .toContain('No aprobación');
+        }
         ids.push(query.mongoId);
       }
     }

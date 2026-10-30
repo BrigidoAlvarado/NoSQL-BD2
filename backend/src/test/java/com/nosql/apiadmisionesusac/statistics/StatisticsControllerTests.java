@@ -21,7 +21,7 @@ class StatisticsControllerTests {
                 of(new DashboardResponse.RateByLabel("MATEMATICA", 4, 10, 40)),
                 of(new DashboardResponse.CountByPair("F", "PRIVADO", 3)),
                 of(new DashboardResponse.RateByLabel("PRIVADO", 4, 10, 40)),
-                of(new DashboardResponse.ResultsByYear(2022, 4, 6, 10, 40)),
+                of(new DashboardResponse.ResultsByYear(2022, 4, 6, 10, 40, 60)),
                 of(), of(), of(), of(), of(), of(), of(), of(), of(), of(), of(), of()));
         var mvc = MockMvcBuilders.standaloneSetup(new StatisticsController(service)).build();
 
@@ -29,6 +29,8 @@ class StatisticsControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resumen.aspirantesUnicos").value(7))
                 .andExpect(jsonPath("$.aprobadasPorMateria[0].etiqueta").value("MATEMATICA"))
-                .andExpect(jsonPath("$.resultadosPorAnio[0].anioIngreso").value(2022));
+                .andExpect(jsonPath("$.resultadosPorAnio[0].anioIngreso").value(2022))
+                .andExpect(jsonPath("$.resultadosPorAnio[0].porcentajeAprobacion").value(40))
+                .andExpect(jsonPath("$.resultadosPorAnio[0].porcentajeNoAprobacion").value(60));
     }
 }

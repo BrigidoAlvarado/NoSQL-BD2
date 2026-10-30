@@ -22,6 +22,7 @@ public final class M16FirstAttemptFailures {
             MongoCollection<Document> evaluations, Document filter) {
         return countRows(
                 evaluations,
+                filter,
                 List.of(
                         new Document(
                                 "$match",

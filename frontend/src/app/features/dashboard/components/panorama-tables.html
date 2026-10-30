@@ -33,6 +33,7 @@
           <th>Aprobadas</th>
           <th>No aprobadas</th>
           <th>Aprobación</th>
+          <th>No aprobación</th>
         </tr>
       </thead>
       <tbody>
@@ -42,6 +43,7 @@
             <td>{{ row.aprobadas }}</td>
             <td>{{ row.noAprobadas }}</td>
             <td>{{ percent(row.porcentajeAprobacion) }}</td>
+            <td>{{ percent(row.porcentajeNoAprobacion) }}</td>
           </tr>
         }
       </tbody>

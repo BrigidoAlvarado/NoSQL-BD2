@@ -37,7 +37,7 @@ public record DashboardResponse(
     }
 
     public record ResultsByYear(int anioIngreso, long aprobadas, long noAprobadas, long evaluaciones,
-                                double porcentajeAprobacion) {
+                                double porcentajeAprobacion, double porcentajeNoAprobacion) {
     }
 
     public record CareerYearCount(String carrera, int anioIngreso, long aspirantes) { }

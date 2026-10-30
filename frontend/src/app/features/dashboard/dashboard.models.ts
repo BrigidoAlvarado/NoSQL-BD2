@@ -19,6 +19,7 @@ export interface ResultsByYear {
   noAprobadas: number;
   evaluaciones: number;
   porcentajeAprobacion: number;
+  porcentajeNoAprobacion: number;
 }
 export interface DashboardData {
   resumen: {
