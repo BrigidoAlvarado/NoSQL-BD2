@@ -103,14 +103,43 @@ Los CSV y los informes generados localmente permanecen excluidos de Git.
 
 ## Esquemas de datos
 
-Los índices de MongoDB y las restricciones e índices de Neo4j están declarados en `backend/src/main/resources/db/`. Antes de la primera carga, con los contenedores activos, aplícalos desde la raíz:
+Los índices de MongoDB y las restricciones e índices de Neo4j están declarados en `backend/src/main/resources/db/`. **Arrancar los contenedores no ejecuta automáticamente estos scripts.** Antes de la primera carga, ejecútalos desde la raíz del repositorio, sin cargas en curso:
 
 ```bash
+docker compose up -d --wait --wait-timeout 180
 docker compose exec -T mongodb sh -c 'mongosh --quiet --username "$MONGO_INITDB_ROOT_USERNAME" --password "$MONGO_INITDB_ROOT_PASSWORD" --authenticationDatabase admin admisiones_usac' < backend/src/main/resources/db/mongodb/01_indices.js
-cat backend/src/main/resources/db/neo4j/01_esquema.cypher | docker compose exec -T neo4j sh -c 'cypher-shell --non-interactive --username neo4j --password "${NEO4J_AUTH#*/}" --database neo4j'
+docker compose exec -T neo4j sh -c 'cypher-shell --non-interactive --username neo4j --password "${NEO4J_AUTH#*/}" --database neo4j' < backend/src/main/resources/db/neo4j/01_esquema.cypher
+docker compose exec -T neo4j sh -c 'cypher-shell --non-interactive --username neo4j --password "${NEO4J_AUTH#*/}" --database neo4j "CALL db.awaitIndexes(300);"'
 ```
 
-Los comandos son repetibles. Para comprobar el diseño con una fila real y limpiar automáticamente los datos temporales creados, ejecuta `python3 scripts/validar_modelos_reales.py .data/pruebas_especificas_2024.csv`.
+El último comando espera hasta 300 segundos a que los índices de Neo4j estén disponibles. Si algún paso devuelve un error, resuélvelo antes de iniciar una carga. El estado `healthy` de Docker o `UP` de `/api/health` confirma disponibilidad, no la existencia de índices.
+
+Comprueba MongoDB desde su consola de consultas, por ejemplo en IntelliJ:
+
+```javascript
+use admisiones_usac;
+db.evaluaciones.getIndexes();
+```
+
+La colección `evaluaciones` debe tener **ocho índices**: `_id_` y siete adicionales. El mismo script también prepara índices de `cargas`, `rechazos_carga` y `resumen_carrera`.
+
+En Neo4j Desktop, Query o Neo4j Browser, conectado a la base `neo4j`, ejecuta estas consultas por separado:
+
+```cypher
+SHOW INDEXES
+YIELD name, type, state, labelsOrTypes, properties
+RETURN name, type, state, labelsOrTypes, properties;
+```
+
+```cypher
+SHOW CONSTRAINTS;
+```
+
+Con el esquema del proyecto deben aparecer **catorce índices en estado `ONLINE`** y **nueve restricciones de unicidad**. Los catorce índices corresponden a los nueve que respaldan esas restricciones, tres adicionales de evaluaciones y dos generales `LOOKUP`. Los índices sobre `Aspirante.id` y `Evaluacion.id` permiten localizar los nodos durante los `MERGE` del ETL; sin ellos, la carga puede volverse progresivamente más lenta conforme crece el grafo.
+
+Los comandos son repetibles y pueden aplicarse sobre los datos existentes. **Después de eliminar los volúmenes con `docker compose down --volumes` o `docker compose down -v`, hay que levantar los motores y repetir esta preparación antes de cargar CSV.** Detener, reiniciar o recrear contenedores conservando los volúmenes mantiene tanto los datos como los índices y restricciones. No es necesario volver a cargar archivos que ya terminaron en `COMPLETA` para añadir los índices faltantes.
+
+Para comprobar el diseño con una fila real y limpiar automáticamente los datos temporales creados, ejecuta `python3 scripts/validar_modelos_reales.py .data/pruebas_especificas_2024.csv`.
 
 ## ETL de CSV
 
