@@ -1,3 +1,4 @@
+import { GraphQueryChart } from './components/graph-query-chart';
 import { CategoryFilters } from '../../shared/category-filters';
 import { displayMunicipality } from '../../shared/municipality-name.pipe';
 import { GraphCanvas } from './components/graph-canvas';
@@ -16,7 +17,7 @@ import { GraphData, QueryData, QueryState } from './graph.models';
 
 @Component({
   selector: 'app-graph',
-  imports: [GraphCanvas, CategoryFilters],
+  imports: [GraphCanvas, CategoryFilters, GraphQueryChart],
   templateUrl: './graph.html',
 })
 export class GraphExplorer {

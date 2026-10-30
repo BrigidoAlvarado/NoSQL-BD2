@@ -1,0 +1,12 @@
+<section class="query-visualization" aria-label="Gráficas de la consulta">
+  <h4>{{ result().id }} · Lectura visual</h4>
+  <p class="hint">Hasta 8 grupos con mayor valor por gráfica, según los filtros aplicados. La tabla conserva todos los grupos. Las cantidades no representan porcentajes del total.</p>
+  <div class="query-charts">
+    @for (metric of definitions[result().id]?.metrics ?? []; track metric) {
+      <section class="query-chart">
+        <h5>{{ metricLabel(metric) }}</h5>
+        <app-metric-chart [rows]="rows(result(), metric)" kind="bar" [title]="result().id + ' · ' + metricLabel(metric)" />
+      </section>
+    }
+  </div>
+</section>

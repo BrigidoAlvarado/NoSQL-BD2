@@ -1,0 +1,5 @@
+.query-visualization { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+h4 { margin: 0 0 6px; font-size: 1rem; }
+h5 { margin: 0 0 14px; font-size: .85rem; color: var(--ink); }
+.query-charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px; }
+.query-chart { min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: #f8fafd; }
