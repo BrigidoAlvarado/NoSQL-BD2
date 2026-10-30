@@ -11,7 +11,6 @@ button, a, input { -webkit-tap-highlight-color: transparent; }
 .sidebar { width: 260px; flex-shrink: 0; padding: 2rem 1.3rem; background: #122440; color: #e9eff8; display: flex; flex-direction: column; }
 .brand { display: flex; gap: .8rem; align-items: center; text-decoration: none; font-size: 1.1rem; }
 .brand strong { display: block; letter-spacing: .13em; }
-.brand-mark { background: #2d72b7; border-radius: 12px; padding: .65rem 1rem; font-weight: 800; font-size: 1.4rem; }
 .sidebar-label { font-size: .65rem; letter-spacing: .13em; color: #a9bad1; margin-top: 3rem; }
 nav { display: grid; gap: .45rem; }
 nav a { padding: .85rem 1rem; border-radius: 8px; text-decoration: none; font-size: .9rem; }
@@ -117,8 +116,8 @@ button, a, input, select, summary { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid #3380bd; outline-offset: 3px; }
 .sidebar { position: sticky; top: 0; height: 100vh; width: 244px; padding: 34px 18px 24px; background: #142b47; }
 .brand { gap: 12px; padding: 0 10px; font-size: 1rem; line-height: 1.5; }
+.brand-logo { display: block; width: 72px; height: 72px; flex-shrink: 0; object-fit: contain; padding: 4px; background: #f8fafc; border: 1px solid #d4e0ec; border-radius: 50%; }
 .brand strong { font-size: 1.12rem; letter-spacing: .18em; }
-.brand-mark { display: grid; place-items: center; width: 44px; height: 48px; padding: 0; border: 1px solid #6e9bc1; background: #254b70; border-radius: 10px; }
 .sidebar-label { margin: 48px 12px 15px; font-size: .64rem; letter-spacing: .14em; }
 nav { gap: 7px; }
 nav a { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 12px; font-size: .86rem; color: #c5d3e3; border: 1px solid transparent; }
