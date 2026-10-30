@@ -19,7 +19,7 @@
     accept=".csv,text/csv"
     multiple
     aria-describedby="upload-help"
-    [disabled]="loading()"
+    [disabled]="session.blocked()"
     (change)="selectFiles($event)"
   />
   <p id="upload-help" class="hint">
@@ -47,15 +47,16 @@
       </ul>
     </div>
     <div class="actions">
-      <button class="button" type="button" [disabled]="loading()" (click)="upload()">
+      <button class="button" type="button" [disabled]="session.blocked()" (click)="upload()">
         {{ loading() ? "Procesando…" : "Cargar y procesar" }}
       </button>
-      <button class="button secondary" type="button" [disabled]="loading()" (click)="clearFiles()">
+      <button class="button secondary" type="button" [disabled]="session.blocked()" (click)="clearFiles()">
         Limpiar selección
       </button>
     </div>
   }
 </section>
+<app-upload-progress />
 @if (loading()) {
   <p class="processing" role="status">
     El backend está validando y sincronizando los archivos. Esto puede tardar unos minutos.

@@ -4,6 +4,7 @@ import com.nosql.apiadmisionesusac.etl.CsvImportService;
 import com.nosql.apiadmisionesusac.etl.ImportResult;
 import com.nosql.apiadmisionesusac.etl.RejectedRow;
 import com.nosql.apiadmisionesusac.upload.dto.FileUploadResponse;
+import com.nosql.apiadmisionesusac.upload.dto.BatchUploadResponse;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,14 +13,37 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.ArrayList;
 
 /** Valida el archivo recibido, mide duración y adapta el resultado del ETL. */
 @Service
 public class CsvUploadService {
     private final CsvImportService importer;
+    private final UploadProgress progress;
 
-    public CsvUploadService(CsvImportService importer) {
+    public CsvUploadService(CsvImportService importer, UploadProgress progress) {
         this.importer = importer;
+        this.progress = progress;
+    }
+
+    public BatchUploadResponse processBatch(List<MultipartFile> files) {
+        progress.start(files.size());
+        try {
+            List<FileUploadResponse> results = new ArrayList<>();
+            for (MultipartFile file : files) {
+                progress.nextFile(safeName(file));
+                FileUploadResponse result = process(file);
+                results.add(result);
+                progress.fileFinished(result);
+            }
+            return new BatchUploadResponse(results, null);
+        } catch (RuntimeException exception) {
+            progress.failed();
+            throw exception;
+        } finally {
+            // Un error nunca debe dejar bloqueados los siguientes intentos de carga.
+            progress.finish();
+        }
     }
 
     public List<RejectedRow> rejectedRows(String hash, int limit) {
@@ -46,7 +70,7 @@ public class CsvUploadService {
                     "No fue posible leer el archivo recibido.",
                     Duration.between(started, Instant.now()).toMillis());
         }
-        ImportResult result = importer.importFile(name, contents);
+        ImportResult result = importer.importFile(name, contents, progress::update);
         return FileUploadResponse.from(
                 name,
                 result,

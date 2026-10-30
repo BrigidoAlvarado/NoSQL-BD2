@@ -1,0 +1,27 @@
+@if (session.trackingError()) {
+  <p class="error-message" role="status">{{ session.trackingError() }}</p>
+}
+@if (session.progress(); as progress) {
+  @if (progress.id) {
+    <section class="card" aria-labelledby="upload-progress-title">
+      <h2 id="upload-progress-title">Avance de la carga</h2>
+      <p role="status">
+        Archivo {{ progress.archivoActual }} de {{ progress.totalArchivos }}:
+        {{ progress.nombreArchivo || 'Preparando archivos' }}.
+        {{ progress.activa ? 'En curso' : progress.estado === 'COMPLETA' ? 'Finalizada' : 'Finalizada con incidencias' }}.
+      </p>
+      @if (progress.activa && progress.totalEvaluaciones > 0) {
+        <label for="upload-stage-progress">{{ progress.etapa }}:
+          {{ progress.procesadas }} de {{ progress.totalEvaluaciones }} evaluaciones</label>
+        <progress id="upload-stage-progress" [value]="progress.procesadas" [max]="progress.totalEvaluaciones"></progress>
+      }
+      <p class="hint">Puedes cambiar de sección y regresar. El avance corresponde a cada etapa;
+        los mensajes se actualizan cada 3 segundos. Salir de esta página no detiene la carga.</p>
+      <ol class="progress-events" aria-label="Mensajes de avance">
+        @for (event of progress.eventos; track event.secuencia) {
+          <li><time>{{ event.fecha | date:'HH:mm:ss' }}</time> {{ event.mensaje }}</li>
+        }
+      </ol>
+    </section>
+  }
+}

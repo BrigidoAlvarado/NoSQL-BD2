@@ -21,6 +21,20 @@ export interface UploadResponse {
   mensaje: string | null;
 }
 
+export interface UploadProgress {
+  id: string | null;
+  activa: boolean;
+  estado: string;
+  totalArchivos: number;
+  archivoActual: number;
+  nombreArchivo: string | null;
+  etapa: string | null;
+  procesadas: number;
+  totalEvaluaciones: number;
+  eventos: { secuencia: number; fecha: string; mensaje: string }[];
+  archivos: UploadFileResult[];
+}
+
 export interface LoadRecord extends Record<string, unknown> {
   sha256Archivo: string;
   nombreArchivo: string;

@@ -14,6 +14,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntConsumer;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -66,7 +67,12 @@ class EtlMongoStore {
     }
 
     void saveEvaluations(String sha256, String filename, List<Evaluation> evaluations) {
+        saveEvaluations(sha256, filename, evaluations, ignored -> {});
+    }
+
+    void saveEvaluations(String sha256, String filename, List<Evaluation> evaluations, IntConsumer progress) {
         List<WriteModel<Document>> operations = new ArrayList<>();
+        int processed = 0;
         for (Evaluation evaluation : evaluations) {
             Document source = new Document("sha256Archivo", sha256).append("nombreArchivo", filename)
                     .append("fila", evaluation.filaOrigen());
@@ -75,11 +81,15 @@ class EtlMongoStore {
             operations.add(new UpdateOneModel<>(eq("_id", evaluation.id()), update, new UpdateOptions().upsert(true)));
             if (operations.size() == 500) {
                 mongoTemplate.getCollection("evaluaciones").bulkWrite(operations);
+                processed += operations.size();
+                // Solo se informa avance después de que el motor confirma el lote.
+                progress.accept(processed);
                 operations.clear();
             }
         }
         if (!operations.isEmpty()) {
             mongoTemplate.getCollection("evaluaciones").bulkWrite(operations);
+            progress.accept(processed + operations.size());
         }
     }
 

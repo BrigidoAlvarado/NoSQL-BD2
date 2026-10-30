@@ -14,17 +14,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
+import com.nosql.apiadmisionesusac.upload.dto.UploadProgressResponse;
 
 /** Entrada HTTP para el ETL; el navegador nunca recibe credenciales de las bases. */
 @RestController
 @RequestMapping("/api/cargas")
 public class CsvUploadController {
     private final CsvUploadService uploads;
+    private final UploadProgress progress;
 
-    public CsvUploadController(CsvUploadService uploads) {
+    public CsvUploadController(CsvUploadService uploads, UploadProgress progress) {
         this.uploads = uploads;
+        this.progress = progress;
+    }
+
+    @GetMapping("/progreso")
+    public UploadProgressResponse progress() {
+        return progress.snapshot();
     }
 
     @PostMapping(consumes = "multipart/form-data")
@@ -36,11 +43,7 @@ public class CsvUploadController {
                             new BatchUploadResponse(
                                     List.of(), "Seleccione al menos un archivo CSV."));
         }
-        List<FileUploadResponse> results = new ArrayList<>();
-        for (MultipartFile file : files) {
-            results.add(uploads.process(file));
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(new BatchUploadResponse(results, null));
+        return ResponseEntity.status(HttpStatus.OK).body(uploads.processBatch(files));
     }
 
     @GetMapping("/{sha256Archivo}/rechazos")

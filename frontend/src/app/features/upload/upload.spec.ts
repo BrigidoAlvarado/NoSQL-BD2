@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApiService } from '../../core/api.service';
 import { apiErrorInterceptor } from '../../core/api-error.interceptor';
 import { Upload } from './upload';
+import { idleProgress } from './upload.testing';
 
 describe('Selección de CSV', () => {
   beforeEach(() =>
@@ -20,6 +21,7 @@ describe('Selección de CSV', () => {
   it('acepta varios CSV, rechaza archivos vacíos y otras extensiones, y limpia la selección', async () => {
     const fixture = TestBed.createComponent(Upload);
     fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas/progreso').flush(idleProgress);
     TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
       .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
@@ -50,6 +52,7 @@ describe('Selección de CSV', () => {
   it('envía varios CSV y muestra el resultado y las causas de rechazo por archivo', async () => {
     const fixture = TestBed.createComponent(Upload);
     fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas/progreso').flush(idleProgress);
     TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
       .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
@@ -79,6 +82,8 @@ describe('Selección de CSV', () => {
       ],
       mensaje: null,
     });
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas/progreso').flush(idleProgress);
+    fixture.detectChanges();
     TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
       .flush({ items: [], total: 0, page: 0, size: 20 });
     await fixture.whenStable();
@@ -90,6 +95,7 @@ describe('Selección de CSV', () => {
   it('muestra un fallo del motor y permite conservar la selección para reintentar', async () => {
     const fixture = TestBed.createComponent(Upload);
     fixture.detectChanges();
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas/progreso').flush(idleProgress);
     TestBed.inject(HttpTestingController).expectOne('/api/cargas?page=0')
       .flush({ items: [], total: 0, page: 0, size: 20 });
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
@@ -105,6 +111,7 @@ describe('Selección de CSV', () => {
       },
       { status: 503, statusText: 'Service Unavailable' },
     );
+    TestBed.inject(HttpTestingController).expectOne('/api/cargas/progreso').flush(idleProgress);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('MongoDB no está disponible');

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntConsumer;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,10 @@ class EtlNeo4jStore {
     }
 
     void saveEvaluations(List<Evaluation> evaluations) {
+        saveEvaluations(evaluations, ignored -> {});
+    }
+
+    void saveEvaluations(List<Evaluation> evaluations, IntConsumer progress) {
         try (Session session = driver.session()) {
             for (int from = 0; from < evaluations.size(); from += 500) {
                 List<Map<String, Object>> rows = new ArrayList<>();
@@ -54,6 +59,8 @@ class EtlNeo4jStore {
                     rows.add(row(value));
                 }
                 session.executeWriteWithoutResult(transaction -> transaction.run(UPSERT, Map.of("rows", rows)).consume());
+                // Fuera de la transacción reintentable: no contar intentos que no se confirmaron.
+                progress.accept(Math.min(from + 500, evaluations.size()));
             }
         }
     }

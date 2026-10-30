@@ -3,12 +3,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, PRIMARY_OUTLET, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { ConnectionStatus } from './layout/connection-status';
+import { UploadStatus } from './layout/upload-status';
 import { DASHBOARD_SECTIONS } from './features/dashboard/dashboard.sections';
 import { GRAPH_SECTIONS } from './features/graph/graph.sections';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, ConnectionStatus],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, ConnectionStatus, UploadStatus],
   templateUrl: './app.html',
 })
 export class App {

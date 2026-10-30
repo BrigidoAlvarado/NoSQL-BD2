@@ -20,14 +20,16 @@ class CsvUploadControllerTests {
     @Test
     void procesaVariosArchivosYDevuelveConteosYRechazos() throws Exception {
         CsvImportService importer = mock(CsvImportService.class);
-        when(importer.importFile(eq("evaluaciones.csv"), any(byte[].class)))
+        when(importer.importFile(eq("evaluaciones.csv"), any(byte[].class), any()))
                 .thenReturn(new ImportResult("hash", "COMPLETA", 3, 2, 1, false, "Carga sincronizada."));
         when(importer.rejectedRows("hash", 100))
                 .thenReturn(List.of(new RejectedRow(4, "FECHA_INVALIDA", "Fecha inválida", java.util.Map.of())));
-        when(importer.importFile(eq("sin-filas.csv"), any(byte[].class)))
+        when(importer.importFile(eq("sin-filas.csv"), any(byte[].class), any()))
                 .thenReturn(new ImportResult("hash-2", "SIN_FILAS_VALIDAS", 2, 0, 2, false, "Sin filas utilizables."));
         when(importer.rejectedRows("hash-2", 100)).thenReturn(List.of());
-        var mvc = MockMvcBuilders.standaloneSetup(new CsvUploadController(new CsvUploadService(importer))).build();
+        UploadProgress progress = new UploadProgress();
+        var mvc = MockMvcBuilders.standaloneSetup(
+                new CsvUploadController(new CsvUploadService(importer, progress), progress)).build();
 
         mvc.perform(multipart("/api/cargas")
                         .file(new MockMultipartFile("files", "evaluaciones.csv", "text/csv", "datos".getBytes()))

@@ -129,10 +129,21 @@ La prueba inserta una fila temporal y la borra; comprueba la persistencia en amb
 En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». Angular los envía a `POST /api/cargas`; el backend aplica el ETL y la pantalla presenta por archivo los conteos, duración, estado y causas de las primeras 100 filas rechazadas. El máximo es 30 MB por archivo y 100 MB por solicitud. El historial conserva una entrada por contenido de archivo y permite consultar evaluaciones válidas y rechazos, incluso después de recargar la página. Las vistas se paginan en grupos de 20 registros:
 
 - `GET /api/cargas?page=0`: historial de cargas.
+- `GET /api/cargas/progreso`: estado del lote actual o del último lote atendido por el backend.
 - `GET /api/cargas/{sha256Archivo}/detalle/validos?page=0`: evaluaciones y sus fuentes del archivo seleccionado.
 - `GET /api/cargas/{sha256Archivo}/detalle/rechazos?page=0`: línea, causa y valores originales disponibles.
 
 Se conserva `GET /api/cargas/{sha256Archivo}/rechazos?limit=100` para consultar la lista inicial de rechazos. La duración se muestra al terminar la carga; en el historial aparece como no disponible cuando no se ha almacenado.
+
+### Seguimiento al navegar y mensajes de avance
+
+La solicitud y la selección de archivos se conservan en un servicio global de Angular. Cambiar de sección no cancela la carga: un aviso global permite volver al detalle, donde se muestran los resultados y mensajes con hora. El seguimiento consulta `/api/cargas/progreso` cada tres segundos y muestra el archivo actual, su posición en el lote, la validación y las evaluaciones procesadas en MongoDB o Neo4j. Cada contador avanza después de confirmar un lote de hasta 500 evaluaciones; no representa necesariamente documentos nuevos, porque el ETL evita duplicados. Los contadores corresponden a una etapa, no al porcentaje total del proceso.
+
+Mientras hay una carga activa, Angular impide enviar otro lote o modificar la selección. El backend también reserva un único lote por instancia y devuelve HTTP `409` ante envíos simultáneos, incluso desde otros navegadores. La reserva se libera al terminar o fallar el procesamiento. Un fallo de seguimiento muestra un aviso y se reintenta; no se considera una cancelación del ETL.
+
+Como decisión de diseño, el backend mantiene en memoria el último lote, sus resultados y los últimos 200 mensajes de progreso. No se transmiten logs internos ni credenciales. Recargar el navegador permite recuperar el seguimiento mientras siga activo ese backend, pero no recupera los objetos `File` seleccionados ni reenvía los archivos automáticamente. Reiniciar Spring Boot interrumpe la petición y borra este seguimiento temporal; la trazabilidad por archivo y los datos confirmados permanecen en las bases. La solución está pensada para una sola instancia local, sin cola de trabajos, reanudación automática ni botón de cancelación.
+
+La persistencia del estado, los mensajes y el bloqueo no aceleran el ETL. Para comprobarlos sin modificar las bases del usuario, las pruebas simulan una carga detenida en Neo4j, consultan su avance, rechazan un segundo envío y verifican que navegar fuera de Carga y regresar conserva la solicitud y los mensajes. Ejecutar `./mvnw test` desde `backend/` y `npm test` desde `frontend/`.
 
 ## Dashboard de estadísticas
 
