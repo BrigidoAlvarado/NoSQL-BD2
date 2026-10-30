@@ -1,3 +1,5 @@
+import { CategoryFilters, FilteredRows } from '../../shared/category-filters';
+import { DASHBOARD_FILTERS } from './dashboard.filters';
 import { AdditionalAnalysis } from './components/additional-analysis';
 import { PanoramaTables } from './components/panorama-tables';
 import { ApprovalTables } from './components/aprobacion-tables';
@@ -19,6 +21,7 @@ import { MetricChart } from './components/metric-chart';
   selector: 'app-dashboard',
   imports: [
     RouterLink,
+    CategoryFilters,
     AdditionalAnalysis,
     MetricChart,
     PanoramaTables,
@@ -46,6 +49,15 @@ export class Dashboard {
       this.sectionQueries()[0],
   );
   readonly data = signal<DashboardData | null>(null);
+  readonly filteredRows = signal<FilteredRows | null>(null);
+  readonly filterConfig = computed(() => DASHBOARD_FILTERS[this.selectedQuery().mongoId]);
+  readonly filterSource = computed(() => this.data()?.[this.filterConfig().source] ?? []);
+  readonly visibleData = computed(() => {
+    const data = this.data();
+    const filtered = this.filteredRows();
+    if (!data || filtered?.scope !== this.selectedQuery().mongoId) return data;
+    return {...data, [this.filterConfig().source]: filtered.rows} as DashboardData;
+  });
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 

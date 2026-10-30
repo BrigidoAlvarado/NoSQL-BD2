@@ -1,3 +1,4 @@
+import { CategoryFilters, FilteredRows } from '../../shared/category-filters';
 import { displayMunicipality } from '../../shared/municipality-name.pipe';
 import { GraphCanvas } from './components/graph-canvas';
 import { displayCareerName } from '../../shared/career-name.pipe';
@@ -15,7 +16,7 @@ import { GraphData, QueryData, QueryState } from './graph.models';
 
 @Component({
   selector: 'app-graph',
-  imports: [GraphCanvas],
+  imports: [GraphCanvas, CategoryFilters],
   templateUrl: './graph.html',
 })
 export class GraphExplorer {
@@ -23,6 +24,15 @@ export class GraphExplorer {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly selectedQuery = signal<string | null>(null);
+  readonly filteredRows = signal<FilteredRows | null>(null);
+  filterFields(columns: string[]) {
+    return columns.filter(column => !['aspirantes', 'evaluaciones', 'aprobados', 'promedioOportunidades', 'oportunidades'].includes(column))
+      .map(key => ({key, label: columnLabel(key)}));
+  }
+  visibleRows(result: QueryData): Record<string, unknown>[] {
+    const filtered = this.filteredRows();
+    return filtered?.scope === result.id ? filtered.rows as Record<string, unknown>[] : result.filas;
+  }
   readonly graph = signal<GraphData | null>(null);
   readonly sections = GRAPH_SECTIONS;
   readonly queryTitles = QUERY_TITLES;

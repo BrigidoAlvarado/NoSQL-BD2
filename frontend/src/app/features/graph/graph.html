@@ -108,6 +108,7 @@
                 @if (!result.filas.length) {
                   <p class="empty-result">La consulta no encontró resultados.</p>
                 } @else {
+                  <app-category-filters [scope]="id" [rows]="result.filas" [fields]="filterFields(result.columnas)" (filtered)="filteredRows.set($event)" />
                   <div class="table-scroll" tabindex="0" role="region" [attr.aria-label]="queryTitles[id]">
                     <table>
                       <thead>
@@ -118,7 +119,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        @for (row of result.filas; track $index) {
+                        @for (row of visibleRows(result); track $index) {
                           <tr>
                             @for (c of result.columnas; track c) {
                               <td>{{ value(row, c) }}</td>

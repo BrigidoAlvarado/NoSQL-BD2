@@ -67,25 +67,27 @@
             </select></label
           >
         </section>
+        <app-category-filters [scope]="selectedQuery().mongoId" [rows]="filterSource()" [fields]="filterConfig().fields" (filtered)="filteredRows.set($event)" />
+        @if (visibleData(); as filteredDashboard) {
         <div class="dashboard-results">
           <section class="card data-table-card">
             <h2>{{ selectedQuery().mongoId }} · {{ selectedQuery().title }}</h2>
             <p class="hint">{{ selectedQuery().hint }}</p>
             @switch (section().id) {
               @case ("panorama") {
-                <app-panorama-tables [dashboard]="dashboard" [queryId]="selectedQuery().id" />
+                <app-panorama-tables [dashboard]="filteredDashboard" [queryId]="selectedQuery().id" />
               }
               @case ("aprobacion") {
-                <app-aprobacion-tables [dashboard]="dashboard" [queryId]="selectedQuery().id" />
+                <app-aprobacion-tables [dashboard]="filteredDashboard" [queryId]="selectedQuery().id" />
               }
               @case ("carreras") {
-                <app-carreras-tables [dashboard]="dashboard" [queryId]="selectedQuery().id" />
+                <app-carreras-tables [dashboard]="filteredDashboard" [queryId]="selectedQuery().id" />
               }
               @case ("perfil") {
-                <app-perfil-tables [dashboard]="dashboard" [queryId]="selectedQuery().id" />
+                <app-perfil-tables [dashboard]="filteredDashboard" [queryId]="selectedQuery().id" />
               }
               @case ("procedencia") {
-                <app-procedencia-tables [dashboard]="dashboard" [queryId]="selectedQuery().id" />
+                <app-procedencia-tables [dashboard]="filteredDashboard" [queryId]="selectedQuery().id" />
               }
             }
           </section>
@@ -101,12 +103,13 @@
               }}
             </p>
             <app-metric-chart
-              [rows]="chartRows(dashboard)"
+              [rows]="chartRows(filteredDashboard)"
               [kind]="selectedQuery().chart"
               [title]="selectedQuery().title"
             />
           </section>
         </div>
+        }
       }
     }
   </div>
