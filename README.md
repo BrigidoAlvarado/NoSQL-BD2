@@ -6,15 +6,15 @@ Aplicación para analizar evaluaciones de aspirantes a la Facultad de Ingenierí
 
 ```text
 backend/     API Spring Boot, código Java y Maven Wrapper
-frontend/    Aplicación Angular
-AGENTS.md    Indicaciones para agentes
+frontend/    Aplicación Angular y recursos visuales
+scripts/     Herramientas de revisión y validación de datos
 compose.yaml Contenedores de MongoDB y Neo4j
 .env.example Plantilla de configuración local sin credenciales reales
 ```
 
 ## Bases de datos en contenedores
 
-Requiere Docker Engine en ejecución y Docker Compose v2. Ejecuta los comandos desde la raíz del repositorio. Si no tienes `.env`, copia `.env.example` a `.env` y cambia ambas contraseñas. En el entorno donde se creó esta configuración se generó un `.env` local con contraseñas aleatorias; ese archivo está excluido de Git.
+Requiere Docker Engine en ejecución y Docker Compose v2. Ejecuta los comandos desde la raíz del repositorio. Si no tienes `.env`, copia `.env.example` a `.env` y cambia ambas contraseñas. El archivo `.env` está excluido de Git.
 
 ```bash
 docker compose config --quiet
@@ -22,7 +22,7 @@ docker compose up -d --wait --wait-timeout 180
 docker compose ps
 ```
 
-La configuración utiliza la [imagen oficial de MongoDB](https://hub.docker.com/_/mongo) y [Neo4j 5.26 Community LTS](https://neo4j.com/blog/developer/neo4j-v5-lts-evolution/). Las etiquetas permiten recibir parches dentro de esas líneas; para reproducir exactamente una instalación puedes fijar las imágenes por digest en `.env`. Los contenedores tienen comprobaciones de salud autenticadas y volúmenes persistentes. Como decisión de desarrollo local, MongoDB utiliza el usuario administrador inicial; al integrar la API se debe crear un usuario con permisos sobre la base de la aplicación.
+La configuración utiliza la [imagen oficial de MongoDB](https://hub.docker.com/_/mongo) y [Neo4j 5.26 Community LTS](https://neo4j.com/blog/developer/neo4j-v5-lts-evolution/). Las etiquetas permiten recibir parches dentro de esas líneas; para reproducir exactamente una instalación puedes fijar las imágenes por digest en `.env`. Los contenedores tienen comprobaciones de salud autenticadas y volúmenes persistentes. Como decisión de desarrollo local, MongoDB utiliza el usuario administrador inicial; para una instalación con permisos restringidos, configura un usuario con acceso a la base de la aplicación.
 
 | Servicio | Dirección predeterminada | Credenciales |
 | --- | --- | --- |
@@ -119,20 +119,37 @@ El backend incluye el servicio interno `CsvImportService`, que valida y transfor
 Para ejecutar la prueba de integración contra los contenedores locales, desde `backend/`:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 ./mvnw -o -Detl.integration=true -Dtest=CsvImportIntegrationTest test
+JAVA_HOME=/usr/lib/jvm/java-25-openjdk-amd64 ./mvnw -Detl.integration=true -Dtest=CsvImportIntegrationTest test
 ```
 
-La prueba inserta una fila temporal y la borra; comprueba que una segunda carga del mismo archivo no duplica la evaluación.
+La prueba inserta una fila temporal y la borra; comprueba la persistencia en ambos motores, la repetición sin duplicados y el reprocesamiento al cambiar la versión de las reglas del ETL.
 
 ## Carga desde la interfaz
 
-En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». Angular los envía a `POST /api/cargas`; el backend aplica el ETL y la pantalla presenta por archivo los conteos, duración, estado y causas de las primeras 100 filas rechazadas. El máximo es 30 MB por archivo y 100 MB por solicitud. Los rechazos de una carga se pueden consultar mediante `GET /api/cargas/{sha256Archivo}/rechazos?limit=100`.
+En **Carga de datos**, selecciona uno o más CSV y pulsa «Cargar y procesar». Angular los envía a `POST /api/cargas`; el backend aplica el ETL y la pantalla presenta por archivo los conteos, duración, estado y causas de las primeras 100 filas rechazadas. El máximo es 30 MB por archivo y 100 MB por solicitud. El historial conserva una entrada por contenido de archivo y permite consultar evaluaciones válidas y rechazos, incluso después de recargar la página. Las vistas se paginan en grupos de 20 registros:
+
+- `GET /api/cargas?page=0`: historial de cargas.
+- `GET /api/cargas/{sha256Archivo}/detalle/validos?page=0`: evaluaciones y sus fuentes del archivo seleccionado.
+- `GET /api/cargas/{sha256Archivo}/detalle/rechazos?page=0`: línea, causa y valores originales disponibles.
+
+Se conserva `GET /api/cargas/{sha256Archivo}/rechazos?limit=100` para consultar la lista inicial de rechazos. La duración se muestra al terminar la carga; en el historial aparece como no disponible cuando no se ha almacenado.
 
 ## Dashboard de estadísticas
 
-La ruta **Estadísticas** consulta `GET /api/estadisticas/dashboard` y presenta las consultas MongoDB M01, M02, M04, M12, M18 y M20 con sus unidades de conteo. Requiere MongoDB encendido y al menos una carga completa; si no hay evaluaciones, muestra el acceso a la pantalla de carga.
+La aplicación implementa **25 consultas MongoDB**: 23 en Estadísticas y M11/M15 en Búsqueda. En cada tema se selecciona una sola consulta, identificada por su código Mxx, con tabla y gráfica asociada.
 
-El dashboard también presenta M03, M05–M10, M13–M14 y M16–M17, M19. La colección MongoDB `resumen_carrera` se recalcula de forma idempotente al consultar el dashboard para M06; no necesita una carga separada.
+`GET /api/estadisticas/dashboard` devuelve M01–M10, M12–M14 y M16–M20. La subsección **Análisis adicionales** consulta `GET /api/estadisticas/adicionales/{id}` para M21–M25: aprobación por oportunidad, recuperación tras un fallo, materias distintas por aspirante, intervalo entre asignaciones y calidad de información por cohorte.
+
+Los selectores de categorías envían parámetros opcionales al backend. En MongoDB se aplican antes de agrupar, por lo que se recalculan los totales, porcentajes y rankings del subconjunto. Por ejemplo:
+
+```bash
+curl 'http://localhost:8080/api/estadisticas/dashboard?materia=MATEMATICA&tipoInstitucion=PRIVADO'
+curl 'http://localhost:8080/api/estadisticas/adicionales/M21?anio=2024&materia=MATEMATICA'
+```
+
+Las tablas y gráficas usan la misma respuesta filtrada. Las gráficas muestran hasta ocho grupos; las tablas conservan todos los resultados recibidos. Si no hay datos cargados, la pantalla ofrece acceso a Carga de datos.
+
+La colección auxiliar `resumen_carrera` se recalcula al consultar el dashboard sin filtros. M06 con filtros devuelve el resumen del subconjunto sin sobrescribir la colección general.
 
 ## Buscador de aspirantes
 
@@ -144,4 +161,30 @@ La API devuelve mensajes controlados para archivos inválidos, procesamiento, co
 
 ## Explorador de grafos
 
-La ruta **Explorador de grafos** consulta Neo4j mediante `/api/grafos`, dibuja el subgrafo y permite filtros por año, carrera, resultado y departamento. Las subsecciones permiten ejecutar G01 a G10.
+La ruta **Explorador de grafos** consulta Neo4j mediante la API. La muestra visual admite año, carrera, resultado y departamento, con selectores de categorías y un control de 5 a 40 evaluaciones; comienza con 10. El número de nodos depende de las entidades compartidas y se muestra por separado.
+
+El lienzo utiliza `vis-network`: distribución por fuerzas, zoom, desplazamiento, ajuste de vista, selección con detalle, resaltado de vecinos y controles por tipo de entidad. Cada uno de los ocho tipos tiene un color propio. Ocultar un tipo también oculta sus relaciones incidentes.
+
+Las subsecciones Carreras, Trayectorias, Resultados y Procedencia contienen **10 consultas Cypher, G01–G10**. Cada sección permite seleccionar una consulta por código y nombre, con tabla y gráfica de barras asociada. La selección puede abrirse mediante una URL como `/grafos?seccion=resultados&consulta=G02`.
+
+Los filtros analíticos son parámetros de `GET /api/grafos/consultas/{id}` y restringen los grupos calculados, conservando sus conteos. Son independientes de los filtros de la muestra visual. Por ejemplo:
+
+```bash
+curl 'http://localhost:8080/api/grafos/consultas/G02?materia=MATEMATICA&resultado=APROBADO'
+```
+
+## Organización de las consultas
+
+- MongoDB: un archivo por consulta en `backend/src/main/java/com/nosql/apiadmisionesusac/statistics/queries/`; M11/M15 están en `search/queries/`.
+- Neo4j: un recurso por consulta en `backend/src/main/resources/queries/neo4j/Gxx_*.cypher`. `explorar_grafo.cypher` corresponde a la muestra visual y no forma parte de las diez consultas analíticas.
+- Angular: funcionalidades separadas en `frontend/src/app/features/`; los componentes visuales reciben los resultados del backend y las reglas de presentación compartidas están en `shared/`.
+
+## Pruebas de integración
+
+Las pruebas de integración se activan explícitamente y requieren ambos motores disponibles, credenciales configuradas y los esquemas aplicados. Desde `backend/`, con Java 25:
+
+```bash
+./mvnw -Detl.integration=true -Dsearch.integration=true -Dstatistics.integration=true -Dgraph.integration=true -Dadditional.integration=true -Dfilters.integration=true verify
+```
+
+Estas pruebas incluyen carga repetida, búsqueda, consultas MongoDB/Cypher, análisis adicionales, paginación de rechazos y filtros parametrizados. Las muestras temporales se limpian al finalizar; las comprobaciones sobre datos cargados requieren un conjunto de evaluaciones disponible. Este comando describe cómo ejecutarlas y no sustituye la revisión del recorrido completo desde la interfaz.
