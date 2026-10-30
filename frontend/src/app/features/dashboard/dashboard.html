@@ -53,24 +53,21 @@
           <span>Aspirantes y evaluaciones se cuentan por separado.</span
           ><a routerLink="/busqueda">Consultar un aspirante →</a>
         </div>
-        <section class="query-picker card" aria-labelledby="consulta-label">
-          <div>
-            <p class="eyebrow">CONSULTA</p>
-            <h2 id="consulta-label">¿Qué quieres analizar?</h2>
+        <section class="card query-controls" aria-label="Consulta y filtros">
+          <div class="query-picker">
+            <label>
+              <span>Consulta</span>
+              <select [value]="selectedQuery().id" (change)="selectQuery($any($event.target).value)">
+                @for (query of sectionQueries(); track query.id) {
+                  <option [value]="query.id" [selected]="query.id === selectedQuery().id">{{ query.mongoId }} · {{ query.label }}</option>
+                }
+              </select>
+            </label>
           </div>
-          <label
-            ><span class="sr-only">Selecciona una consulta de {{ section().label }}</span
-            ><select [value]="selectedQuery().id" (change)="selectQuery($any($event.target).value)">
-              @for (query of sectionQueries(); track query.id) {
-                <option [value]="query.id">{{ query.mongoId }} · {{ query.label }}</option>
-              }
-            </select></label
-          >
+          @if (filterOptions()?.resumen?.evaluaciones) {
+            <app-category-filters class="compact-filters" [scope]="selectedQuery().mongoId" [rows]="filterSource()" [fields]="filterConfig().fields" [server]="true" (selectionChange)="applyCategories($event)" />
+          }
         </section>
-
-        @if (filterOptions()?.resumen?.evaluaciones) {
-          <app-category-filters [scope]="selectedQuery().mongoId" [rows]="filterSource()" [fields]="filterConfig().fields" [server]="true" (selectionChange)="applyCategories($event)" />
-        }
         @if (!error() && data(); as filteredDashboard) {
         <p class="hint">Los filtros se aplican antes de agrupar: se recalculan totales, porcentajes y rankings sobre las evaluaciones seleccionadas.</p>
         <div class="dashboard-results">

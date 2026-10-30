@@ -36,7 +36,12 @@ export function filterCategories(rows: readonly unknown[], values: Record<string
     @if (!server() && rows().length && !visible().length) { <p class="empty-result">No hay filas que coincidan con los filtros.</p> }
   `,
   styles: [`.category-filters { display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin:16px 0; padding:16px; border:1px solid #d7e1ed; border-radius:10px; }
-    legend { font-size:.82rem; font-weight:600; } label { display:grid; gap:6px; flex:1 1 180px; min-width:0; font-size:.8rem; }`],
+    legend { font-size:.82rem; font-weight:600; } label { display:grid; gap:6px; flex:1 1 180px; min-width:0; font-size:.8rem; }
+    :host(.compact-filters) .category-filters { min-inline-size:0; margin:0; padding:0; border:0; border-radius:0; }
+    :host(.compact-filters) legend { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+    :host(.compact-filters) label { font-weight:600; color:var(--muted); flex-basis:150px; }
+    :host(.compact-filters) button { flex-shrink:0; }
+  `],
 })
 export class CategoryFilters {
   readonly rows = input.required<readonly unknown[]>();
