@@ -66,6 +66,19 @@ describe('Dashboard de estadísticas', () => {
       carrerasMasDemandadasPorDepartamento: [],
     });
     await fixture.whenStable();
+    const original = fixture.componentInstance.data()!;
+    const category = fixture.nativeElement.querySelector('app-category-filters select') as HTMLSelectElement;
+    category.value = 'PRIVADO';
+    category.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    TestBed.inject(HttpTestingController).expectOne(request => request.url === '/api/estadisticas/dashboard'
+      && request.params.get('tipoInstitucion') === 'PRIVADO').flush(original);
+    await fixture.whenStable();
+    (fixture.nativeElement.querySelector('app-category-filters button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    TestBed.inject(HttpTestingController).expectOne('/api/estadisticas/dashboard').flush(original);
+    await fixture.whenStable();
+
     expect(fixture.nativeElement.textContent).toContain('Aspirantes únicos');
     expect(fixture.nativeElement.textContent).toContain('Aspirantes por tipo de institución');
     expect(fixture.nativeElement.textContent).not.toContain('Evaluaciones aprobadas por materia');

@@ -17,6 +17,11 @@ public final class M14OpportunitiesBySubject {
 
     public static List<DashboardResponse.AverageOpportunities> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.AverageOpportunities> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.AverageOpportunities> rows = new ArrayList<>();
         Document opportunity =
                 new Document("aspirante", "$aspiranteId")
@@ -39,7 +44,7 @@ public final class M14OpportunitiesBySubject {
                                 new Document("_id", "$_id.materia")
                                         .append("promedio", new Document("$avg", "$usadas"))
                                         .append("grupos", new Document("$sum", 1))));
-        for (Document document : aggregate(evaluations, pipeline))
+        for (Document document : aggregate(evaluations, filter, pipeline))
             rows.add(
                     new DashboardResponse.AverageOpportunities(
                             label(document.get("_id")),

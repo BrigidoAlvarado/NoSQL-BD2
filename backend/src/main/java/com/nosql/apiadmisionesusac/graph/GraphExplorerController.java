@@ -32,9 +32,9 @@ public class GraphExplorerController {
     public java.util.Map<String, java.util.List<String>> options() { return graphs.options(); }
 
     @GetMapping("/consultas/{id}")
-    public GraphQueryResponse query(@PathVariable String id) {
+    public GraphQueryResponse query(@PathVariable String id, @RequestParam java.util.Map<String, String> filters) {
         try {
-            return graphs.query(id);
+            return graphs.query(id, filters);
         } catch (IllegalArgumentException exception) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "La consulta de grafo solicitada no existe.");

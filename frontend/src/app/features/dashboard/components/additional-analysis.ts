@@ -1,3 +1,5 @@
+import { CategoryFilters } from '../../../shared/category-filters';
+import { HttpParams } from '@angular/common/http';
 import { AnalysisRow } from '../additional.models';
 import { isAdditionalRows } from '../additional.validation';
 import { Component, inject, signal } from '@angular/core';
@@ -7,12 +9,13 @@ import { MetricChart } from './metric-chart';
 /** Selecciona una consulta adicional y presenta sus resultados y unidades. */
 @Component({
   selector: 'app-additional-analysis',
-  imports: [MetricChart],
+  imports: [MetricChart, CategoryFilters],
   template: `
     <section class="card">
       <label>Consulta adicional <select [value]="id" (change)="select($any($event.target).value)">
         @for (option of options; track option[0]) { <option [value]="option[0]">{{ option[0] }} · {{ option[1] }}</option> }
       </select></label>
+      <app-category-filters [scope]="id" [rows]="filterOptions()[id] ?? []" [fields]="categoryFields()" [server]="true" (selectionChange)="applyCategories($event)" />
       <h2>{{ id }} · {{ title() }}</h2><p>{{ descriptions[id] }}</p>
       @if (loading()) { <p role="status">Consultando…</p> }
       @if (error()) { <p role="alert">{{ error() }}</p><button (click)="load()">Reintentar</button> }
@@ -31,6 +34,21 @@ export class AdditionalAnalysis {
   private readonly api = inject(ApiService);
   private request = 0;
   id = 'M21';
+  readonly filterOptions = signal<Partial<Record<string, AnalysisRow[]>>>({});
+  private filters: Record<string, Record<string, string>> = {};
+  categoryFields() {
+    const fields = [{key: '_id.anio', label: 'Año'}];
+    if (['M21', 'M22'].includes(this.id)) fields.push({key: '_id.materia', label: 'Materia'});
+    if (this.id === 'M21') fields.push({key: '_id.oportunidad', label: 'Oportunidad'});
+    return fields;
+  }
+  applyCategories(event: {scope: string; values: Record<string, string>}): void {
+    const keys: Record<string, string> = {'_id.anio': 'anio', '_id.materia': 'materia', '_id.oportunidad': 'oportunidad'};
+    const filters = Object.fromEntries(Object.entries(event.values).filter(([, value]) => value).map(([key, value]) => [keys[key], value]));
+    if (JSON.stringify(filters) === JSON.stringify(this.filters[this.id] ?? {})) return;
+    this.filters[this.id] = filters;
+    this.load();
+  }
   readonly rows = signal<AnalysisRow[]>([]);
   readonly error = signal('');
   readonly loading = signal(false);
@@ -50,7 +68,7 @@ export class AdditionalAnalysis {
   };
   constructor() { this.load(); }
   title(): string { return this.options.find(option => option[0] === this.id)![1]; }
-  select(id: string): void { this.id = id; this.load(); }
+  select(id: string): void { this.id = id; this.filters[id] = {}; this.load(); }
   columnLabel(column: string): string {
     const labels: Record<string, string> = {
       _id: 'Grupo', total: 'Evaluaciones', aprobadas: 'Aprobadas', noAprobadas: 'No aprobadas',
@@ -80,8 +98,11 @@ export class AdditionalAnalysis {
   load(): void {
     const request = ++this.request;
     this.loading.set(true); this.rows.set([]); this.error.set('');
-    this.api.get<unknown>(`estadisticas/adicionales/${this.id}`).subscribe({
-      next: rows => { if (request === this.request) { if (isAdditionalRows(rows, this.id)) this.rows.set(rows);
+    this.api.get<unknown>(`estadisticas/adicionales/${this.id}`, new HttpParams({fromObject: this.filters[this.id] ?? {}})).subscribe({
+      next: rows => { if (request === this.request) { if (isAdditionalRows(rows, this.id)) {
+          this.rows.set(rows);
+          if (!Object.keys(this.filters[this.id] ?? {}).length) this.filterOptions.update(options => ({...options, [this.id]: rows}));
+        }
         else this.error.set('El servidor devolvió resultados inválidos. Reintenta.');
         this.loading.set(false); } },
       error: () => { if (request === this.request) { this.error.set('No se pudo ejecutar la consulta.'); this.loading.set(false); } },

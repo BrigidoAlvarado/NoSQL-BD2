@@ -16,6 +16,11 @@ public final class M10TopYoungCareers {
 
     public static List<DashboardResponse.CountByLabel> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByLabel> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<Document> pipeline = new ArrayList<>();
         pipeline.add(new Document("$sort", new Document("anioIngreso", 1)));
         pipeline.add(
@@ -39,6 +44,6 @@ public final class M10TopYoungCareers {
                         "$group",
                         new Document("_id", "$_id.carrera")
                                 .append("cantidad", new Document("$sum", 1))));
-        return countRows(evaluations, pipeline).stream().limit(5).toList();
+        return countRows(evaluations, filter, pipeline).stream().limit(5).toList();
     }
 }

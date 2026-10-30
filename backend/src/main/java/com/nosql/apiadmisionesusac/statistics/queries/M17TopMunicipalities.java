@@ -17,6 +17,11 @@ public final class M17TopMunicipalities {
 
     public static List<DashboardResponse.CountByPair> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByPair> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByPair> rows = new ArrayList<>();
         Document id =
                 new Document("departamento", "$procedencia.departamento")
@@ -25,8 +30,7 @@ public final class M17TopMunicipalities {
                 new Document("procedencia.departamentoConocido", true)
                         .append("procedencia.municipioConocido", true);
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document("$match", match),
                                 new Document(

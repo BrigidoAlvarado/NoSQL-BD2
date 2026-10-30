@@ -25,13 +25,14 @@ public class MongoStatisticsService {
         this.mongoTemplate = mongoTemplate;
     }
 
-    public DashboardResponse dashboard() {
+    public DashboardResponse dashboard() { return dashboard(new Document()); }
+
+    public DashboardResponse dashboard(Document filter) {
         MongoCollection<Document> evaluations = mongoTemplate.getCollection(EVALUACIONES);
-        long total = evaluations.countDocuments();
-        long approved = evaluations.countDocuments(eq("aprobacion", "APROBADO"));
+        long total = evaluations.countDocuments(filter);
+        long approved = evaluations.countDocuments(com.mongodb.client.model.Filters.and(filter, eq("aprobacion", "APROBADO")));
         long applicants =
-                aggregate(
-                                evaluations,
+                aggregate(evaluations, filter,
                                 List.of(
                                         new Document(
                                                 "$group", new Document("_id", "$aspiranteId"))))
@@ -39,23 +40,23 @@ public class MongoStatisticsService {
         return new DashboardResponse(
                 new DashboardResponse.Summary(
                         total, applicants, approved, percentage(approved, total)),
-                M01ApplicantsByInstitution.execute(evaluations),
-                M02ApprovedBySubject.execute(evaluations),
-                M04ApprovalBySubject.execute(evaluations),
-                M12ApplicantsBySexInstitution.execute(evaluations),
-                M18ApprovalByInstitution.execute(evaluations),
-                M20ResultsByYear.execute(evaluations),
-                M03ApprovedByCareerYear.execute(evaluations),
-                M05AgeByCareer.execute(evaluations),
-                M06CareerSummary.execute(evaluations, summaries),
-                M07ApprovedAgeByInstitution.execute(evaluations),
-                M08ApprovedByMunicipality.execute(evaluations),
-                M09PublicEvaluationsByMonth.execute(evaluations),
-                M10TopYoungCareers.execute(evaluations),
-                M13ApprovalByAge.execute(evaluations),
-                M14OpportunitiesBySubject.execute(evaluations),
-                M16FirstAttemptFailures.execute(evaluations),
-                M17TopMunicipalities.execute(evaluations),
-                M19CareersByDepartment.execute(evaluations));
+                M01ApplicantsByInstitution.execute(evaluations, filter),
+                M02ApprovedBySubject.execute(evaluations, filter),
+                M04ApprovalBySubject.execute(evaluations, filter),
+                M12ApplicantsBySexInstitution.execute(evaluations, filter),
+                M18ApprovalByInstitution.execute(evaluations, filter),
+                M20ResultsByYear.execute(evaluations, filter),
+                M03ApprovedByCareerYear.execute(evaluations, filter),
+                M05AgeByCareer.execute(evaluations, filter),
+                M06CareerSummary.execute(evaluations, summaries, filter),
+                M07ApprovedAgeByInstitution.execute(evaluations, filter),
+                M08ApprovedByMunicipality.execute(evaluations, filter),
+                M09PublicEvaluationsByMonth.execute(evaluations, filter),
+                M10TopYoungCareers.execute(evaluations, filter),
+                M13ApprovalByAge.execute(evaluations, filter),
+                M14OpportunitiesBySubject.execute(evaluations, filter),
+                M16FirstAttemptFailures.execute(evaluations, filter),
+                M17TopMunicipalities.execute(evaluations, filter),
+                M19CareersByDepartment.execute(evaluations, filter));
     }
 }

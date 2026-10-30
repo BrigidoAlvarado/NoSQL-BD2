@@ -17,10 +17,15 @@ public final class M05AgeByCareer {
 
     public static List<DashboardResponse.AverageByLabel> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.AverageByLabel> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.AverageByLabel> rows = new ArrayList<>();
         List<Document> pipeline =
                 AgeQuerySupport.firstAgePipeline(null, new Document("carrera", "$_id.carrera"));
-        for (Document document : aggregate(evaluations, pipeline))
+        for (Document document : aggregate(evaluations, filter, pipeline))
             rows.add(AgeQuerySupport.averageLabel(document));
         rows.sort(Comparator.comparing(DashboardResponse.AverageByLabel::etiqueta));
         return rows;

@@ -18,6 +18,12 @@ public final class M06CareerSummary {
     public static List<DashboardResponse.CareerSummary> execute(
             MongoCollection<Document> evaluations,
             com.nosql.apiadmisionesusac.statistics.summary.CareerSummaryStore store) {
+        return execute(evaluations, store, new Document());
+    }
+
+    public static List<DashboardResponse.CareerSummary> execute(
+            MongoCollection<Document> evaluations,
+            com.nosql.apiadmisionesusac.statistics.summary.CareerSummaryStore store, Document filter) {
         List<DashboardResponse.CareerSummary> result = new ArrayList<>();
         Document id = new Document("anio", "$anioIngreso").append("carrera", "$carreraObjetivo");
         List<Document> pipeline =
@@ -37,7 +43,7 @@ public final class M06CareerSummary {
                                                 new Document(
                                                         "$sum",
                                                         absentExpression("$edadIngreso")))));
-        for (Document document : aggregate(evaluations, pipeline)) {
+        for (Document document : aggregate(evaluations, filter, pipeline)) {
             Document key = document.get("_id", Document.class);
             long total = number(document.get("evaluaciones"));
             long approved = number(document.get("aprobadas"));
@@ -52,7 +58,7 @@ public final class M06CareerSummary {
                             percentage(approved, total),
                             number(document.get("sinEdad")));
             result.add(row);
-            store.save(row);
+            if (filter.isEmpty()) store.save(row);
         }
         result.sort(
                 Comparator.comparing(DashboardResponse.CareerSummary::anioIngreso)

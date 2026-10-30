@@ -16,10 +16,14 @@ public final class M01ApplicantsByInstitution {
 
     public static List<DashboardResponse.CountByLabel> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByLabel> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByLabel> rows = new ArrayList<>();
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document(
                                         "$group",

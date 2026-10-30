@@ -16,6 +16,11 @@ public final class M02ApprovedBySubject {
 
     public static List<DashboardResponse.CountByLabel> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByLabel> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByLabel> rows = new ArrayList<>();
         List<Document> pipeline =
                 List.of(
@@ -24,7 +29,7 @@ public final class M02ApprovedBySubject {
                                 "$group",
                                 new Document("_id", "$materia")
                                         .append("cantidad", new Document("$sum", 1))));
-        for (Document document : aggregate(evaluations, pipeline)) {
+        for (Document document : aggregate(evaluations, filter, pipeline)) {
             rows.add(
                     new DashboardResponse.CountByLabel(
                             label(document.get("_id")), number(document.get("cantidad"))));

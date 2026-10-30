@@ -17,6 +17,11 @@ public final class M12ApplicantsBySexInstitution {
 
     public static List<DashboardResponse.CountByPair> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByPair> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByPair> rows = new ArrayList<>();
         Document groupId =
                 new Document("sexo", "$sexo").append("tipo", "$procedencia.tipoInstitucion");
@@ -28,7 +33,7 @@ public final class M12ApplicantsBySexInstitution {
                                         .append(
                                                 "aspirantes",
                                                 new Document("$addToSet", "$aspiranteId"))));
-        for (Document document : aggregate(evaluations, pipeline)) {
+        for (Document document : aggregate(evaluations, filter, pipeline)) {
             Document id = document.get("_id", Document.class);
             rows.add(
                     new DashboardResponse.CountByPair(

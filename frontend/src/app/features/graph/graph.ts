@@ -1,4 +1,4 @@
-import { CategoryFilters, FilteredRows } from '../../shared/category-filters';
+import { CategoryFilters } from '../../shared/category-filters';
 import { displayMunicipality } from '../../shared/municipality-name.pipe';
 import { GraphCanvas } from './components/graph-canvas';
 import { displayCareerName } from '../../shared/career-name.pipe';
@@ -24,14 +24,17 @@ export class GraphExplorer {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly selectedQuery = signal<string | null>(null);
-  readonly filteredRows = signal<FilteredRows | null>(null);
-  filterFields(columns: string[]) {
-    return columns.filter(column => !['aspirantes', 'evaluaciones', 'aprobados', 'promedioOportunidades', 'oportunidades'].includes(column))
-      .map(key => ({key, label: columnLabel(key)}));
+  readonly categoryOptions = signal<Record<string, QueryData>>({});
+  private categoryFilters: Record<string, Record<string, string>> = {};
+  applyCategories(event: {scope: string; values: Record<string, string>}): void {
+    const values = Object.fromEntries(Object.entries(event.values).filter(([, value]) => value));
+    if (JSON.stringify(values) === JSON.stringify(this.categoryFilters[event.scope] ?? {})) return;
+    this.categoryFilters[event.scope] = values;
+    this.loadQuery(event.scope);
   }
-  visibleRows(result: QueryData): Record<string, unknown>[] {
-    const filtered = this.filteredRows();
-    return filtered?.scope === result.id ? filtered.rows as Record<string, unknown>[] : result.filas;
+  filterFields(columns: string[]) {
+    return columns.filter(column => !['aspirantes', 'evaluaciones', 'aprobados', 'promedioOportunidades', 'oportunidades', 'aspirantesReintentaron'].includes(column))
+      .map(key => ({key, label: columnLabel(key)}));
   }
   readonly graph = signal<GraphData | null>(null);
   readonly sections = GRAPH_SECTIONS;
@@ -41,6 +44,7 @@ export class GraphExplorer {
   readonly queryStates = signal<Record<string, QueryState>>({});
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  private queryRequests: Record<string, number> = {};
   private graphRequest = 0;
   readonly requestedLimit = signal(10);
   limite = 10;
@@ -105,10 +109,15 @@ export class GraphExplorer {
     });
   }
   loadQuery(id: string): void {
-    if (!this.queryTitles[id] || this.queryStates()[id]?.loading) return;
+    if (!this.queryTitles[id]) return;
+    const request = (this.queryRequests[id] ?? 0) + 1;
+    this.queryRequests[id] = request;
+    const filters = this.categoryFilters[id] ?? {};
     this.setQueryState(id, { loading: true, error: null, data: null });
-    this.api.get<QueryData>(`grafos/consultas/${id}`).subscribe({
-      next: (data) =>
+    this.api.get<QueryData>(`grafos/consultas/${id}`, new HttpParams({fromObject: filters})).subscribe({
+      next: (data) => {
+        if (request !== this.queryRequests[id]) return;
+        if (isQuery(data) && !Object.keys(filters).length) this.categoryOptions.update(options => ({...options, [id]: data}));
         this.setQueryState(
           id,
           isQuery(data) && data.id === id
@@ -118,14 +127,17 @@ export class GraphExplorer {
                 error: 'El servidor devolvió un resultado inválido. Puedes reintentar.',
                 data: null,
               },
-        ),
-      error: (error) =>
+        );
+      },
+      error: (error) => {
+        if (request !== this.queryRequests[id]) return;
         this.setQueryState(id, {
           loading: false,
           error:
             error instanceof ApiError ? error.message : 'No se pudo ejecutar la consulta. Puedes reintentar.',
           data: null,
-        }),
+        });
+      },
     });
   }
   private setQueryState(id: string, state: QueryState): void {

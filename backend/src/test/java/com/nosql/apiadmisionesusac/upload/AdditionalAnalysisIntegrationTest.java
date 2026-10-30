@@ -45,6 +45,15 @@ class AdditionalAnalysisIntegrationTest {
             assertEquals(100.0, ((Number) quality.get("porcentajeSinEdad")).doubleValue());
             assertEquals(100.0, ((Number) quality.get("porcentajeCarreraDesconocida")).doubleValue());
             assertEquals(100.0, ((Number) quality.get("porcentajeProcedenciaDesconocida")).doubleValue());
+            var filter = com.nosql.apiadmisionesusac.shared.AnalysisFilters.mongo(Map.of("materia", "FISICA", "resultado", "APROBADO"));
+            var filtered = M21AdditionalAnalysis.execute(evaluations, filter);
+            assertEquals(1, filtered.size());
+            assertEquals(100.0, ((Number) filtered.getFirst().get("porcentaje")).doubleValue());
+            assertEquals(1, ((Number) filtered.getFirst().get("total")).intValue());
+            assertEquals(1, M02ApprovedBySubject.execute(evaluations, filter).size());
+            assertTrue(M21AdditionalAnalysis.execute(evaluations, new Document("materia", "' OR true")).isEmpty());
+            assertThrows(org.springframework.web.server.ResponseStatusException.class,
+                    () -> com.nosql.apiadmisionesusac.shared.AnalysisFilters.mongo(Map.of("$where", "true")));
             verifyHistory(mongo);
         } finally {
             mongo.getDb().drop();

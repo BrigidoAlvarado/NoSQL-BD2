@@ -48,6 +48,10 @@ public class GraphExplorerService {
         }
     }
 
+    public GraphQueryResponse query(String id, java.util.Map<String, String> filters) {
+        return queries.execute(id, new java.util.HashMap<>(filters));
+    }
+
     public GraphQueryResponse query(String id) {
         return queries.execute(id);
     }

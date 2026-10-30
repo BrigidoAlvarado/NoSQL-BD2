@@ -15,6 +15,11 @@ public final class M16FirstAttemptFailures {
 
     public static List<DashboardResponse.CountByLabel> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByLabel> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         return countRows(
                 evaluations,
                 List.of(

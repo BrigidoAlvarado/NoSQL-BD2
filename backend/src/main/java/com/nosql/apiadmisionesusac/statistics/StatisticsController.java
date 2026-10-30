@@ -14,7 +14,7 @@ public class StatisticsController {
     }
 
     @GetMapping("/dashboard")
-    public DashboardResponse dashboard() {
-        return statistics.dashboard();
+    public DashboardResponse dashboard(@org.springframework.web.bind.annotation.RequestParam java.util.Map<String, String> filters) {
+        return filters.isEmpty() ? statistics.dashboard() : statistics.dashboard(com.nosql.apiadmisionesusac.shared.AnalysisFilters.mongo(filters));
     }
 }

@@ -17,14 +17,18 @@ public final class M08ApprovedByMunicipality {
 
     public static List<DashboardResponse.CountByTriple> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByTriple> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByTriple> rows = new ArrayList<>();
         Document id =
                 new Document("departamento", "$procedencia.departamento")
                         .append("municipio", "$procedencia.municipio")
                         .append("carrera", "$carreraObjetivo");
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document("$match", new Document("aprobacion", "APROBADO")),
                                 new Document(

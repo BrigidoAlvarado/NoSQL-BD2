@@ -33,6 +33,25 @@ public final class QueryValues {
         return evaluations.aggregate(pipeline).into(new ArrayList<>());
     }
 
+    public static List<Document> aggregate(MongoCollection<Document> collection, Document filter, List<Document> pipeline) {
+        List<Document> stages = new ArrayList<>();
+        if (!filter.isEmpty()) stages.add(new Document("$match", filter));
+        stages.addAll(pipeline);
+        return aggregate(collection, stages);
+    }
+
+    public static List<DashboardResponse.CountByLabel> countRows(MongoCollection<Document> collection,
+            Document filter, List<Document> pipeline) {
+        return countRows(collection, filter, pipeline, "cantidad");
+    }
+    public static List<DashboardResponse.CountByLabel> countRows(MongoCollection<Document> collection,
+            Document filter, List<Document> pipeline, String field) {
+        List<Document> stages = new ArrayList<>();
+        if (!filter.isEmpty()) stages.add(new Document("$match", filter));
+        stages.addAll(pipeline);
+        return countRows(collection, stages, field);
+    }
+
     public static Comparator<DashboardResponse.CountByLabel> byCount() {
         return Comparator.comparing(DashboardResponse.CountByLabel::cantidad)
                 .reversed()

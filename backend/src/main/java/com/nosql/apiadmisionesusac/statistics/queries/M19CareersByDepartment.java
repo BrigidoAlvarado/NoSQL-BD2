@@ -19,6 +19,11 @@ public final class M19CareersByDepartment {
 
     public static List<DashboardResponse.CountByPair> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByPair> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         Map<String, List<DashboardResponse.CountByPair>> grouped = new LinkedHashMap<>();
         Document id =
                 new Document("departamento", "$procedencia.departamento")
@@ -27,8 +32,7 @@ public final class M19CareersByDepartment {
                 new Document("procedencia.departamentoConocido", true)
                         .append("carreraObjetivoConocida", true);
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document("$match", match),
                                 new Document(

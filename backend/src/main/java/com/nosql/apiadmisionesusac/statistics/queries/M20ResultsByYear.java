@@ -17,6 +17,11 @@ public final class M20ResultsByYear {
 
     public static List<DashboardResponse.ResultsByYear> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.ResultsByYear> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.ResultsByYear> rows = new ArrayList<>();
         List<Document> pipeline =
                 List.of(
@@ -27,7 +32,7 @@ public final class M20ResultsByYear {
                                         .append(
                                                 "aprobadas",
                                                 new Document("$sum", approvalExpression()))));
-        for (Document document : aggregate(evaluations, pipeline)) {
+        for (Document document : aggregate(evaluations, filter, pipeline)) {
             long total = number(document.get("evaluaciones"));
             long approved = number(document.get("aprobadas"));
             rows.add(

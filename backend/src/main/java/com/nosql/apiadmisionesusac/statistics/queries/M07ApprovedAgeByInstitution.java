@@ -17,11 +17,15 @@ public final class M07ApprovedAgeByInstitution {
 
     public static List<DashboardResponse.AverageByPair> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.AverageByPair> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.AverageByPair> rows = new ArrayList<>();
         Document grouped = new Document("carrera", "$_id.carrera").append("tipo", "$_id.tipo");
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         AgeQuerySupport.firstAgePipeline(
                                 new Document("aprobacion", "APROBADO"), grouped))) {
             Document id = document.get("_id", Document.class);

@@ -81,6 +81,29 @@ describe('Selección de consultas Cypher por sección', () => {
     expect(fixture.nativeElement.textContent).toContain('FILA_G05');
     expect(fixture.nativeElement.textContent).not.toContain('ANTERIOR');
   });
+  it('envía categorías como parámetros y permite limpiar aun cuando no hay resultados', async () => {
+    await TestBed.inject(Router).navigateByUrl('/?seccion=resultados');
+    const fixture = create();
+    answer('G02');
+    await fixture.whenStable();
+    const select = fixture.nativeElement.querySelector('app-category-filters select') as HTMLSelectElement;
+    select.value = 'FILA_G02';
+    select.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    TestBed.inject(HttpTestingController).expectOne(request => request.url === '/api/grafos/consultas/G02'
+      && request.params.get('materia') === 'FILA_G02').flush({
+        id: 'G02', titulo: 'G02', descripcion: 'Filtrada', columnas: ['materia'], filas: [],
+      });
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-category-filters')).not.toBeNull();
+    expect((fixture.nativeElement.querySelector('app-category-filters select') as HTMLSelectElement).value).toBe('FILA_G02');
+    (fixture.nativeElement.querySelector('app-category-filters button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    answer('G02');
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('FILA_G02');
+  });
+
   it('mantiene el grafo visual separado y permite reintentarlo', async () => {
     const fixture = create();
     const http = TestBed.inject(HttpTestingController);

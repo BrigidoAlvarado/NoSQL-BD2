@@ -9,6 +9,10 @@ import java.util.ArrayList;
 public final class M22AdditionalAnalysis {
     private M22AdditionalAnalysis() {}
     public static List<Document> execute(MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<Document> execute(MongoCollection<Document> evaluations, Document filter) {
         var pipeline = List.of(
                 Document.parse("""
 {
@@ -103,7 +107,7 @@ public final class M22AdditionalAnalysis {
 }
 """)
         );
-        var rows = evaluations.aggregate(pipeline).into(new ArrayList<>());
+        var rows = QueryValues.aggregate(evaluations, filter, pipeline);
         rows.sort(java.util.Comparator.comparing(row -> row.get("_id").toString()));
         return rows;
     }

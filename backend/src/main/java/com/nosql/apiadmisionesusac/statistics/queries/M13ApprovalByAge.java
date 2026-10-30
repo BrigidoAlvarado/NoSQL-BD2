@@ -16,10 +16,13 @@ public final class M13ApprovalByAge {
     private M13ApprovalByAge() {}
 
     public static List<DashboardResponse.AgeRate> execute(MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.AgeRate> execute(MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.AgeRate> rows = new ArrayList<>();
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document(
                                         "$match",

@@ -17,11 +17,15 @@ public final class M03ApprovedByCareerYear {
 
     public static List<DashboardResponse.CareerYearCount> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CareerYearCount> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CareerYearCount> rows = new ArrayList<>();
         Document id = new Document("carrera", "$carreraObjetivo").append("anio", "$anioIngreso");
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document("$match", new Document("aprobacion", "APROBADO")),
                                 new Document(

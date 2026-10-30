@@ -17,6 +17,11 @@ public final class M09PublicEvaluationsByMonth {
 
     public static List<DashboardResponse.CountByPair> execute(
             MongoCollection<Document> evaluations) {
+        return execute(evaluations, new Document());
+    }
+
+    public static List<DashboardResponse.CountByPair> execute(
+            MongoCollection<Document> evaluations, Document filter) {
         List<DashboardResponse.CountByPair> rows = new ArrayList<>();
         Document id =
                 new Document(
@@ -27,8 +32,7 @@ public final class M09PublicEvaluationsByMonth {
                                                 .append("date", "$fechaAsignacion")))
                         .append("materia", "$materia");
         for (Document document :
-                aggregate(
-                        evaluations,
+                aggregate(evaluations, filter,
                         List.of(
                                 new Document(
                                         "$match",
