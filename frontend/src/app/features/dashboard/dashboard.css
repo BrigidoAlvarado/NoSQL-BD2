@@ -1,7 +1,6 @@
 .query-picker { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 22px; margin-bottom: 20px; }
 .query-picker .eyebrow { margin: 0 0 4px; }
 .query-picker h2 { margin: 0; font-size: .95rem; }
-.query-picker select { min-width: 270px; min-height: 44px; padding: 9px 38px 9px 13px; color: var(--ink); font-size: .84rem; font-weight: 600; background: #f7faff; border: 1px solid #aebed0; border-radius: 7px; }
 .dashboard-results { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr); gap: 20px; align-items: start; }
 .dashboard-results .card { overflow-x: auto; }
 .dashboard-results .card > h2 { margin-bottom: 5px; }
