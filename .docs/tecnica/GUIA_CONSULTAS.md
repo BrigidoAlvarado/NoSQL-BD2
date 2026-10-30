@@ -2,7 +2,7 @@
 
 ## Dónde buscar
 
-- MongoDB M01–M10, M12–M14 y M16–M20: `backend/src/main/java/com/nosql/apiadmisionesusac/statistics/queries/`.
+- MongoDB M01–M10, M12–M14 y M16–M25: `backend/src/main/java/com/nosql/apiadmisionesusac/statistics/queries/`.
 - Historial M11 e información M15: `backend/src/main/java/com/nosql/apiadmisionesusac/search/queries/`.
 - Neo4j G01–G10: `backend/src/main/resources/queries/neo4j/`. `explorar_grafo.cypher` corresponde a la muestra visual filtrada.
 - Selección y gráfica Angular: `frontend/src/app/features/dashboard/queries/<tema>.queries.ts`.
@@ -39,7 +39,7 @@ Para crear otra consulta: copiar el archivo más parecido, asignarle un identifi
 3. Las columnas devueltas por `RETURN` aparecen automáticamente en la tabla. Para un título amigable de columna nueva, editar `graph.presentation.ts`.
 4. No renombrar ID ni recurso si solo se modifica su lógica.
 
-El ejecutor soporta parámetros mediante `execute(id, Map<String,Object>)`. El endpoint actual solo recibe ID: para recibir un filtro HTTP también hay que declararlo en el controlador y pasarlo al ejecutor. Usar `$parametro` en Cypher.
+El ejecutor soporta parámetros mediante `execute(id, Map<String,Object>)`. El endpoint recibe ID y parámetros HTTP de categorías. `GraphQueryService` valida categorías por Gxx, convierte `anioIngreso` a entero y enlaza valores literales. Los filtros se aplican sobre grupos calculados. Para ampliar categorías, actualizar su lista permitida y la presentación Angular. Para introducir un filtro dentro del recorrido, declarar y transmitir explícitamente su parámetro y usar `$parametro` en Cypher. Véase [FILTROS_ANALITICOS.md](FILTROS_ANALITICOS.md).
 
 Para crear otra consulta: agregar el `.cypher`, registrarlo en `GraphQueryCatalog`, agregar título en `graph.presentation.ts` y ubicar su ID en `graph.sections.ts`. La tabla ya es dinámica.
 
@@ -59,4 +59,4 @@ Desde `frontend/`: `npm test` y `npm run build`. La prueba del dashboard selecci
 
 ## Decisiones conservadas
 
-Esta refactorización conserva contratos, unidades y reglas del proyecto. M06 sigue recalculándose al abrir el dashboard. Las gráficas mantienen el límite de ocho categorías. Los cambios funcionales sobre estas decisiones deben hacerse en otro commit y verificarse aparte.
+Esta refactorización conserva contratos, unidades y reglas del proyecto. M06 sigue recalculándose al abrir el dashboard; solo materializa el resultado si no hay filtros. Las gráficas mantienen el límite de ocho categorías. Los cambios funcionales sobre estas decisiones deben hacerse en otro commit y verificarse aparte.

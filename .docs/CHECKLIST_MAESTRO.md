@@ -8,7 +8,7 @@ Estado inicial revisado: 20 de octubre de 2026. Entrega indicada en el brief: vi
 
 Refactorización de apoyo académico (29 de octubre): las consultas conservan los identificadores M01–M20/G01–G10 y los contratos existentes. Se separan por archivo y responsabilidad; véase `tecnica/GUIA_CONSULTAS.md`. Las tareas funcionales completadas mantienen su historial; esta reorganización no cierra las verificaciones operativas o personales pendientes.
 
-La documentación permanece local y excluida de Git por instrucción del usuario. Los manuales están en `manuales/`, la evidencia en `evidencias/`, los datos en `datos/` y las notas de implementación en `tecnica/`. Los registros históricos de commits se conservan como evidencia del trabajo anterior.
+Estado revisado el 30 de octubre de 2026: `.docs/` se versionó por primera vez en la rama temporal `tmp/docs`, commit `14808c1` (`documentacion publica temporal`), confirmado por el usuario. Las menciones a documentación exclusivamente local en el historial describen etapas anteriores. Los manuales están en `manuales/`, la evidencia en `evidencias/`, los datos en `datos/` y las notas de implementación en `tecnica/`. Este versionado no confirma publicación en GitHub ni entrega final.
 
 - `[x]` indica una tarea existente y respaldada por código o verificaciones anteriores de esta conversación. No implica que se haya repetido la prueba el día de esta revisión.
 - `[ ]` indica trabajo pendiente o cuyo cumplimiento todavía necesita evidencia. Una pantalla vacía, una conexión al IDE o una consulta ejecutada únicamente en consola no completan la funcionalidad solicitada.
@@ -26,10 +26,10 @@ Referencia: brief, secciones 3, 4 y 11.
 - [x] **C01-04** **R** Configurar MongoDB y Neo4j e integrarlos con el backend. Evidencia: `backend/src/main/resources/application.yaml` y paquete `health`.
 - [x] **C01-05** **V** Comprobar ambas conexiones desde `/api/health`: en la verificación anterior respondió HTTP 200 con ambos motores en `UP`.
 - [x] **C01-06** **V** Configurar contenedores con almacenamiento persistente y variables externas. Evidencia: `compose.yaml`, `.env.example` y README.
-- [x] **C01-07** **V** Crear navegación inicial para estadísticas, carga, búsqueda y grafos. Las rutas existentes todavía no implementan las funciones completas.
+- [x] **C01-07** **V** Crear navegación inicial para estadísticas, carga, búsqueda y grafos. Las rutas actuales incluyen estadísticas, carga e historial, búsqueda y exploración de grafos.
 - [x] **C01-08** **R** Backend funcional de carga, transformación, consultas, búsqueda y errores. Evidencia: 21 pruebas con integraciones correctas el 29 de octubre de 2026; `.docs/evidencias/VERIFICACION_ENTREGA.md`.
-- [x] **C01-09** **D** Documentar y justificar la arquitectura definitiva y las bibliotecas de gráficas y grafos elegidas. Evidencia: `.docs/tecnica/ARQUITECTURA.md`; Chart.js y Cytoscape.js elegidas, incorporación pendiente con las visualizaciones. Verificaciones de infraestructura: `.docs/evidencias/VERIFICACION_BASE.md`.
-- [ ] **C01-10** **V** Verificar el flujo completo Angular → API → MongoDB/Neo4j → API → interfaz con datos reales. El recorrido HTTP del diagnóstico funciona (200 y ambos motores UP), pero falta carga, consultas y visualización con CSV reales; no se cierra con el diagnóstico.
+- [x] **C01-09** **D** Documentar y justificar la arquitectura definitiva y las bibliotecas de gráficas y grafos elegidas. Evidencia: `.docs/tecnica/ARQUITECTURA.md`; gráficas Angular/CSS y grafo canvas con `vis-network`, documentados también en `.docs/tecnica/BIBLIOTECA_GRAFOS.md`. Verificaciones de infraestructura: `.docs/evidencias/VERIFICACION_BASE.md`.
+- [ ] **C01-10** **V** Verificar el flujo completo Angular → API → MongoDB/Neo4j → API → interfaz con datos reales. Hay pruebas de integración y evidencia visual parcial del grafo. Falta registrar la aceptación conjunta del recorrido de carga múltiple, consultas y visualización; el diagnóstico o una prueba parcial no cierran esta tarea.
 
 ## 2. Datos de origen y comprensión del problema
 
@@ -41,8 +41,8 @@ Referencia: brief, secciones 5 y 6.
 - [x] **C02-04** **R** Reconocer que una fila es una evaluación y que un aspirante puede tener varias evaluaciones o intentos. Evidencia: `.docs/datos/DATOS_ORIGEN.md`, `.docs/datos/PERFIL_CSV.json` y `scripts/perfilar_csv.py`.
 - [x] **C02-05** **R** Utilizar `correlativo_aspirante` como identificador anónimo del aspirante. Evidencia: `.docs/datos/DATOS_ORIGEN.md`, `.docs/datos/PERFIL_CSV.json` y `scripts/perfilar_csv.py`.
 - [x] **C02-06** **V** Revisar aspirantes repetidos, evaluaciones repetidas, valores especiales, campos vacíos y diferencias entre archivos antes de cerrar los modelos. Evidencia: `.docs/datos/DATOS_ORIGEN.md`, `.docs/datos/PERFIL_CSV.json` y `scripts/perfilar_csv.py`.
-- [x] **C02-07** **D** Definir cómo se contará cada métrica: aspirantes únicos, evaluaciones, intentos y resultados; documentar los denominadores de los porcentajes. Decisión documentada en `.docs/datos/DATOS_ORIGEN.md`; aplicación funcional en ETL y consultas aún pendiente.
-- [x] **C02-08** **D** Definir el cálculo de edad y la fecha o año de referencia, incluyendo el tratamiento de años de nacimiento desconocidos o inconsistentes. Decisión documentada en `.docs/datos/DATOS_ORIGEN.md`; aplicación funcional en ETL y consultas aún pendiente.
+- [x] **C02-07** **D** Definir cómo se contará cada métrica: aspirantes únicos, evaluaciones, intentos y resultados; documentar los denominadores de los porcentajes. Decisión documentada en `.docs/datos/DATOS_ORIGEN.md`; aplicación funcional en ETL y consultas implementada; véanse `tecnica/ETL_CARGA.md` y `manuales/CONSULTAS.md`.
+- [x] **C02-08** **D** Definir el cálculo de edad y la fecha o año de referencia, incluyendo el tratamiento de años de nacimiento desconocidos o inconsistentes. Decisión documentada en `.docs/datos/DATOS_ORIGEN.md`; aplicación funcional en ETL y consultas implementada; véanse `tecnica/ETL_CARGA.md` y `manuales/CONSULTAS.md`.
 
 ## 3. Modelos de MongoDB y Neo4j
 
@@ -169,38 +169,38 @@ Referencia: brief, secciones 4 y 8.
 Referencia: brief, secciones 2, 7, 10, 11 y 13. Los documentos pueden organizarse en archivos separados o en manuales; los nombres de archivo quedan a criterio del proyecto.
 
 - [x] **C10-01** **V** Documentar los comandos iniciales de ejecución, contenedores y conexiones en el README principal y el del frontend.
-- [x] **C10-02** **R** Completar el manual técnico con prerrequisitos, instalación, configuración y ejecución reproducible de todos los componentes. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-03** **R** Documentar la arquitectura final y la comunicación entre componentes. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-04** **R** Documentar y justificar el stack y las bibliotecas de gráficas y grafos elegidos. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-05** **R** Documentar el modelo MongoDB, colecciones, campos, tipos e índices, con ejemplos. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-06** **R** Documentar el modelo Neo4j, etiquetas, propiedades, relaciones, restricciones e índices, con ejemplos. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-07** **R** Documentar el ETL y las reglas de limpieza, normalización, conversión y conservación o exclusión de registros. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-08** **R** Documentar la estrategia de duplicados y repetición de cargas. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-09** **R** Documentar las 20 consultas MongoDB, los parámetros que aceptan y cómo interpretar sus resultados. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-10** **R** Documentar las cinco o más consultas Cypher y explicar qué información obtiene cada una. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-11** **R** Documentar los filtros de grafos, los criterios de búsqueda y las visualizaciones elegidas. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-12** **R** Elaborar el análisis de resultados con información obtenida de los datos procesados. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-13** **R** Analizar ventajas y limitaciones de integrar una base documental y una base de grafos en esta solución. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-14** **R** Redactar conclusiones sustentadas en la implementación y los resultados. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-15** **R** Completar el manual de usuario con carga de CSV, lectura de resúmenes y rechazos, estadísticas, búsqueda, grafos, filtros y mensajes de error. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C10-16** **V** Revisar los README para que describan el estado final y no conserven afirmaciones desactualizadas sobre funciones ya implementadas. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
+- [x] **C10-02** **R** Completar el manual técnico con prerrequisitos, instalación, configuración y ejecución reproducible de todos los componentes. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-03** **R** Documentar la arquitectura final y la comunicación entre componentes. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-04** **R** Documentar y justificar el stack y las bibliotecas de gráficas y grafos elegidos. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-05** **R** Documentar el modelo MongoDB, colecciones, campos, tipos e índices, con ejemplos. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-06** **R** Documentar el modelo Neo4j, etiquetas, propiedades, relaciones, restricciones e índices, con ejemplos. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-07** **R** Documentar el ETL y las reglas de limpieza, normalización, conversión y conservación o exclusión de registros. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-08** **R** Documentar la estrategia de duplicados y repetición de cargas. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-09** **R** Documentar las 20 consultas MongoDB, los parámetros que aceptan y cómo interpretar sus resultados. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-10** **R** Documentar las cinco o más consultas Cypher y explicar qué información obtiene cada una. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-11** **R** Documentar los filtros de grafos, los criterios de búsqueda y las visualizaciones elegidas. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-12** **R** Elaborar el análisis de resultados con información obtenida de los datos procesados. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-13** **R** Analizar ventajas y limitaciones de integrar una base documental y una base de grafos en esta solución. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-14** **R** Redactar conclusiones sustentadas en la implementación y los resultados. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-15** **R** Completar el manual de usuario con carga de CSV, lectura de resúmenes y rechazos, estadísticas, búsqueda, grafos, filtros y mensajes de error. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C10-16** **V** Revisar los README para que describan el estado final y no conserven afirmaciones desactualizadas sobre funciones ya implementadas. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
 
 ## 11. Git, repositorio y entregables
 
 Referencia: brief, secciones 12 y 13.
 
 - [x] **C11-01** **R** Usar Git para el desarrollo. El historial local revisado contiene cinco commits en total, incluido `3d094c4`.
-- [x] **C11-02** **R** Confirmar al menos cinco commits significativos. El número total observado no garantiza por sí solo que todos sean significativos; un arreglo de nombre de configuración debe valorarse según su alcance. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
+- [x] **C11-02** **R** Confirmar al menos cinco commits significativos. El número total observado no garantiza por sí solo que todos sean significativos; un arreglo de nombre de configuración debe valorarse según su alcance. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
 - [ ] **C11-03** **R** Confirmar el repositorio de entrega en GitHub y que contiene la versión final del proyecto.
-- [x] **C11-04** **R** Incluir el código fuente del frontend. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-05** **R** Incluir el código fuente del backend. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-06** **R** Incluir los scripts o código ejecutable de carga y transformación de datos. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-07** **R** Incluir las consultas MongoDB. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-08** **R** Incluir las consultas Cypher de Neo4j. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-09** **R** Incluir el análisis de resultados. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-10** **R** Incluir las configuraciones necesarias para ejecutar el proyecto. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [x] **C11-11** **R** Incluir las conclusiones, el manual técnico y el manual de usuario. Evidencia de cierre: documentación local en `.docs/manuales/` y commits integrados hasta `981ec31`.
-- [ ] **C11-12** **V** Comprobar que la documentación necesaria esté versionada. Por instrucción del usuario se retiró toda `.docs/` del índice y se conserva únicamente local. La inclusión de documentos en la entrega queda pendiente de decisión del usuario; no volver a forzar su incorporación a Git.
+- [x] **C11-04** **R** Incluir el código fuente del frontend. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-05** **R** Incluir el código fuente del backend. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-06** **R** Incluir los scripts o código ejecutable de carga y transformación de datos. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-07** **R** Incluir las consultas MongoDB. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-08** **R** Incluir las consultas Cypher de Neo4j. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-09** **R** Incluir el análisis de resultados. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-10** **R** Incluir las configuraciones necesarias para ejecutar el proyecto. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-11** **R** Incluir las conclusiones, el manual técnico y el manual de usuario. Evidencia: implementación integrada hasta `981ec31` y mejoras posteriores; documentación desarrollada localmente, versionada por primera vez en `14808c1` y revisada el 30 de octubre de 2026.
+- [x] **C11-12** **V** Comprobar que la documentación necesaria esté versionada. Primer versionado de `.docs/` en `14808c1`, rama temporal `tmp/docs`, confirmado por el usuario. Verificado con `git ls-files` y `git show --stat 14808c1`. No cierra C11-03 ni acredita publicación remota.
 - [ ] **C11-13** **V** Verificar el arranque desde una copia limpia siguiendo únicamente la documentación y sin depender de archivos locales no suministrados, salvo las credenciales configurables.
 - [ ] **C11-14** **V** Confirmar que no se incluyen contraseñas reales, `.env`, dependencias descargadas ni artefactos de compilación.
 
@@ -224,11 +224,17 @@ Las tareas se identifican como `C01-01` (sección 1, tarea 1). Su rama y commit 
 
 ## Próximo bloque de trabajo
 
-1. Conseguir y revisar los CSV correspondientes al proyecto (sección 2).
-2. Definir los modelos de MongoDB y Neo4j y las reglas de calidad (secciones 3 y 4).
-3. Implementar y comprobar una carga pequeña de principio a fin (secciones 4 y 5).
-4. Completar las consultas y las visualizaciones con datos reales (secciones 6, 7 y 8).
-5. Cerrar documentación, comprobaciones y entrega (secciones 9 a 12), actualizándolas a medida que avance el desarrollo.
+1. Completar C09-10: comprobar en navegador caída real y recuperación de backend, MongoDB y Neo4j.
+2. Registrar la aceptación conjunta C01-10/C12-01–03: carga múltiple, consultas, visualización, persistencia y repetición; conservar los resultados parciales ya registrados.
+3. Ampliar la comprobación de idempotencia entre archivos distintos con filas compartidas, fuentes y relaciones; protocolo en `tecnica/ETL_CARGA.md`.
+4. Completar C11-13–14: arranque desde copia limpia y revisión final de archivos de entrega; las verificaciones parciales están en `evidencias/VERIFICACION_ENTREGA.md`.
+5. Confirmar C11-03 y C12-04–07: versión final en GitHub, comprensión, práctica y entrega del estudiante.
+
+La actualización documental del 30 de octubre corrige arquitectura, API, manuales, filtros y biblioteca, y registra el primer versionado. No repite pruebas de aplicación ni cierra verificaciones operativas por inferencia.
+
+## Historial de avances
+
+Los apartados siguientes conservan los estados, conteos y restricciones de cada etapa. Sus pendientes pueden haber sido resueltos por entradas posteriores; el estado vigente es el de las tareas anteriores.
 
 ## Actualización de la base — 20 de octubre de 2026
 

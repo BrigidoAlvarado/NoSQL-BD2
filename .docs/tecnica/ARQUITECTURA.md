@@ -15,7 +15,7 @@ flowchart LR
 
 El frontend está en `frontend/` y la API en `backend/`. Las bases se ejecutan como servicios independientes con volúmenes persistentes en `compose.yaml`. Esta separación concentra credenciales, validación y acceso a datos en el backend. El navegador solo recibe resultados de la API.
 
-Angular usa componentes standalone, rutas bajo demanda, TypeScript estricto y señales para los estados de interfaz. `ApiService` centraliza las solicitudes; `apiErrorInterceptor` produce mensajes en español y conserva la respuesta HTTP. Spring Boot usa sus integraciones con ambos motores y Bean Validation. Actualmente solo existe el endpoint de diagnóstico; los controladores funcionales se implementarán con validación y transformación en servicios del backend.
+Angular usa componentes standalone, rutas bajo demanda, TypeScript estricto y señales para los estados de interfaz. `ApiService` centraliza las solicitudes; `apiErrorInterceptor` produce mensajes en español y conserva la respuesta HTTP. Spring Boot usa sus integraciones con ambos motores y Bean Validation. Los controladores de diagnóstico, carga, historial, estadísticas, búsqueda y grafos reciben HTTP; los servicios coordinan los casos de uso y las consultas y conversores obtienen y transforman resultados.
 
 Se conserva Java 25 y Angular 21 según la configuración existente. El POM, Maven Wrapper y `package-lock.json` describen las dependencias y herramientas de construcción.
 
@@ -40,16 +40,22 @@ La interfaz finaliza la espera tras 45 segundos. Este límite del cliente no gar
 
 ## Visualización
 
-Se elige **[Chart.js](https://www.chartjs.org/docs/latest/)** para estadísticas por sus gráficas habituales y tipos TypeScript. Se usarán barras para distribuciones y líneas para tendencias cuando corresponda, con tablas o cifras legibles y denominadores explícitos. No todas las consultas requieren una gráfica.
+Las estadísticas y los resultados de G01–G10 se presentan con tablas y gráficas de barras mediante componentes Angular y CSS. Las barras muestran hasta ocho grupos por métrica; las tablas conservan todas las filas devueltas. G07 y G10 separan métricas con unidades diferentes.
 
-Se elige **[Cytoscape.js](https://js.cytoscape.org/)** para representar nodos y aristas, distribuirlos e interactuar con ellos y sus filtros. Recibirá JSON de la API; Cypher se ejecutará en el backend. Son decisiones de diseño basadas en las capacidades de ambas bibliotecas, no exigencias del enunciado.
+El grafo usa `vis-network` sobre canvas, con zoom, desplazamiento, selección, detalle, atenuación de entidades no vecinas y controles por tipo. La muestra admite entre 5 y 40 evaluaciones (10 por defecto); el número de nodos depende de las entidades compartidas. Los filtros por año, carrera, resultado y departamento se aplican en Neo4j. Ocultar tipos es una operación de presentación sobre la muestra recibida. Véase [BIBLIOTECA_GRAFOS.md](BIBLIOTECA_GRAFOS.md).
 
-Las bibliotecas se instalarán al implementar las primeras visualizaciones, fijando sus versiones en el lockfile. Todavía no están instaladas ni existen gráficas o grafos funcionales. Los límites y filtros se definirán al diseñar el modelo; el explorador deberá consultar conjuntos acotados.
+Estas son decisiones del proyecto. Chart.js y Cytoscape fueron alternativas de la planificación inicial y no forman parte de la implementación actual.
 
-## Funcionalidades siguientes
+## Funcionalidades implementadas
 
-MongoDB almacenará datos procesados para agregaciones, búsquedas e historial. Neo4j representará relaciones para cinco consultas Cypher y su exploración. La revisión de los tres CSV y los criterios de identidad, conteos y edad están documentados en [../datos/DATOS_ORIGEN.md](../datos/DATOS_ORIGEN.md). Esquemas e índices se definirán en la siguiente etapa. Una fila representa una evaluación y no equivale automáticamente a un aspirante único.
+MongoDB conserva evaluaciones, cargas, rechazos y `resumen_carrera`. Las veinte consultas obligatorias se distribuyen entre el dashboard (18) y el detalle del aspirante (M11/M15). M21–M25 amplían el análisis y se solicitan individualmente. Cada consulta tiene su archivo; M06 materializa el resumen únicamente al solicitar el dashboard sin filtros.
 
-El backend recibirá CSV desde Angular, validará y transformará registros y reportará resultados por archivo con causas de rechazo. La coordinación entre motores requerirá identificación de cargas parciales y reintentos; no se presupone una transacción común. Estas funciones están pendientes.
+Neo4j conserva las relaciones del dataset, permite ejecutar G01–G10 individualmente y devuelve una muestra para el grafo. Los Cypher residen en recursos independientes; el navegador no ejecuta consultas directamente. Los modelos e índices se describen en [MODELOS_DATOS.md](MODELOS_DATOS.md).
 
-C01-08 requiere el backend funcional de carga y consultas; C01-10 requiere el recorrido con datos reales hasta su visualización. Ambas tareas siguen abiertas. La evidencia de infraestructura y las comprobaciones manuales están en [../evidencias/VERIFICACION_BASE.md](../evidencias/VERIFICACION_BASE.md).
+El ETL valida CSV, transforma registros y coordina escrituras en MongoDB y Neo4j. Los hashes, `upsert` y `MERGE` permiten reintentos. Si falla el segundo motor queda `PENDIENTE_NEO4J`; no hay transacción distribuida. Las cargas completas se reutilizan si su versión de reglas está vigente (actualmente 2). El historial persistente muestra cargas por contenido y detalles paginados de rechazados y evaluaciones válidas. Véase [ETL_CARGA.md](ETL_CARGA.md) y [API_CARGA.md](API_CARGA.md).
+
+Los filtros HTTP de MongoDB restringen documentos antes de agregar y recalculan porcentajes y rankings. Los filtros de G01–G10 seleccionan grupos ya calculados y conservan sus conteos. Ambos son independientes de los filtros de la muestra visual. Parámetros y ejemplos: [FILTROS_ANALITICOS.md](FILTROS_ANALITICOS.md).
+
+## Estado de verificación
+
+C01-08 cuenta con backend funcional y evidencia de integración registrada. C01-10 conserva pendiente la aceptación del recorrido visual completo con datos reales. La inspección parcial del grafo y las pruebas automatizadas no sustituyen esa aceptación ni la demostración personal. Evidencias y límites: [VERIFICACION_ENTREGA.md](../evidencias/VERIFICACION_ENTREGA.md). Esta revisión documental del 30 de octubre de 2026 no repite pruebas operativas.

@@ -27,9 +27,11 @@ M01–M10, M12–M14 y M16–M20 se obtienen juntos en `/api/estadisticas/dashbo
 
 Las edades desconocidas no se sustituyen por cero en los registros; consultar columnas de observaciones con/sin edad al interpretar promedios. Los rankings excluyen categorías desconocidas según el filtro de cada implementación. Una persona puede figurar en varios grupos. Los resultados son descriptivos y no establecen causalidad.
 
+El dashboard y M21–M25 aceptan filtros HTTP opcionales sobre los documentos antes de agrupar: recalculan denominadores y rankings. M06 filtrada no sobrescribe `resumen_carrera`. Parámetros, ejemplos y límites en [FILTROS_ANALITICOS.md](../tecnica/FILTROS_ANALITICOS.md).
+
 ## Neo4j
 
-Se ejecutan individualmente en `/api/grafos/consultas/{id}`. No aceptan filtros; los filtros de la muestra visual son independientes. Código Cypher completo en `backend/src/main/resources/queries/neo4j/Gxx_*.cypher`; `GraphQueryCatalog` registra los recursos y `GraphQueryService` los ejecuta.
+Se ejecutan individualmente en `/api/grafos/consultas/{id}`. Aceptan filtros HTTP por categorías permitidas para cada Gxx. Se aplican a los grupos calculados y conservan sus conteos. Los filtros de la muestra visual son independientes; véase [FILTROS_ANALITICOS.md](../tecnica/FILTROS_ANALITICOS.md). Código Cypher completo en `backend/src/main/resources/queries/neo4j/Gxx_*.cypher`; `GraphQueryCatalog` registra los recursos y `GraphQueryService` los ejecuta.
 
 | ID | Recorrido y resultado |
 | --- | --- |
@@ -56,7 +58,7 @@ Acceso: Estadísticas → Análisis adicionales. API de lectura: `GET /api/estad
 - M24 calcula días entre fechas extremas de asignación, incluye solo fechas distintas y devuelve promedio, mínimo, máximo e incluidos/excluidos. Los promedios ausentes son nulos.
 - M25 mide sin edad, carrera desconocida y alguna dimensión de procedencia desconocida sobre evaluaciones de la cohorte. Las condiciones se superponen; las barras son independientes.
 
-Las nuevas consultas tienen implementación y acceso visual. Aún falta comprobar sus resultados con muestras aisladas conocidas para dar por cerrados sus criterios de aceptación.
+M21–M25 son ampliaciones de diseño, además de las veinte consultas obligatorias. Su implementación, API y visualización cuentan con resultados conocidos registrados mediante `AdditionalAnalysisIntegrationTest` en una base temporal aislada, eliminada al finalizar. La evidencia está en [VERIFICACION_ENTREGA.md](../evidencias/VERIFICACION_ENTREGA.md); no se repitió durante esta revisión documental.
 
 
 ## Gráficas asociadas a consultas Cypher

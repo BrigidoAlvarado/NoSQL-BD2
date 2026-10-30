@@ -20,7 +20,7 @@ Al recibir una nueva muestra se destruye la instancia anterior y se crea otra. `
 
 ## Verificación y límites
 
-Comprobar compilación Angular, navegación, cambio de muestra y liberación de recursos; revisar en navegador muestras pequeñas y de 40 evaluaciones. Las pruebas unitarias HTTP no sustituyen la inspección del canvas. Sigue pendiente documentar la evidencia visual final y comprobar ausencia de superposiciones en pantallas habituales. No se han implementado todavía filtros opcionales por tipo ni atenuación del conjunto de nodos no vecinos.
+Los filtros por tipo y la atenuación de entidades no vecinas están implementados. La inspección registrada en Chromium para muestras de 5/10/40 evaluaciones y las capturas se describen abajo. Las pruebas unitarias HTTP no sustituyen la inspección del canvas; una muestra y un tamaño de pantalla no garantizan ausencia de superposiciones con cualquier conjunto. El recorrido visual completo de aceptación sigue pendiente en el checklist.
 
 Referencia de la biblioteca: https://visjs.github.io/vis-network/docs/network/ . La instalación incluye declaraciones TypeScript que permiten comprobar la compatibilidad de las opciones mediante compilación.
 

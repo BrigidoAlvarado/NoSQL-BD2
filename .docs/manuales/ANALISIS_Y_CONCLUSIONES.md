@@ -35,6 +35,8 @@ La integración duplica almacenamiento y exige coordinar escrituras. No existe t
 
 ## Resultados procesados comprobados el 29 de octubre de 2026
 
+Estas cifras son una instantánea histórica de la base consultada ese día. No se volvieron a medir durante la actualización documental del 30 de octubre; nuevas cargas o el reprocesamiento con reglas versión 2 pueden modificar los totales. M21–M25 tienen resultados conocidos de pruebas aisladas registrados, pero no se añaden aquí hallazgos poblacionales sin una nueva medición.
+
 `GET /api/estadisticas/dashboard` devolvió 44 505 evaluaciones distintas, 12 528 aspirantes únicos y 6 407 evaluaciones aprobadas (14,40 %). La base consultada contiene las cohortes 2015 y 2022; el archivo 2024 está disponible localmente pero no participa en estas cifras.
 
 | Cohorte | Evaluaciones | Aprobadas | No aprobadas | Aprobación |

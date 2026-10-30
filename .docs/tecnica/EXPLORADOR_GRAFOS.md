@@ -4,9 +4,11 @@ Alcance: C07-01 a C07-10. Angular consume exclusivamente `/api/grafos`; Neo4j so
 
 ## Visualización y filtros
 
-La ruta `/grafos` dibuja un subgrafo SVG nativo, sin dependencia adicional. Cada petición está limitada a 40 evaluaciones para mantener legibilidad. Los filtros opcionales son año de ingreso, carrera, resultado y departamento; modifican directamente la consulta Cypher y por tanto los nodos y aristas devueltos. Se muestran aspirantes, evaluaciones, carreras, materias, resultados, procedencia, municipios y departamentos, junto con las relaciones del modelo.
+La ruta `/grafos` dibuja un subgrafo en canvas mediante `vis-network`, con zoom, desplazamiento, selección, detalle y controles por tipo; véase [BIBLIOTECA_GRAFOS.md](BIBLIOTECA_GRAFOS.md). Cada petición está limitada a 40 evaluaciones para mantener legibilidad. Los filtros opcionales son año de ingreso, carrera, resultado y departamento; modifican directamente la consulta Cypher y por tanto los nodos y aristas devueltos. Se muestran aspirantes, evaluaciones, carreras, materias, resultados, procedencia, municipios y departamentos, junto con las relaciones del modelo.
 
 `GET /api/grafos?anio=&carrera=&resultado=&departamento=&limite=` es la API del subgrafo. Si no hay coincidencias, devuelve arreglos vacíos y la interfaz muestra un estado claro.
+
+Los filtros analíticos de G01–G10 son parámetros HTTP sobre categorías permitidas por ID. Seleccionan grupos calculados sin recalcular conteos y son independientes de los filtros del subgrafo. Véase [FILTROS_ANALITICOS.md](FILTROS_ANALITICOS.md).
 
 ## Consultas
 
@@ -27,7 +29,7 @@ Las consultas se exponen en `GET /api/grafos/consultas/G01` a `G10` y la misma p
 
 ## Verificación
 
-`GraphExplorerIntegrationTest` ejecuta una exploración y G01–G10 contra Neo4j local. `graph.spec.ts` comprueba que Angular solicita el grafo, transmite el filtro de año, carga las diez consultas por tema y muestra un resultado vacío. La exploración real realizada el 23 de octubre de 2026 devolvió nodos, relaciones y las cinco consultas originales sin error; las cinco consultas adicionales requieren ejecutarse contra Neo4j para registrar evidencia con datos reales.
+`GraphExplorerIntegrationTest` ejecuta una exploración y G01–G10 contra Neo4j local. `graph.spec.ts` comprueba que Angular solicita el grafo, transmite el filtro de año, carga las diez consultas por tema y muestra un resultado vacío. La exploración real realizada el 23 de octubre de 2026 devolvió nodos, relaciones y las cinco consultas originales sin error; G06–G10 se ejecutaron posteriormente contra Neo4j según la evidencia del 29 de octubre en [VERIFICACION_ENTREGA.md](../evidencias/VERIFICACION_ENTREGA.md). La revisión documental actual no repite esas pruebas.
 
 
 ## Selección individual de consultas por sección

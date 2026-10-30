@@ -2,6 +2,18 @@
 
 Fuente: [BRIEF_PROYECTO.md](BRIEF_PROYECTO.md). Tareas: [CHECKLIST_MAESTRO.md](CHECKLIST_MAESTRO.md). Propuesta preparada el 20 de octubre de 2026 para la entrega indicada el 30 de octubre de 2026.
 
+## Estado vigente — 30 de octubre de 2026
+
+La rama de trabajo actual es `tmp/docs`. `.docs/` se versionó por primera vez en `14808c1` (`documentacion publica temporal`), confirmado por el usuario. Los commits anteriores de implementación y README no incluían estos documentos. El usuario autorizó actualizar la documentación y guardar un commit en esta rama; no se requiere crear otra rama para esta revisión.
+
+Se consolidan arquitectura, API e historial paginado, filtros HTTP, M21–M25, visualización con `vis-network` y reglas ETL versión 2. C11-12 tiene evidencia de versionado local. La publicación final en GitHub, las pruebas de caídas reales, el arranque completo desde una copia limpia y la demostración personal conservan sus pendientes en el checklist.
+
+B08 cuenta con manuales, catálogo y análisis elaborados localmente, ahora versionados y revisados. B09 conserva aceptación pendiente; no se repiten implementaciones para ajustarlas al plan inicial. Las referencias Bxx.yy y Cxx-yy permanecen estables.
+
+## Historial y plan inicial
+
+Las secciones siguientes conservan decisiones y resultados de etapas anteriores. Los conteos iniciales, ramas propuestas y menciones a documentación local deben leerse con su fecha; no describen el estado vigente. Las restricciones de no versionar `.docs/` de esas etapas fueron reemplazadas para esta rama temporal por la confirmación del usuario.
+
 ## Ajuste autorizado — 20 de octubre de 2026
 
 El usuario solicita completar la base del proyecto y conservar el checklist maestro y este plan únicamente como seguimiento local, fuera de los commits. No ejecutar B00.01 para versionarlos. La base se completa en la rama `feat/base-proyecto`, creada desde `main`, con un cambio coherente identificado como B00.02: `feat(base): integra diagnostico de conexiones y documenta arquitectura`. Incluye código y pruebas; la documentación técnica se conserva localmente en `.docs/` por instrucción del usuario y no se versiona. No incluye archivos de `.docs` ni credenciales. C01-09 se adelanta de B01.04 a B00.02; C01-08 y C01-10 permanecen abiertas por depender de las funcionalidades con datos reales. Estado tras el ajuste: 13 tareas completadas y 127 pendientes. No se exige integrar ni publicar automáticamente la rama.
@@ -26,9 +38,9 @@ Ajuste posterior: se integran las subsecciones en el sidebar principal bajo Esta
 
 Extensión de grafos autorizada el 28 de octubre de 2026: además de G01–G05, se implementan G06–G10 para resultados por tipo de institución, reintentos, demanda municipal, resultados por sexo y trayectorias con resultados mixtos. El mínimo del enunciado continúa siendo cinco; esta ampliación es una mejora funcional documentada en `tecnica/EXPLORADOR_GRAFOS.md`.
 
-Este plan organiza las 140 tareas del checklist: 12 ya completadas y 128 pendientes. Los nombres de ramas y mensajes de commit son propuestas de organización, no requisitos del enunciado. Este documento no crea ramas, commits ni funcionalidades por sí mismo.
+El plan inicial organizaba 140 tareas del checklist: 12 completadas y 128 pendientes en aquel momento. Los nombres de ramas y mensajes de commit son propuestas de organización, no requisitos del enunciado. Este documento no crea ramas, commits ni funcionalidades por sí mismo.
 
-La base actual es `main`, con cinco commits existentes; el último revisado es `3d094c4`. No se reescribe ese historial ni se vuelve a implementar lo completado. Las tareas pendientes requieren evidencia nueva.
+La base inicial era `main`, con cinco commits al preparar el plan; el último revisado entonces era `3d094c4`. No se reescribe ese historial ni se vuelve a implementar lo completado. Las tareas pendientes requieren evidencia nueva.
 
 - Crear una rama por bloque desde `main` actualizado con el bloque anterior. Para este proyecto individual se propone trabajar e integrar una rama a la vez.
 - Hacer cada commit al terminar su cambio coherente y las comprobaciones correspondientes. Los títulos no justifican crear commits vacíos ni dividir artificialmente un mismo cambio.
@@ -45,17 +57,7 @@ Rama propuesta: `docs/plan-proyecto`.
 | --- | --- | --- |
 | B00.01 | `docs(plan): agrega checklist maestro y plan de ramas` | Guardar el checklist y este plan como punto de seguimiento; comprobar que la fuente de requisitos necesaria también esté disponible en el repositorio de entrega. |
 
-La carpeta `.docs` está excluida localmente por `.git/info/exclude`. Para guardar estos dos documentos cuando se ejecute B00, se pueden agregar por sus rutas explícitas, sin cambiar esa exclusión ni incluir `.env`:
-
-```bash
-git switch -c docs/plan-proyecto
-git add -f -- .docs/CHECKLIST_MAESTRO.md .docs/PLAN_RAMAS_COMMITS.md
-git diff --cached --check
-git diff --cached --stat
-git commit -m "docs(plan): agrega checklist maestro y plan de ramas"
-```
-
-Estos comandos son una guía; no se ejecutaron al elaborar el plan. Revisa el contenido preparado antes del commit. B00 no cierra tareas funcionales del checklist.
+B00.01 no se ejecutó para versionar documentos durante el desarrollo: se conservaron localmente. El primer versionado real ocurrió en `14808c1`, en `tmp/docs`. No se conserva una receta con `git add -f`: los documentos ya seguidos se actualizan mediante selección explícita de rutas y revisión del contenido preparado. Esta tarea de planificación no cierra funcionalidades.
 
 ## Orden recomendado
 
@@ -75,7 +77,7 @@ Las dependencias indican qué necesita cada bloque. B05 y B06 dependen funcional
 
 ## Commits de cada rama
 
-Cada fila describe un commit futuro. Las pruebas indicadas se eligen según el riesgo y el comportamiento que debe verificarse; no se exige una biblioteca de pruebas adicional.
+Cada fila conserva un commit propuesto en la planificación inicial; los cierres reales pueden agrupar o reorganizar ese alcance. Las pruebas indicadas se eligen según el riesgo y el comportamiento que debe verificarse; no se exige una biblioteca de pruebas adicional.
 
 ### B01 — `feat/modelos-datos`
 
@@ -236,7 +238,7 @@ Esta tabla evita perder una consulta al repartir estadísticas e historial entre
 
 1. Terminar los commits del bloque y revisar los cambios preparados, especialmente los archivos de configuración.
 2. Ejecutar las comprobaciones apropiadas: `./mvnw verify` desde `backend/`; `npm test` y `npm run build` desde `frontend/` cuando corresponda. Las pruebas funcionales reales requieren ambos motores activos y credenciales correctas.
-3. Actualizar las tareas afectadas del checklist y registrar evidencia. Agregar explícitamente los documentos de `.docs` que deban formar parte de los commits.
+3. Actualizar las tareas afectadas del checklist y registrar evidencia. En `tmp/docs`, seleccionar únicamente los documentos autorizados y revisar el diff preparado; no incorporar credenciales ni archivos ajenos.
 4. Integrar en `main` con avance rápido cuando sea posible. Conservar los commits significativos del trabajo; evitar comprimir todo el proyecto en un único commit.
 5. Crear la siguiente rama desde ese `main`. Repetir hasta B09.
 
@@ -244,7 +246,7 @@ La publicación en GitHub se verifica en B09; proponer este plan no realiza un p
 
 Las tareas de comprensión, demostración y entrega necesitan revisión del estudiante y evidencia de cumplimiento. Un commit con documentación no demuestra automáticamente que se pueden explicar o modificar las consultas durante la evaluación.
 
-## Primer bloque a implementar
+## Primer bloque propuesto originalmente (histórico)
 
 Después de guardar la planificación, comenzar por `feat/modelos-datos`, commit B01.01: identificar los CSV requeridos, revisar sus campos y anomalías y documentar los hallazgos. El modelo definitivo y el ETL dependen de esa revisión.
 

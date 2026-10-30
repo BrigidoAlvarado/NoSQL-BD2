@@ -4,6 +4,8 @@ El avance inicial de filtros de presentación quedó conservado en el commit `5a
 
 ## MongoDB
 
+Parámetros permitidos: `materia`, `resultado`, `carrera`, `departamento`, `municipio`, `tipoInstitucion`, `sexo`, `anio`, `edad`, `oportunidad` y `mes` (AAAA-MM). Las categorías usan igualdad exacta con los valores originales; `anio`, `edad` y `oportunidad` se convierten a enteros. Los parámetros desconocidos se rechazan con HTTP 400.
+
 `GET /api/estadisticas/dashboard?materia=MATEMATICA&tipoInstitucion=PRIVADO`
 
 `GET /api/estadisticas/adicionales/M21?anio=2024&materia=MATEMATICA`
@@ -21,6 +23,22 @@ M06 solo materializa `resumen_carrera` sin filtros. Sus versiones filtradas son 
 Se ejecuta la consulta Gxx dentro de una subconsulta Cypher y se filtran **sus grupos calculados** mediante `WHERE materia = $materia AND resultado = $resultado`. Las columnas admitidas se declaran por ID; los valores se pasan al driver en un mapa. No se concatena texto del usuario como Cypher. Los conteos originales del grupo se conservan. Esta elección permite filtrar también pares de carreras en G04 sin perder el recorrido que construye el par.
 
 Los filtros analíticos no modifican los filtros independientes de la muestra visual del grafo.
+
+Categorías admitidas por consulta (usar `anioIngreso` en Cypher, frente a `anio` en MongoDB):
+
+| Consulta | Parámetros |
+| --- | --- |
+| G01, G10 | `carrera` |
+| G02 | `materia`, `resultado` |
+| G03 | `departamento`, `carrera` |
+| G04 | `carreraOrigen`, `carreraDestino` |
+| G05 | `anioIngreso`, `carrera`, `materia`, `resultado` |
+| G06 | `tipoInstitucion`, `materia`, `resultado` |
+| G07 | `anioIngreso`, `materia` |
+| G08 | `departamento`, `municipio`, `carrera` |
+| G09 | `sexo`, `carrera`, `materia`, `resultado` |
+
+Categorías no permitidas o valores inválidos producen HTTP 400. Los filtros combinados se unen con AND. La muestra visual conserva `anio`, `carrera`, `resultado` y `departamento`, con límite entre 5 y 40 evaluaciones.
 
 ## Angular y navegación
 

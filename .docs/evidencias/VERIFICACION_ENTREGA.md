@@ -38,3 +38,12 @@ Completados los comportamientos pendientes de interacción de grafos y pruebas d
 ### Cierre técnico del archivo temporal
 
 Completados DTO explícitos para historial y cinco análisis, modelos y validación de respuestas Angular y pruebas de casos límite de recuperación/cohortes/promedios ausentes. Verificación final: 35 pruebas Angular correctas y build de producción correcto; backend: 20 pruebas ejecutadas sin fallos, incluidas dos de integración de análisis/trazabilidad, y ocho pruebas opcionales omitidas por sus propiedades de activación. `git diff --check` correcto. El temporal se actualizó sin estados históricos contradictorios. No quedan tareas de implementación de su alcance.
+
+
+## Revisión documental — 30 de octubre de 2026
+
+Se contrastaron controladores, filtros, ETL, historial y componentes de visualización con los manuales y notas técnicas. Se consolidaron los apartados desactualizados y se conservaron las verificaciones anteriores con su alcance y fecha. Las cifras del análisis siguen siendo la instantánea del 29 de octubre; no se consultaron nuevamente las bases.
+
+Primer versionado de `.docs/`: commit `14808c1` (`documentacion publica temporal`), rama `tmp/docs`, confirmado por el usuario y comprobado con `git ls-files` y `git show --stat`. Esto cierra la evidencia local de C11-12; no acredita publicación remota ni entrega final. Las menciones anteriores a evidencias exclusivamente locales describen su situación previa a ese commit.
+
+Esta revisión no ejecuta suites backend/frontend, cargas, reinicios, pruebas de caídas ni navegador. Sus comprobaciones son consistencia con el código, enlaces relativos de los documentos modificados y `git diff --check`. Esta actualización no modifica, traslada ni incorpora el archivo Excalidraw sin seguimiento, conforme a la instrucción final del usuario de no trasladarlo.
