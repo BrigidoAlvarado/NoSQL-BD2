@@ -86,6 +86,20 @@ class CsvEvaluationProcessorTest {
         }
     }
 
+    @Test
+    void conservaSexoSinRegistroYNormalizaSuPresentacion() throws Exception {
+        String row = "001,2024-01-02,%s,2004,MATEMATICA,1,2024,APROBADO,INGENIERIA,PRIVADO,GUATEMALA,MIXCO\n";
+        var canonical = processor.process(csv(row.formatted("SIN REGISTRO")).getBytes(StandardCharsets.UTF_8));
+        var normalized = processor.process(csv(row.formatted(" sin registro ")).getBytes(StandardCharsets.UTF_8));
+        assertTrue(canonical.rejectedRows().isEmpty());
+        assertEquals("SIN REGISTRO", canonical.validRows().getFirst().sexo());
+        assertEquals(canonical.validRows().getFirst().id(), normalized.validRows().getFirst().id());
+        var invalid = processor.process(csv(row.formatted("DESCONOCIDO_INVENTADO")).getBytes(StandardCharsets.UTF_8));
+        assertEquals("SEXO_INVALIDO", invalid.rejectedRows().getFirst().code());
+        var empty = processor.process(csv(row.formatted(" ")).getBytes(StandardCharsets.UTF_8));
+        assertEquals("CAMPO_OBLIGATORIO", empty.rejectedRows().getFirst().code());
+    }
+
     private String csv(String row) {
         return "correlativo,fecha_asignacion,sexo,anio_nacimiento,materia,oportunidad,anio_ingreso,aprobacion,carrera,tipo_institucion_educativa,departamento_institucion_educativa,municipio_institucion_educativa\n" + row;
     }

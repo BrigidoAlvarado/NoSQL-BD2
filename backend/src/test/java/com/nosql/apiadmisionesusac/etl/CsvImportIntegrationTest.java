@@ -61,10 +61,21 @@ class CsvImportIntegrationTest {
         assertTrue(repeated.reutilizada());
         MongoCollection<Document> evaluations = mongoTemplate.getCollection("evaluaciones");
         assertEquals(1, evaluations.countDocuments(eq("aspiranteId", ASPIRANTE)));
+        assertEquals("SIN REGISTRO", evaluations.find(eq("aspiranteId", ASPIRANTE)).first().getString("sexo"));
+        // Una carga con reglas anteriores debe poder recuperar los rechazos corregidos.
+        mongoTemplate.getCollection("cargas").updateOne(eq("sha256Archivo", first.sha256Archivo()),
+                new Document("$unset", new Document("versionReglas", "")));
+        ImportResult updated = importer.importFile(FILE, csv());
+        assertTrue(!updated.reutilizada());
+        assertEquals("COMPLETA", updated.estado());
+        assertEquals(1, evaluations.countDocuments(eq("aspiranteId", ASPIRANTE)));
         try (var session = driver.session()) {
             long graphRows = session.executeRead(tx -> tx.run("MATCH (e:Evaluacion {id: $id}) RETURN count(e) AS total", Map.of("id", id()))
                     .single().get("total").asLong());
             assertEquals(1, graphRows);
+            String sex = session.executeRead(tx -> tx.run("MATCH (e:Evaluacion {id: $id}) RETURN e.sexo AS sexo", Map.of("id", id()))
+                    .single().get("sexo").asString());
+            assertEquals("SIN REGISTRO", sex);
         } catch (Exception exception) {
             throw new AssertionError(exception);
         }
@@ -72,7 +83,7 @@ class CsvImportIntegrationTest {
 
     private static byte[] csv() {
         return ("fecha_asignacion,correlativo_aspirante,sexo,anio_nacimiento,materia,numero_de_fecha_de_evaluacion,anio_de_ingreso,aprobacion,carrera_objetivo,departamento_institucion_educativa,municipio_institucion_educativa,tipo_institucion_educativa\n"
-                + "2024-01-02," + ASPIRANTE + ",F,SIN REGISTRO,C04_VALIDACION_MATERIA,1,2024,APROBADO,C04_VALIDACION_CARRERA,C04_VALIDACION_DEPTO,C04_VALIDACION_MUNI,C04_VALIDACION_TIPO\n")
+                + "2024-01-02," + ASPIRANTE + ",SIN REGISTRO,SIN REGISTRO,C04_VALIDACION_MATERIA,1,2024,APROBADO,C04_VALIDACION_CARRERA,C04_VALIDACION_DEPTO,C04_VALIDACION_MUNI,C04_VALIDACION_TIPO\n")
                 .getBytes(StandardCharsets.UTF_8);
     }
 

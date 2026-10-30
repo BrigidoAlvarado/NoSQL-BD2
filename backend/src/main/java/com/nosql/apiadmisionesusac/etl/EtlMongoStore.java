@@ -29,7 +29,8 @@ class EtlMongoStore {
 
     Optional<ImportResult> completed(String sha256) {
         Document load = mongoTemplate.getCollection(CARGAS).find(eq("sha256Archivo", sha256)).first();
-        if (load == null || !"COMPLETA".equals(load.getString("estado"))) {
+        if (load == null || !"COMPLETA".equals(load.getString("estado"))
+                || integer(load, "versionReglas") < CsvEvaluationProcessor.RULES_VERSION) {
             return Optional.empty();
         }
         return Optional.of(new ImportResult(sha256, "COMPLETA", integer(load, "filasLeidas"),
@@ -85,6 +86,7 @@ class EtlMongoStore {
     void finish(String sha256, String state, int read, int valid, int rejected, String detail) {
         mongoTemplate.getCollection(CARGAS).updateOne(eq("sha256Archivo", sha256), new Document("$set", new Document()
                 .append("estado", state)
+                .append("versionReglas", CsvEvaluationProcessor.RULES_VERSION)
                 .append("filasLeidas", read)
                 .append("filasValidas", valid)
                 .append("filasRechazadas", rejected)

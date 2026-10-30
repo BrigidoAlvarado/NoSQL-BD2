@@ -20,6 +20,8 @@ import org.springframework.stereotype.Component;
 /** Convierte las doce columnas publicadas a la representación tipada interna. */
 @Component
 public class CsvEvaluationProcessor {
+    // Permite reprocesar archivos anteriores cuando cambian las reglas de calidad.
+    static final int RULES_VERSION = 2;
     static final List<String> COLUMNS = List.of(
             "correlativo", "fecha_asignacion", "sexo", "anio_nacimiento", "materia",
             "oportunidad", "anio_ingreso", "aprobacion", "carrera", "tipo_institucion_educativa",
@@ -101,7 +103,7 @@ public class CsvEvaluationProcessor {
         }
         String aspiranteId = values.get("correlativo");
         LocalDate fecha = parseDate(values.get("fecha_asignacion"));
-        String sexo = enumValue(values.get("sexo"), Set.of("M", "F"), "SEXO_INVALIDO", "sexo");
+        String sexo = enumValue(values.get("sexo"), Set.of("M", "F", "SIN REGISTRO"), "SEXO_INVALIDO", "sexo");
         int anioIngreso = parseYear(values.get("anio_ingreso"), "ANIO_INGRESO_INVALIDO", "anio_ingreso");
         String nacimientoRaw = values.get("anio_nacimiento");
         boolean nacimientoConocido = !"SIN REGISTRO".equals(enumToken(nacimientoRaw));
